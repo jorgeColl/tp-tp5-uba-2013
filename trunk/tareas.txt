@@ -1,0 +1,51 @@
+Leyenda:
+[X] - Terminado
+[-] - Dejado para despues
+[.] - En proceso
+[ ] - Sin empezar
+
+Cliente:
+	[.] Interface grafica
+		[.] La interface en si
+		[ ] Controlador asociado a la interface grafica
+			[ ] Persistencia de configuraciones
+			[ ] Login/registrarse
+	[ ] Polling
+		[ ] Encontrar archivos modificados
+	[ ] Construccion/comparacion de archivo en base al polling
+	[ ] Conexion
+		[ ] Registrar un usuario//contraseña
+		[ ] Recibir la lista de archivos del servidor al conectarse
+			[ ] Pedido de envio de archivos
+		[ ] Enviar notificacion de archivo modificado
+		[ ] Recibir notificacion de archivo modificado
+		[ ] Enviar/recibir archivos
+
+Servidor:
+	[ ] Escuchar esperando clientes y crear un thread por cada uno
+	[ ] Conexiones con clientes
+		[ ] Registrar clientes nuevos
+		[ ] Pedir/mandar info al loguearse
+		[ ] Avisar a clientes de avisos modificados
+		[ ] Recibir avisos de modificacion de clientes
+		[ ] Enviar/recibir archivos
+		[ ] Joinear threads donde el cliente se ha desconectado
+	[ ] Interface grafica (monitor)
+		[.] La interface en si
+			[ ] Grafico de transacciones
+		[ ] Controlador asociado a la interface grafica
+			[ ] Persistir configuraciones
+			[ ] Gestionar altas bajas etc
+	[ ] Guardar un registro de tamaño de transacciones 
+	
+
+General:
+	[ ] Encriptacion de passwords
+	[ ] Protocolo de comunicacion
+		[ ] Especificacion de codigos
+		[ ] Envio de archivos
+		[ ] Firmas de archivos
+			[ ] Hash del contenido del archivo
+			[ ] Encriptacion del hash en base a la password encriptada
+			[ ] Poder determinar que parte del archivo cambio en base a la firma
+	[ ] syslog

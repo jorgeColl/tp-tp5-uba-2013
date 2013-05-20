@@ -34,7 +34,7 @@ verbose = si
 ###########################
 
 # Opciones para el compilador C/C++ en modo ansi.
-CFLAGS = -Wall -pedantic -pedantic-errors
+CFLAGS = -Wall -pedantic
 
 # Para que explote lo mas posible
 CFLAGS += -O3 -DNDEBUG
@@ -146,7 +146,7 @@ client: $(o_client_files)
 		echo "No hay archivos de entrada para el cliente (archivos client*.$(extension))."; \
 		false; \
 	fi >&2
-	$(LD) $(LDFLAGS) $(o_client_files) $(LOADLIBES) $(LDLIBS) -o client $(LDADD)
+	$(LD)  $(o_client_files) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) -o client $(LDADD)
 
 server: $(o_server_files)
 	@if [ -z "$(o_server_files)" ]; \
@@ -154,7 +154,7 @@ server: $(o_server_files)
 		echo "No hay archivos de entrada para el servidor (archivos server*.$(extension))."; \
 		false; \
 	fi >&2
-	$(LD) $(LDFLAGS) $(o_server_files) $(LOADLIBES) $(LDLIBS) -o server $(LDADD)
+	$(LD) $(o_server_files) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) -o server $(LDADD)
 
 clean:
 	@$(RM) -fv *.o client server

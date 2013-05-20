@@ -10,7 +10,7 @@
 #include <string>
 #include <cstdlib>
 /**
- * @class Socket socket.h
+ * @class Socket common_socket.h
  * @brief clase encargada de el envio y recepcion de datos a traves de un socket
  */
 class Socket {

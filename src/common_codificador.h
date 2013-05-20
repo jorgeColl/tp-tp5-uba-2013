@@ -9,7 +9,7 @@
 #define CODIFICADOR_H_
 #include <string>
 /**
- * @class Codificador codificador.h
+ * @class Codificador common_codificador.h
  * @brief Clase que se encargará de codificar un mensaje previo a mandarlo
  * asi como a decodificar un mensaje recibido
  */

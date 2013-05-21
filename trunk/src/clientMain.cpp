@@ -14,8 +14,13 @@ int main (int argc, char** argv)
 {
 	try
 	{
+		Gtk::Main kit(argc,argv);
 		ClientInterface interface(argc, argv);
 		interface.correr();
+	}
+	catch (Glib::Exception &e)
+	{
+		std::cout << "Error: " << e.what() << std::endl;
 	}
 	catch (std::exception &e)
 	{

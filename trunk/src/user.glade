@@ -22,8 +22,9 @@
                 <property name="n_columns">2</property>
                 <child>
                   <object class="GtkLabel" id="lPass">
-                    <property name="width_request">100</property>
+                    <property name="width_request">80</property>
                     <property name="visible">True</property>
+                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Password</property>
                   </object>
                   <packing>
@@ -33,8 +34,9 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="lUser">
-                    <property name="width_request">100</property>
+                    <property name="width_request">80</property>
                     <property name="visible">True</property>
+                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Usuario</property>
                   </object>
                 </child>
@@ -82,8 +84,9 @@
                         <property name="n_columns">2</property>
                         <child>
                           <object class="GtkLabel" id="lPoll">
-                            <property name="width_request">100</property>
+                            <property name="width_request">80</property>
                             <property name="visible">True</property>
+                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Polling (segs)</property>
                           </object>
                           <packing>
@@ -93,8 +96,9 @@
                         </child>
                         <child>
                           <object class="GtkLabel" id="lDir">
-                            <property name="width_request">100</property>
+                            <property name="width_request">80</property>
                             <property name="visible">True</property>
+                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Directorio</property>
                           </object>
                           <packing>
@@ -104,8 +108,9 @@
                         </child>
                         <child>
                           <object class="GtkLabel" id="lPort">
-                            <property name="width_request">100</property>
+                            <property name="width_request">80</property>
                             <property name="visible">True</property>
+                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Puerto</property>
                           </object>
                           <packing>
@@ -115,7 +120,9 @@
                         </child>
                         <child>
                           <object class="GtkLabel" id="lServ">
+                            <property name="width_request">80</property>
                             <property name="visible">True</property>
+                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Servidor</property>
                           </object>
                         </child>

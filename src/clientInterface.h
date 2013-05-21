@@ -17,7 +17,6 @@ public:
 	void login();
 	void correr();
 private:
-	Gtk::Main kit;
 	Gtk::Dialog* window;
 	Glib::RefPtr<Gtk::Builder> builder;
 };

@@ -7,6 +7,7 @@
 
 #include "common_modificacion.h"
 
+
 bool Modificacion::efectuar_cambios(ClienteControlador& cliente){
 
 	return true;

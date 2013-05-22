@@ -17,10 +17,11 @@ class Socket {
 
 public:
 	/** @brief recibe un mensaje */
-	std::string recibir_mensaje();
-
-	/** @brief envia un mensaje */
-	bool enviar_mensaje();
+	bool recibir_mensaje(std::string& mensaje);
+	/** @brief envia un mensaje que está en un string */
+	bool enviar_mensaje(std::string& mensaje);
+	/** @brief envia un mensaje que está en un const char */
+	bool enviar_mensaje(const char* mensaje);
 	/** @brief intenta abrir un socket, devuelve true si lo logra en
 	 * caso contrario devuevle false */
 	bool abrir_conexion();

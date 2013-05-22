@@ -9,26 +9,29 @@
 #define CLIENTE_H_
 #include <string>
 #include <vector>
-#include "modificacion.h"
+#include "common_modificacion.h"
+#include "client_socket.h"
 /**
  * @class Cliente cliente.h
  * @brief Clase que se encargará de las acciones generales que puede hace un cliente
  */
-class Cliente {
-
+class ClienteControlador {
+ClientSocket sock;
+std::string dir;
 public:
+	ClienteControlador(std::string server, std::string puerto);
 	/**
 	 * @brief Intentará iniciar sesion con el usuario y contraseña ingresados
 	 * @details Se comunicarà con el servidor y este le responderá si el usuario y contraseña son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
-	bool login(std::string usuario, std::string contrasenia);
+	bool login(std::string usuario,std::string contrasenia);
 
 	/** @brief POSIBLE FUNCION A IMPLEMENTAR */
 	void logout();
 
 	/** @brief Setea el directorio en donde se guardan los archivos del usuario */
-	void set_directorio(const char* dir);
+	void set_directorio(std::string dir);
 
 	/**@brief Recorre los archivos en busca de modificaciones a cada modificacion
 	 * encontrada se genera una nueva instancia de la clase Modificacion y se agrega

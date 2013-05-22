@@ -8,8 +8,8 @@
 #ifndef MODIFICACION_H_
 #define MODIFICACION_H_
 #include <string>
-#include "cliente.h"
-class Cliente;
+#include "cliente_controlador.h"
+class ClienteControlador;
 class Modificacion {
 public:
 	/**@brief metodo que convierte a la instancia en un string para luego ser
@@ -24,7 +24,7 @@ public:
 
 	/**@brief despues de modificar sus atributos internos con desserializar,
 	 *  este metodo hace efectivo esa modificacion del otro lado */
-	bool efectuar_cambios(Cliente& cliente);
+	bool efectuar_cambios(ClienteControlador& cliente);
 };
 
 

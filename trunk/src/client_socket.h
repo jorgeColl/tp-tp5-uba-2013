@@ -7,10 +7,10 @@
 
 #ifndef CLIENT_SOCKET_H_
 #define CLIENT_SOCKET_H_
-
+#include "common_socket.h"
 class ClientSocket :public Socket {
 public:
-	ClientSocket();
+
 
 };
 

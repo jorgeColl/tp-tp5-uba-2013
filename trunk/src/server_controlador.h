@@ -10,7 +10,7 @@
 /** @class Server server.h
  * @brief clase que se encarga de las acciones que puede hacer un server
  */
-class Server {
+class ServerControlador {
 
 public:
 	/** @brief inicia un thread que se encarga de acceptar las conexiones entrantes */

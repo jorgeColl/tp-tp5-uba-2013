@@ -1,6 +1,7 @@
 #include "clientInterface.h"
 #include <string>
-
+#include <gtkmm.h>
+#include <glibmm.h>
 ClientInterface::ClientInterface(int argc, char** argv)
 {
 	builder = Gtk::Builder::create_from_file(USER_GLADE);

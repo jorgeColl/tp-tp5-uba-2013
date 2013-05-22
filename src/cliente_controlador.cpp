@@ -11,6 +11,7 @@
 #include "client_socket.h"
 #include "common_socket.h"
 #include "common_modificacion.h"
+#include "common_base_de_datos.h"
 
 using namespace std;
 ClienteControlador::ClienteControlador(string server, string puerto){
@@ -44,6 +45,15 @@ void ClienteControlador::set_directorio(std::string dir){
 }
 bool ClienteControlador::armar_indice_local() {
 	return base_de_datos.armar_indice_local();
+}
+vector<Modificacion> ClienteControlador::pedir_y_comparar_indices(){
+
+	vector<Modificacion> aux;
+	return aux;
+}
+vector<Modificacion> ClienteControlador::recibir_modificaciones(){
+	vector<Modificacion> aux;
+	return aux;
 }
 void ClienteControlador::start() {
 	bool exito = armar_indice_local();

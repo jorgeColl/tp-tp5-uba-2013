@@ -17,10 +17,10 @@
  * @brief Clase que se encargará de las acciones generales que puede hace un cliente
  */
 class ClienteControlador {
-ClientSocket sock;
-std::string dir;
-BaseDeDatos base_de_datos;
-bool terminar;
+	ClientSocket sock;
+	std::string dir;
+	BaseDeDatos base_de_datos;
+	bool terminar;
 private:
 	std::vector<Modificacion> pedir_y_comparar_indices();
 public:
@@ -30,9 +30,8 @@ public:
 	 * @details Se comunicarà con el servidor y este le responderá si el usuario y contraseña son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
-	bool login(std::string usuario,std::string contrasenia);
+	bool login(std::string usuario, std::string contrasenia);
 
-	/** @brief POSIBLE FUNCION A IMPLEMENTAR */
 	void logout();
 
 	/** @brief Setea el directorio en donde se guardan los archivos del usuario */
@@ -54,6 +53,9 @@ public:
 	/**@brief pide lista de modificaciones al servidor */
 	std::vector<Modificacion> recibir_modificaciones();
 
+	/** @brief pide a la base de datos que borre el archivo*/
+	bool borrar_archvio(std::string& nombre_archivo);
+
 	/**@brief pide el archivo cuyo nombre es ingresado al server
 	 * @details pide el archivo al servidor y lo guarda en su correspondiente lugar
 	 *  utilizando a la clase BaseDeDatos
@@ -63,11 +65,11 @@ public:
 	/**@brief enviar el archivo cuyo nombre es ingresado
 	 * @details el archivo a enviar será abierto y a medida que se lee se envia
 	 * @return devuelve true si la operacion fue un exito, caso contrario devuelve false */
-	bool enviar_nuevo_archivo (std::string& nombre_archivo);
+	bool enviar_nuevo_archivo(std::string& nombre_archivo);
+
 	/**@brief pide a la base de datos que borre un archivo */
-	bool borrar_archvio (std::string& nombre_archivo);
 	/**@brief pide a la base de datos que modifique a un archvio */
-	bool modificar_archivo (std::string& nombre_archivo);
+	bool modificar_archivo(std::string& nombre_archivo);
 
 };
 

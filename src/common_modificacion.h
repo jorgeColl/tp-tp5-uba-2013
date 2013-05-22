@@ -8,8 +8,8 @@
 #ifndef MODIFICACION_H_
 #define MODIFICACION_H_
 #include <string>
-#include "cliente_controlador.h"
 class ClienteControlador;
+
 class Modificacion {
 public:
 	/**@brief metodo que convierte a la instancia en un string para luego ser

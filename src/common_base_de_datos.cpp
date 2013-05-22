@@ -4,10 +4,10 @@
  *  Created on: 22/05/2013
  *      Author: jorge
  */
-#include "common_modificacion.h"
+
 #include "common_base_de_datos.h"
 
-
+using namespace std;
 bool BaseDeDatos::set_directorio(std::string dir) {
 	return true;
 }
@@ -16,7 +16,7 @@ bool BaseDeDatos::armar_indice_local() {
 }
 /**@brief se encarga de encontrar los archivos modificados y
  *  generar un vector de modificaciones*/
-std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales() {
+vector<Modificacion> BaseDeDatos::comprobar_cambios_locales() {
 	std::vector<Modificacion> aux;
 	return aux;
 }

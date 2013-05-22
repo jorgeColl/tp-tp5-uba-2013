@@ -52,7 +52,9 @@ void ClientInterface::login()
 	ClienteControlador cli(entry_server->get_text(), entry_puerto->get_text());
 	// intenta logearse
 	bool exito = cli.login(entry_user->get_text(), entry_password->get_text());
-	//!!!!!!!!!!! ver como reaccionar frente a login fallido
+	if(!exito){
+		//!!!!!!!!!!! ver como reaccionar frente a login fallido
+	}
 
 	cli.set_directorio(chooser->get_current_folder());
 

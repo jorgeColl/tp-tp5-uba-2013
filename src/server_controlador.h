@@ -7,7 +7,7 @@
 
 #ifndef SERVER_H_
 #define SERVER_H_
-/** @class Server server.h
+/** @class Server server_controlador.h
  * @brief clase que se encarga de las acciones que puede hacer un server
  */
 class ServerControlador {

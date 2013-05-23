@@ -8,10 +8,6 @@
 #include <iostream>
 
 #include "cliente_controlador.h"
-#include "client_socket.h"
-#include "common_socket.h"
-#include "common_modificacion.h"
-#include "common_base_de_datos.h"
 
 using namespace std;
 ClienteControlador::ClienteControlador(string server, string puerto){
@@ -80,3 +76,35 @@ void ClienteControlador::start() {
 std::vector<Modificacion> ClienteControlador::comprobar_cambios_locales(){
 	return base_de_datos.comprobar_cambios_locales();
 }
+bool ClienteControlador::borrar_archvio(std::string& nombre_archivo){
+	return base_de_datos.eliminar_archivo(nombre_archivo);
+}
+bool ClienteControlador::mandar_a_borrar (std::string& nombre_archivo){
+	// envia mensaje a server de borrado de archivo con el nombre de este
+	return true;
+}
+bool ClienteControlador::pedir_nuevo_archivo(std::string& nombre_archivo){
+	// manda mensaje a server pidiendo que transmita archivo
+	// le dice a base de datos que guarde al nuevo archivo
+	return true;
+}
+
+bool ClienteControlador::enviar_nuevo_archivo(std::string& nombre_archivo){
+	// asumo que el archivo entra en ram (en un string)
+	// pide a base de datos el archivo en string
+	// pasa el archivo (que está en forma de string) al server
+	return true;
+}
+bool ClienteControlador::modificar_archivo(std::string& nombre_archivo){
+	//falta definir
+	return true;
+}
+bool ClienteControlador::mandar_modificacion(std::string& nombre_archivo){
+	// le manda un mensaje al server indicando que un archivo se modificó y le pasa los datos
+	return true;
+}
+bool ClienteControlador::pedir_modificacion(std::string& nombre_archivo){
+	// falta definir
+	return true;
+}
+

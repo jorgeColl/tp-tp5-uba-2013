@@ -22,10 +22,10 @@
                 <property name="n_columns">2</property>
                 <child>
                   <object class="GtkLabel" id="lPass">
-                    <property name="width_request">80</property>
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Password</property>
+                    <property name="width_chars">15</property>
                   </object>
                   <packing>
                     <property name="top_attach">1</property>
@@ -34,10 +34,10 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="lUser">
-                    <property name="width_request">80</property>
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Usuario</property>
+                    <property name="width_chars">15</property>
                   </object>
                 </child>
                 <child>
@@ -80,26 +80,14 @@
                     <child>
                       <object class="GtkTable" id="table1">
                         <property name="visible">True</property>
-                        <property name="n_rows">4</property>
+                        <property name="n_rows">5</property>
                         <property name="n_columns">2</property>
                         <child>
                           <object class="GtkLabel" id="lPoll">
-                            <property name="width_request">80</property>
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Polling (segs)</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="lDir">
-                            <property name="width_request">80</property>
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Directorio</property>
+                            <property name="width_chars">15</property>
                           </object>
                           <packing>
                             <property name="top_attach">3</property>
@@ -107,11 +95,23 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="lPort">
-                            <property name="width_request">80</property>
+                          <object class="GtkLabel" id="lDir">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Puerto</property>
+                            <property name="label" translatable="yes">Directorio</property>
+                            <property name="width_chars">15</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lPort1">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Puerto 1</property>
+                            <property name="width_chars">15</property>
                           </object>
                           <packing>
                             <property name="top_attach">1</property>
@@ -120,10 +120,10 @@
                         </child>
                         <child>
                           <object class="GtkLabel" id="lServ">
-                            <property name="width_request">80</property>
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Servidor</property>
+                            <property name="width_chars">15</property>
                           </object>
                         </child>
                         <child>
@@ -138,7 +138,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="ePort">
+                          <object class="GtkEntry" id="ePort1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">&#x25CF;</property>
@@ -159,8 +159,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
                           </packing>
                         </child>
                         <child>
@@ -172,8 +172,33 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="ePort2">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="invisible_char">&#x25CF;</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lPort2">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Puerto 2</property>
+                            <property name="width_chars">15</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                           </packing>
                         </child>
                       </object>
@@ -219,7 +244,7 @@
             <child>
               <object class="GtkLabel" id="lConex">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Sin Conexion</property>
+                <property name="label" translatable="yes">No conectado</property>
                 <attributes>
                   <attribute name="foreground" value="#ffff00000000"/>
                 </attributes>

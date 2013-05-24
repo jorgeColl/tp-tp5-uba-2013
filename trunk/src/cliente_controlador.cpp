@@ -40,7 +40,7 @@ void ClienteControlador::set_directorio(std::string dir){
 	this->dir = dir;
 }
 bool ClienteControlador::armar_indice_local() {
-	return base_de_datos.armar_indice_local();
+	return base_de_datos.abrir(dir);
 }
 vector<Modificacion> ClienteControlador::pedir_y_comparar_indices(){
 

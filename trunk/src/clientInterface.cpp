@@ -31,7 +31,8 @@ void ClientInterface::login()
 	Gtk::Entry* entry_user = 0;
 	Gtk::Entry* entry_password = 0;
 	Gtk::Entry* entry_server = 0;
-	Gtk::Entry* entry_puerto = 0;
+	Gtk::Entry* entry_puerto1 = 0;
+	Gtk::Entry* entry_puerto2 = 0;
 	Gtk::Entry* entry_intrevalo_polling = 0;
 
 	builder->get_widget("eUser", entry_user);
@@ -40,8 +41,10 @@ void ClientInterface::login()
 	std::cout << "Passoword: " << entry_password->get_text() << std::endl;
 	builder->get_widget("eServ", entry_server);
 	std::cout << "Server: " << entry_server->get_text() << std::endl;
-	builder->get_widget("ePort", entry_puerto);
-	std::cout << "Puerto: " << entry_puerto->get_text() << std::endl;
+	builder->get_widget("ePort1", entry_puerto1);
+	std::cout << "Puerto 1: " << entry_puerto1->get_text() << std::endl;
+	builder->get_widget("ePort2", entry_puerto2);
+	std::cout << "Puerto 2: " << entry_puerto2->get_text() << std::endl;
 	builder->get_widget("ePoll", entry_intrevalo_polling);
 	std::cout << "Polling: " << entry_intrevalo_polling->get_text() << std::endl;
 	Gtk::FileChooserButton* chooser;
@@ -49,7 +52,7 @@ void ClientInterface::login()
 	std::cout << "Carpeta: " << chooser->get_current_folder() << std::endl;
 
 	// crea una instancia de la clase cliente
-	ClienteControlador cli(entry_server->get_text(), entry_puerto->get_text());
+	ClienteControlador cli(entry_server->get_text(), entry_puerto1->get_text());
 	// intenta logearse
 	bool exito = cli.login(entry_user->get_text(), entry_password->get_text());
 	if(!exito){

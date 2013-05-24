@@ -9,12 +9,11 @@
 #include "cliente_controlador.h"
 using namespace std;
 
-Modificacion::Modificacion(tipo_accion accion,string nombre_archivo){
-	this->accion = accion;
-	this->nombre_archivo = nombre_archivo;
-}
-bool Modificacion::efectuar_cambios(ClienteControlador& cliente) {
+Modificacion::Modificacion(tipo_accion accion,string nombre_archivo)
+	: accion(accion),nombre_archivo(nombre_archivo) {}
 
+bool Modificacion::efectuar_cambios(ClienteControlador& cliente) {
+/*
 	switch (accion) {
 	case SUBIR_NUEVO_ARCHIVO: {
 		return cliente.enviar_nuevo_archivo(nombre_archivo);
@@ -40,6 +39,6 @@ bool Modificacion::efectuar_cambios(ClienteControlador& cliente) {
 		return cliente.pedir_modificacion(nombre_archivo);
 		break;
 	}
-	}
+	}*/
 	return true;
 }

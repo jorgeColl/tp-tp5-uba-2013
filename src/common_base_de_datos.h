@@ -1,19 +1,23 @@
-/*
- * common_base_de_datos.h
- *
- *  Created on: 22/05/2013
- *      Author: jorge
- */
-
 #ifndef COMMON_BASE_DE_DATOS_H_
 #define COMMON_BASE_DE_DATOS_H_
+
+#include <fstream>
 #include <vector>
 #include "common_modificacion.h"
 
-class BaseDeDatos {
+using namespace std;
+
+#define NOMBRE_ARCH_DEF ".auindice"
+
+class BaseDeDatos
+{
 public:
-	bool set_directorio(std::string dir);
-	bool armar_indice_local();
+	/**
+	 * @brief Abre el archivo asociado si existe, y sino lo crea y luego lo abre.
+	 * @param directorio Directorio donde se ubicara el archivo
+	 * @return true si pudo accederse al archivo, false en otro caso
+	 */
+	bool abrir(const std::string &directorio);
 	/**@brief se encarga de encontrar los archivos modificados y
 	 *  generar un vector de modificaciones*/
 	std::vector<Modificacion> comprobar_cambios_locales();
@@ -26,6 +30,11 @@ public:
 	 */
 	bool eliminar_archivo(std::string nombre_archivo);
 	bool modificar_archvivo();
+private:
+	void cargarARam();
+	string directorio;
+	string pathArchivo;
+	fstream archivo;
 };
 
 

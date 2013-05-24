@@ -6,20 +6,52 @@
  */
 
 #include "common_base_de_datos.h"
+#include <dirent.h>
+#include <sys/stat.h>
 
-using namespace std;
-bool BaseDeDatos::set_directorio(std::string dir) {
+bool BaseDeDatos::abrir(const std::string &directorio) : directorio(directorio),pathArchivo(directorio)
+{
+	pathArchivo.append(NOMBRE_ARCH_DEF);
+	archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
+	if (!archivo.is_open())
+	{
+		archivo.open(pathArchivo.c_str(),std::ios::out | std::ios::binary);
+		archivo.close();
+		archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
+		return false;
+	}
+	cargarARam();
 	return true;
 }
-bool BaseDeDatos::armar_indice_local() {
-	return true;
+
+std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
+{
+	std::vector<Modificacion> modifs;
+
+	DIR* dir = opendir(directorio.c_str());
+	if (dir == NULL) return modifs;
+	struct dirent* dirEnt = readdir(dir);
+	while(dirEnt != NULL)
+	{
+		string path(directorio);
+		path.append(dirEnt->d_name);
+		struct stat buf;
+		int stat(path.c_str(), &buf);
+		//Todo: hacer algo con esto
+		buf.st_size; //Tamaño en bytes
+		buf.st_mtim; //ultima modificacion
+		dirEnt = readdir(dir);
+	}
+	closedir(dir);
+	//No liberar dirent
+	return modifs;
 }
-/**@brief se encarga de encontrar los archivos modificados y
- *  generar un vector de modificaciones*/
-vector<Modificacion> BaseDeDatos::comprobar_cambios_locales() {
-	std::vector<Modificacion> aux;
-	return aux;
+
+void BaseDeDatos::cargarARam()
+{
+
 }
+
 bool BaseDeDatos::agregar_archivo(std::string nombre_archivo,
 		std::string datos) {
 	return true;

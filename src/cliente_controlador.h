@@ -12,6 +12,7 @@
 #include "client_socket.h"
 #include "common_base_de_datos.h"
 //#include "common_modificacion.h"
+class Modificacion;
 /**
  * @class Cliente cliente_controlador.h
  * @brief Clase que se encargará de las acciones generales que puede hace un cliente
@@ -23,6 +24,7 @@ class ClienteControlador {
 	bool terminar;
 private:
 	std::vector<Modificacion> pedir_y_comparar_indices();
+	bool recibir_indice();
 public:
 	ClienteControlador(std::string server, std::string puerto);
 	/**
@@ -34,11 +36,12 @@ public:
 
 	void logout();
 
-	/** @brief Setea el directorio en donde se guardan los archivos del usuario */
+	/** @brief Setea el directorio en donde se guardan los archivos del usuario
+	 * OJO: usar antes del start()  */
 	void set_directorio(std::string dir);
 
 	/**@brief inicia la ejecucion del cliente */
-	void start();
+	bool start();
 
 	/**@brief le pide a la base de datos que arme el indice local podria estar por defecto
 	 * en el constructor de la base de datos pero es mas legible si lo llamo explicitamente*/
@@ -72,12 +75,12 @@ public:
 
 	/**@brief envia un mensaje al server con los datos necesarios para realizar la
 	 *  modificacion del archivo ingresado*/
-	bool mandar_modificacion(std::string& nombre_archivo);
+	bool enviar_modificacion(Modificacion& mod);
 
 	/**@brief pide al server la informacion necesaria para poder realizar la
 	 *  modificacion del archivo y lo modifica*/
 	bool pedir_modificacion(std::string& nombre_archivo);
-
+	//--------INDECISOS--------------------------
 };
-
+#include "common_modificacion.h"
 #endif /* CLIENTE_H_ */

@@ -29,10 +29,14 @@ public:
 	 */
 	void desserializar(std::string);
 
-	/**@brief despues de modificar sus atributos internos con desserializar,
-	 *  este metodo hace efectivo esa modificacion del otro lado */
+	/**@brief este metodo hace efectivo la modificacion
+	 * @details las posible acciones incluyen dos zonas distintas del programa,
+	 * por un lado tenemos las acciones que puede ocurrir cuando el cliente
+	 * sufre un cambio local en sus archivos y lo tiene que notificar al server
+	 * y otro es cuando se pone a efectuar los cambios que el server le dijo
+	 * que hiciera */
 	bool efectuar_cambios(ClienteControlador& cliente);
 };
 
-
+#include "cliente_controlador.h"
 #endif /* MODIFICACION_H_ */

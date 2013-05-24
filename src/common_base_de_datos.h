@@ -18,9 +18,20 @@ public:
 	 * @return true si pudo accederse al archivo, false en otro caso
 	 */
 	bool abrir(const std::string &directorio);
+	/**@brief actualiza el indice para que tenga los ultimos datos de los archivos locales
+	 */
+	bool actualizar_indice();
 	/**@brief se encarga de encontrar los archivos modificados y
-	 *  generar un vector de modificaciones*/
+	 *  generar un vector de modificaciones
+	 */
 	std::vector<Modificacion> comprobar_cambios_locales();
+	/**@brief compara dos indices, uno que es el recibido por el servidor y el otro que es el local
+	 * y genera un vector de modificaciones
+	 */
+	std::vector<Modificacion> comparar_indices();
+	/**@brief recibe una modificacion, y realiza los cambios de acuerdo a ella a los archivos locales
+	 */
+	bool aplicar_cambios_locales(Modificacion& mod);
 	/**@brief agrega un archivo nuevo
 	 * @details modifica indice para que tenga al nuevo archivo , y le calcula su hash/hashes
 	 */

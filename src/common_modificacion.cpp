@@ -6,7 +6,6 @@
  */
 
 #include "common_modificacion.h"
-#include "cliente_controlador.h"
 using namespace std;
 
 Modificacion::Modificacion(tipo_accion accion,string nombre_archivo)

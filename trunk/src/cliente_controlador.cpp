@@ -43,34 +43,48 @@ bool ClienteControlador::armar_indice_local() {
 	return base_de_datos.abrir(dir);
 }
 vector<Modificacion> ClienteControlador::pedir_y_comparar_indices(){
-
-	vector<Modificacion> aux;
-	return aux;
+	// pide a la base de datos que actualice el indice local
+	base_de_datos.actualizar_indice();
+	// mensaje al server pidiendo el indice suyo
+	recibir_indice();
+	// realiza la comparacion entre el indice local y el recibido por el server
+	return base_de_datos.comparar_indices();
 }
 vector<Modificacion> ClienteControlador::recibir_modificaciones(){
 	vector<Modificacion> aux;
 	return aux;
 }
-void ClienteControlador::start() {
+bool ClienteControlador::start() {
 	bool exito = armar_indice_local();
-	if(!exito){	return;}
+	if(!exito){	return false;}
 
 	vector<Modificacion> mod1 = pedir_y_comparar_indices();
 	for(size_t i=0;i<mod1.size();++i){
-		mod1[i].efectuar_cambios(*this);
+		//mod1[i].efectuar_cambios(*this);
+		exito = base_de_datos.aplicar_cambios_locales(mod1[i]);
+		if(!exito){return false;}
+		exito = enviar_modificacion(mod1[i]);
+		if(!exito){return false;}
 	}
 	while(terminar != true) {
 		vector<Modificacion> mod2 = comprobar_cambios_locales();
 		for(size_t i=0;i<mod2.size();++i){
-			mod2[i].efectuar_cambios(*this);
+			//mod2[i].efectuar_cambios(*this);
+			exito = base_de_datos.aplicar_cambios_locales(mod2[i]);
+			if(!exito){return false;}
+			exito = enviar_modificacion(mod2[i]);
+			if(!exito){return false;}
 		}
 		vector<Modificacion> mod3 = recibir_modificaciones();
 		for(size_t i=0;i<mod3.size();++i){
-			mod3[i].efectuar_cambios(*this);
+			//mod3[i].efectuar_cambios(*this);
+			exito = base_de_datos.aplicar_cambios_locales(mod3[i]);
+			if(!exito){return false;}
 		}
 
 		sleep(3);
 	}
+	return true;
 
 }
 std::vector<Modificacion> ClienteControlador::comprobar_cambios_locales(){
@@ -99,7 +113,7 @@ bool ClienteControlador::modificar_archivo(std::string& nombre_archivo){
 	//falta definir
 	return true;
 }
-bool ClienteControlador::mandar_modificacion(std::string& nombre_archivo){
+bool ClienteControlador::enviar_modificacion(Modificacion& mod){
 	// le manda un mensaje al server indicando que un archivo se modificó y le pasa los datos
 	return true;
 }

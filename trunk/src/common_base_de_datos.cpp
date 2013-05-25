@@ -42,18 +42,39 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 	return modifs;
 }
 
+bool BaseDeDatos::actualizar_indice()
+{
+	//TODO: Hacer
+	return true;
+}
+
+std::vector<Modificacion> BaseDeDatos::comparar_indices()
+{
+	//TODO: Terminar
+	return vector<Modificacion>();
+}
+
 void BaseDeDatos::cargarARam()
 {
 
 }
 
-bool BaseDeDatos::agregar_archivo(std::string nombre_archivo,
-		std::string datos) {
+bool BaseDeDatos::aplicar_cambios_locales(Modificacion& mod)
+{
+	//TODO: Terminar
 	return true;
 }
-bool BaseDeDatos::eliminar_archivo(std::string nombre_archivo) {
+
+bool BaseDeDatos::agregar_archivo(std::string nombre_archivo, std::string datos)
+{
 	return true;
 }
-bool BaseDeDatos::modificar_archvivo(){
+bool BaseDeDatos::eliminar_archivo(std::string nombre_archivo)
+{
+	return true;
+}
+
+bool BaseDeDatos::modificar_archvivo()
+{
 	return true;
 }

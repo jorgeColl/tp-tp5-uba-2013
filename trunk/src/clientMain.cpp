@@ -1,6 +1,7 @@
 #include <iostream>
 #include "cliente_controlador.h"
 #include "clientInterface.h"
+#include "common_base_de_datos.h"
 
 /**
  * @file clientMain.cpp
@@ -14,6 +15,7 @@ int main (int argc, char** argv)
 {
 	try
 	{
+		BaseDeDatos b;
 		Gtk::Main kit(argc,argv);
 		ClientInterface interface(argc, argv);
 		interface.correr();

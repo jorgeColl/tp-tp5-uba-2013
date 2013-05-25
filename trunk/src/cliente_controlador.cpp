@@ -2,16 +2,17 @@
 #include <iostream>
 #include <sstream>
 #include "cliente_controlador.h"
+#include "common_modificacion.h"
 
 using namespace std;
-
-ClienteControlador::ClienteControlador()
-{
-
+ClienteControlador::ClienteControlador(string server, string puerto){
+	terminar = false;
+	dir = "default";
+	this->puerto=0;
+	stringstream aux (puerto);
+	aux>>(this->puerto);
 }
-
-bool ClienteControlador::login(string server, string puerto1, string puerto2, string usuario, string contrasenia)
-{
+bool ClienteControlador::login(string usuario, string contrasenia){
 	cout<<"clienteControlador: me hicieron login con:"<<endl;
 	cout<<"usuario:"<<usuario<<" contreseña:"<<contrasenia<<endl;
 	bool exito;
@@ -35,92 +36,101 @@ bool ClienteControlador::login(string server, string puerto1, string puerto2, st
 	}
 	return false;
 }
-
 void ClienteControlador::set_directorio(std::string dir){
 	this->dir = dir;
 }
-
 bool ClienteControlador::armar_indice_local() {
 	return base_de_datos.abrir(dir);
 }
-
 vector<Modificacion> ClienteControlador::pedir_y_comparar_indices() {
 	// pide a la base de datos que actualice el indice local
 	base_de_datos.actualizar_indice();
 	// mensaje al server pidiendo el indice suyo
-	  //recibir_indice(); sock1.pedirIndice o similar, despues vemos
+	recibir_indice();
 	// realiza la comparacion entre el indice local y el recibido por el server
 	return base_de_datos.comparar_indices();
 }
-
 vector<Modificacion> ClienteControlador::recibir_modificaciones() {
 	vector<Modificacion> aux;
 	return aux;
 }
-
-bool ClienteControlador::borrar_archivo(std::string& nombre_archivo){
+bool ClienteControlador::borrar_archvio(std::string& nombre_archivo){
 	return base_de_datos.eliminar_archivo(nombre_archivo);
 }
-
-bool ClienteControlador::mandar_a_borrar (std::string& nombre_archivo){
+bool ClienteControlador::mandar_a_borrar (Modificacion& mod){
 	// envia mensaje a server de borrado de archivo con el nombre de este
+
+	// cambio el "punto de vista" de la modificacion
+	mod.accion=BORRAR_ARCHIVO_LOCAL;
+	//--------------PARTE VERDADERA -------..........
+	/*
+	string mensaje = mod.serializar();
+	bool exito = sock.enviar_mensaje(mensaje);
+	if(!exito){return false;}
+	exito = sock.recibir_mensaje(mensaje);
+	if(!exito && mensaje != "OK"){return false;}
+	*/
+	//----------QUITAR ESTO -----------------------------------------------------------
+	while(sock.hay_dato==true){
+		sleep(3);
+	}
+	sock.hay_dato=true;
+	sock.enviar_mensaje(mod);
+
+	//----------------------------------------------------------------------------------
 	return true;
 }
-
 bool ClienteControlador::pedir_nuevo_archivo(std::string& nombre_archivo){
 	// manda mensaje a server pidiendo que transmita archivo
+	// lo guarda temporalmente en un archivo
 	// le dice a base de datos que guarde al nuevo archivo
 	return true;
 }
-
 bool ClienteControlador::enviar_nuevo_archivo(std::string& nombre_archivo){
 	// asumo que el archivo entra en ram (en un string)
 	// pide a base de datos el archivo en string
 	// pasa el archivo (que está en forma de string) al server
 	return true;
 }
-
 bool ClienteControlador::modificar_archivo(std::string& nombre_archivo){
-	//falta definir
+	// le indica a la base de datos que modifique el archivo
+	// falta definir parametros de modificacion
 	return true;
 }
-
 bool ClienteControlador::enviar_modificacion(Modificacion& mod){
 	// le manda un mensaje al server indicando que un archivo se modificó y le pasa los datos
 	return true;
 }
-
 bool ClienteControlador::pedir_modificacion(std::string& nombre_archivo){
 	// falta definir
 	return true;
 }
-
-bool ClienteControlador::aplicar_modificacion(Modificacion& mod)
-{
-	switch (mod.fuente)
-	{
-	case SERVER:
-		switch (mod.tipo)
-		{
-		case NUEVO:
-			return pedir_nuevo_archivo(mod.nombre_archivo);
-		case MODIFICADO:
-			return pedir_modificacion(mod.nombre_archivo);
-		case BORRADO:
-			return borrar_archivo(mod.nombre_archivo);
-		}
+bool ClienteControlador::aplicar_modificacion(Modificacion& mod) {
+	switch (mod.accion) {
+	case SUBIR_NUEVO_ARCHIVO: {
+		return enviar_nuevo_archivo(mod.nombre_archivo);
 		break;
-	case CLIENTE:
-		switch (mod.tipo)
-		{
-		case NUEVO:
-			return enviar_nuevo_archivo(mod.nombre_archivo);
-		case MODIFICADO:
-			return enviar_modificacion(mod);
-		case BORRADO:
-			return mandar_a_borrar(mod.nombre_archivo);
-		}
+	}
+	case BAJAR_NUEVO_ARCHIVO: {
+		return pedir_nuevo_archivo(mod.nombre_archivo);
 		break;
+	}
+	case BORRAR_ARCHIVO_LOCAL: {
+		return borrar_archvio(mod.nombre_archivo);
+		break;
+	}
+	case MANDAR_A_BORRAR_ARCHIVO: {
+		return mandar_a_borrar(mod);
+		break;
+	}
+	case SUBIR_MOD_ARCHIVO: {
+		return enviar_modificacion(mod);
+		break;
+	}
+	case BAJAR_MOD_ARCHIVO: {
+		return pedir_modificacion(mod.nombre_archivo);
+		break;
+	}
 	}
 	return false;
 }
@@ -131,22 +141,20 @@ bool ClienteControlador::start() {
 
 	vector<Modificacion> mod1 = pedir_y_comparar_indices();
 	for(size_t i=0; i<mod1.size(); ++i){
+		//mod1[i].efectuar_cambios(*this);
 		exito = aplicar_modificacion(mod1[i]);
-		//Todo: if (exito) basededatos.aplicarmodif o similar
 	}
 	while(terminar != true) {
 		vector<Modificacion> mod2 = comprobar_cambios_locales();
 		for(size_t i=0;i<mod2.size();++i){
 			//mod2[i].efectuar_cambios(*this);
-			exito = base_de_datos.aplicar_cambios_locales(mod2[i]);
-			if(!exito){return false;}
-			exito = enviar_modificacion(mod2[i]);
+			exito = aplicar_modificacion(mod2[i]);
 			if(!exito){return false;}
 		}
 		vector<Modificacion> mod3 = recibir_modificaciones();
 		for(size_t i=0;i<mod3.size();++i){
 			//mod3[i].efectuar_cambios(*this);
-			exito = base_de_datos.aplicar_cambios_locales(mod3[i]);
+			exito = aplicar_modificacion(mod3[i]);
 			if(!exito){return false;}
 		}
 

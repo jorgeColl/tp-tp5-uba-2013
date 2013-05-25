@@ -4,6 +4,7 @@
 #include <vector>
 #include "common_base_de_datos.h"
 #include "common_modificacion.h"
+#include "common_socket_prot.h"
 
 /**
  * @class Cliente cliente_controlador.h
@@ -20,13 +21,13 @@ private:
 	vector<Modificacion> pedir_y_comparar_indices();
 	bool recibir_indice();
 public:
-	ClienteControlador(std::string server, std::string puerto);
+	ClienteControlador();
 	/**
 	 * @brief Intentará iniciar sesion con el usuario y contraseña ingresados, en el servidor y los puertos indicados
 	 * @details Se comunicarà con el servidor y este le responderá si el usuario y contraseña son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
-	bool login(string server, string puerto1, string puerto2, string usuario, string contrasenia);
+	bool login(std::string server, std::string puerto1, std::string puerto2, std::string usuario, std::string contrasenia);
 
 	void logout();
 

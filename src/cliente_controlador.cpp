@@ -5,14 +5,13 @@
 #include "common_modificacion.h"
 
 using namespace std;
-ClienteControlador::ClienteControlador(string server, string puerto){
+ClienteControlador::ClienteControlador(){
 	terminar = false;
 	dir = "default";
-	this->puerto=0;
-	stringstream aux (puerto);
-	aux>>(this->puerto);
+
 }
-bool ClienteControlador::login(string usuario, string contrasenia){
+bool ClienteControlador::login(std::string server, std::string puerto1, std::string puerto2, std::string usuario, std::string contrasenia)
+{
 	cout<<"clienteControlador: me hicieron login con:"<<endl;
 	cout<<"usuario:"<<usuario<<" contreseña:"<<contrasenia<<endl;
 	bool exito;
@@ -46,7 +45,7 @@ vector<Modificacion> ClienteControlador::pedir_y_comparar_indices() {
 	// pide a la base de datos que actualice el indice local
 	base_de_datos.actualizar_indice();
 	// mensaje al server pidiendo el indice suyo
-	recibir_indice();
+	//recibir_indice();
 	// realiza la comparacion entre el indice local y el recibido por el server
 	return base_de_datos.comparar_indices();
 }
@@ -54,7 +53,7 @@ vector<Modificacion> ClienteControlador::recibir_modificaciones() {
 	vector<Modificacion> aux;
 	return aux;
 }
-bool ClienteControlador::borrar_archvio(std::string& nombre_archivo){
+bool ClienteControlador::borrar_archivo(std::string& nombre_archivo){
 	return base_de_datos.eliminar_archivo(nombre_archivo);
 }
 bool ClienteControlador::mandar_a_borrar (Modificacion& mod){
@@ -71,11 +70,9 @@ bool ClienteControlador::mandar_a_borrar (Modificacion& mod){
 	if(!exito && mensaje != "OK"){return false;}
 	*/
 	//----------QUITAR ESTO -----------------------------------------------------------
-	while(sock.hay_dato==true){
-		sleep(3);
-	}
-	sock.hay_dato=true;
-	sock.enviar_mensaje(mod);
+
+	sock1.enviar_modif(mod);
+
 
 	//----------------------------------------------------------------------------------
 	return true;
@@ -116,7 +113,7 @@ bool ClienteControlador::aplicar_modificacion(Modificacion& mod) {
 		break;
 	}
 	case BORRAR_ARCHIVO_LOCAL: {
-		return borrar_archvio(mod.nombre_archivo);
+		return borrar_archivo(mod.nombre_archivo);
 		break;
 	}
 	case MANDAR_A_BORRAR_ARCHIVO: {

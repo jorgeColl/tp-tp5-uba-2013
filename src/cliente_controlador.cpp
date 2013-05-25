@@ -5,6 +5,11 @@
 
 using namespace std;
 
+ClienteControlador::ClienteControlador()
+{
+
+}
+
 bool ClienteControlador::login(string server, string puerto1, string puerto2, string usuario, string contrasenia)
 {
 	cout<<"clienteControlador: me hicieron login con:"<<endl;
@@ -43,7 +48,7 @@ vector<Modificacion> ClienteControlador::pedir_y_comparar_indices() {
 	// pide a la base de datos que actualice el indice local
 	base_de_datos.actualizar_indice();
 	// mensaje al server pidiendo el indice suyo
-	recibir_indice();
+	  //recibir_indice(); sock1.pedirIndice o similar, despues vemos
 	// realiza la comparacion entre el indice local y el recibido por el server
 	return base_de_datos.comparar_indices();
 }

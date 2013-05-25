@@ -20,7 +20,6 @@ private:
 	string dir;
 	BaseDeDatos base_de_datos;
 	bool terminar;
-	size_t puerto;
 	vector<Modificacion> pedir_y_comparar_indices();
 	bool recibir_indice();
 public:

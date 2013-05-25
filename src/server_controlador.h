@@ -1,12 +1,8 @@
-/*
- * server.h
- *
- *  Created on: 19/05/2013
- *      Author: jorge
- */
-
 #ifndef SERVER_H_
 #define SERVER_H_
+
+#include <string>
+
 /** @class Server server_controlador.h
  * @brief clase que se encarga de las acciones que puede hacer un server
  */

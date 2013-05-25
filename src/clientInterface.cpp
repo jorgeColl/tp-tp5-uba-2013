@@ -51,14 +51,15 @@ void ClientInterface::login()
 	builder->get_widget("eDir", chooser);
 	std::cout << "Carpeta: " << chooser->get_current_folder() << std::endl;
 
-	// crea una instancia de la clase cliente
-	ClienteControlador cli(entry_server->get_text(), entry_puerto1->get_text());
-	// intenta logearse
-	bool exito = cli.login(entry_user->get_text(), entry_password->get_text());
-	if(!exito){
+	// crea una instancia de la clase cliente e intenta loguearse
+	ClienteControlador cli;
+	cli.set_directorio(chooser->get_current_folder());
+	bool exito = cli.login(entry_server->get_text(), entry_puerto1->get_text(),
+			entry_puerto2->get_text(), entry_user->get_text(), entry_password->get_text());
+	if(!exito)
+	{
 		//!!!!!!!!!!! ver como reaccionar frente a login fallido
 	}
 
-	cli.set_directorio(chooser->get_current_folder());
 
 }

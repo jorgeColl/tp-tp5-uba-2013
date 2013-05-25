@@ -1,45 +1,42 @@
-/*
- * cliente.h
- *
- *  Created on: 19/05/2013
- *      Author: jorge
- */
-
 #ifndef CLIENTE_H_
 #define CLIENTE_H_
 #include <string>
 #include <vector>
-#include "client_socket.h"
+#include "common_socket_prot.h"
 #include "common_base_de_datos.h"
-//#include "common_modificacion.h"
-class Modificacion;
+#include "common_modificacion.h"
+
+using namespace std;
+
 /**
  * @class Cliente cliente_controlador.h
  * @brief Clase que se encargará de las acciones generales que puede hace un cliente
  */
-class ClienteControlador {
-	ClientSocket sock;
-	std::string dir;
+class ClienteControlador
+{
+private:
+	SocketProt sock1;
+	SocketProt sock2;
+	string dir;
 	BaseDeDatos base_de_datos;
 	bool terminar;
 	size_t puerto;
-private:
-	std::vector<Modificacion> pedir_y_comparar_indices();
+	vector<Modificacion> pedir_y_comparar_indices();
 	bool recibir_indice();
 public:
-	ClienteControlador(std::string server, std::string puerto);
+	ClienteControlador();
 	/**
-	 * @brief Intentará iniciar sesion con el usuario y contraseña ingresados
+	 * @brief Intentará iniciar sesion con el usuario y contraseña ingresados, en el servidor y los puertos indicados
 	 * @details Se comunicarà con el servidor y este le responderá si el usuario y contraseña son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
-	bool login(std::string usuario, std::string contrasenia);
+	bool login(string server, string puerto1, string puerto2, string usuario, string contrasenia);
 
 	void logout();
 
 	/** @brief Setea el directorio en donde se guardan los archivos del usuario
 	 * OJO: usar antes del start()  */
-	void set_directorio(std::string dir);
+	void set_directorio(string dir);
 
 	/**@brief inicia la ejecucion del cliente */
 	bool start();
@@ -58,7 +55,7 @@ public:
 	std::vector<Modificacion> recibir_modificaciones();
 
 	/** @brief pide a la base de datos que borre el archivo*/
-	bool borrar_archvio(std::string& nombre_archivo);
+	bool borrar_archivo(std::string& nombre_archivo);
 	/**@brief envia un mensaje al server diciendo que se borre el archivo */
 	bool mandar_a_borrar (std::string& nombre_archivo);
 	/**@brief pide el archivo cuyo nombre es ingresado al server
@@ -83,5 +80,5 @@ public:
 	bool pedir_modificacion(std::string& nombre_archivo);
 
 };
-#include "common_modificacion.h"
+
 #endif /* CLIENTE_H_ */

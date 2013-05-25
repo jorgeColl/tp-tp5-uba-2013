@@ -23,7 +23,7 @@ bool ClienteControlador::login(std::string server, std::string puerto1, std::str
 	mensaje += "1 ";
 	mensaje += usuario;
 	mensaje += contrasenia;
-	exito = sock1.enviarLen((void*)mensaje.c_str(), mensaje.size());
+	exito = sock1.enviarLen(mensaje.c_str(), mensaje.size());
 	if(!exito) {return false;}
 
 	Packet login;

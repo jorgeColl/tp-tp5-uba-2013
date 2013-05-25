@@ -63,7 +63,7 @@ int Socket::enviar(void *msg, size_t len)
 	return send(sockfd, msg, len, 0);
 }
 
-bool Socket::enviarLen(void *msg, size_t len)
+bool Socket::enviarLen(const char *msg, size_t len)
 {
 	//TODO: Teastear con gran cantidad de datos
 	size_t totalEnviados = 0;

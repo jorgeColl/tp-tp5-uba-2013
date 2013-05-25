@@ -8,6 +8,6 @@
 #include "common_modificacion.h"
 using namespace std;
 
-Modificacion::Modificacion(tipo_accion accion,string nombre_archivo)
-	: accion(accion),nombre_archivo(nombre_archivo) {}
+Modificacion::Modificacion(Fuente fuente, Tipo tipo, const std::string &nombre_archivo)
+	: fuente(fuente),tipo(tipo),nombre_archivo(nombre_archivo) {}
 

@@ -1,16 +1,11 @@
-/*
- * common_base_de_datos.cpp
- *
- *  Created on: 22/05/2013
- *      Author: jorge
- */
-
 #include "common_base_de_datos.h"
 #include <dirent.h>
 #include <sys/stat.h>
 
-bool BaseDeDatos::abrir(const std::string &directorio) : directorio(directorio),pathArchivo(directorio)
+bool BaseDeDatos::abrir(const std::string &directorio)
 {
+	this->directorio = directorio;
+	pathArchivo = directorio;
 	pathArchivo.append(NOMBRE_ARCH_DEF);
 	archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
 	if (!archivo.is_open())
@@ -36,10 +31,10 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 		string path(directorio);
 		path.append(dirEnt->d_name);
 		struct stat buf;
-		int stat(path.c_str(), &buf);
+		int val = stat(path.c_str(), &buf);
 		//Todo: hacer algo con esto
-		buf.st_size; //Tamaño en bytes
-		buf.st_mtim; //ultima modificacion
+		//buf.st_size; //Tamaño en bytes
+		//buf.st_mtim; //ultima modificacion
 		dirEnt = readdir(dir);
 	}
 	closedir(dir);

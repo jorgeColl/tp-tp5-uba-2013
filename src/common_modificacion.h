@@ -10,37 +10,23 @@
 
 #include <string>
 
-enum Fuente {SERVER, CLIENTE};
-enum Tipo{ NUEVO, BORRADO, MODIFICADO };
+enum tipo_accion{ SUBIR_NUEVO_ARCHIVO, BAJAR_NUEVO_ARCHIVO, BORRAR_ARCHIVO_LOCAL, MANDAR_A_BORRAR_ARCHIVO, SUBIR_MOD_ARCHIVO, BAJAR_MOD_ARCHIVO };
 
 class Modificacion {
 
 public:
-	/**
-	 * @brief Constructor por deserializacion
-	 * @param cadenaBytes String que contiene los byes a deserializar
-	 */
-	Modificacion(std::string &cadenaBytes);
-	/**
-	 * @brief Crea una modificacion
-	 * @param fuente Quien "creo" esta modificacion.
-	 * @param tipo Si el cambio es un arch nuevo, uno modificado, o uno borrado
-	 * @param nombre_archivo Nombre del archivo
-	 */
-	Modificacion(Fuente fuente, Tipo tipo, const std::string &nombre_archivo);
-	/**
-	 * @brief Convierte la informacion del objeto en una cadena de bytes
-	 * @return String con la cadena de bytes
+	tipo_accion accion;
+	std::string nombre_archivo;
+	Modificacion(tipo_accion accion,std::string nombre_archivo);
+	/**@brief metodo que convierte a la instancia en un string para luego ser
+	 * pasada a desserializar y volver a ser una instancia pero del ordenador
+	 * en donde llegó el mensaje
 	 */
 	std::string serializar();
-	/**
-	 * @brief Interpreta al string recibido modifica los de este objeto
-	 * @post Este objeto cambio sus atributos
+	/**@brief interpreta al string recibido modifica los atributos internos de
+	 * acuerdo al string recibido
 	 */
-	void desserializar(std::string &cadenaBytes);
-	Fuente fuente;
-	Tipo tipo;
-	std::string nombre_archivo;
+	void desserializar(std::string);
 };
 
 #endif /* MODIFICACION_H_ */

@@ -2,11 +2,8 @@
 #define CLIENTE_H_
 #include <string>
 #include <vector>
-#include "common_socket_prot.h"
 #include "common_base_de_datos.h"
 #include "common_modificacion.h"
-
-using namespace std;
 
 /**
  * @class Cliente cliente_controlador.h
@@ -23,7 +20,7 @@ private:
 	vector<Modificacion> pedir_y_comparar_indices();
 	bool recibir_indice();
 public:
-	ClienteControlador();
+	ClienteControlador(std::string server, std::string puerto);
 	/**
 	 * @brief Intentará iniciar sesion con el usuario y contraseña ingresados, en el servidor y los puertos indicados
 	 * @details Se comunicarà con el servidor y este le responderá si el usuario y contraseña son correctos
@@ -35,7 +32,7 @@ public:
 
 	/** @brief Setea el directorio en donde se guardan los archivos del usuario
 	 * OJO: usar antes del start()  */
-	void set_directorio(string dir);
+	void set_directorio(std::string dir);
 
 	/**@brief inicia la ejecucion del cliente */
 	bool start();
@@ -56,7 +53,7 @@ public:
 	/** @brief pide a la base de datos que borre el archivo*/
 	bool borrar_archivo(std::string& nombre_archivo);
 	/**@brief envia un mensaje al server diciendo que se borre el archivo */
-	bool mandar_a_borrar (std::string& nombre_archivo);
+	bool mandar_a_borrar (Modificacion& mod);
 	/**@brief pide el archivo cuyo nombre es ingresado al server
 	 * @details pide el archivo al servidor y lo guarda en su correspondiente lugar
 	 *  utilizando a la clase BaseDeDatos

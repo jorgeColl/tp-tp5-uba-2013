@@ -22,6 +22,7 @@ class ClienteControlador {
 	std::string dir;
 	BaseDeDatos base_de_datos;
 	bool terminar;
+	size_t puerto;
 private:
 	std::vector<Modificacion> pedir_y_comparar_indices();
 	bool recibir_indice();
@@ -52,7 +53,7 @@ public:
 	 * al vector
 	 */
 	std::vector<Modificacion> comprobar_cambios_locales();
-
+	bool aplicar_modificacion(Modificacion& mod);
 	/**@brief pide lista de modificaciones al servidor */
 	std::vector<Modificacion> recibir_modificaciones();
 
@@ -80,7 +81,7 @@ public:
 	/**@brief pide al server la informacion necesaria para poder realizar la
 	 *  modificacion del archivo y lo modifica*/
 	bool pedir_modificacion(std::string& nombre_archivo);
-	//--------INDECISOS--------------------------
+
 };
 #include "common_modificacion.h"
 #endif /* CLIENTE_H_ */

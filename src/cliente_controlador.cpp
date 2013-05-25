@@ -6,13 +6,17 @@
  */
 #include <string>
 #include <iostream>
-
+#include <sstream>
 #include "cliente_controlador.h"
+#include "common_modificacion.h"
 
 using namespace std;
 ClienteControlador::ClienteControlador(string server, string puerto){
 	terminar = false;
 	dir = "default";
+	this->puerto=0;
+	stringstream aux (puerto);
+	aux>>(this->puerto);
 }
 bool ClienteControlador::login(string usuario, string contrasenia){
 	cout<<"clienteControlador: me hicieron login con:"<<endl;
@@ -42,7 +46,7 @@ void ClienteControlador::set_directorio(std::string dir){
 bool ClienteControlador::armar_indice_local() {
 	return base_de_datos.abrir(dir);
 }
-vector<Modificacion> ClienteControlador::pedir_y_comparar_indices(){
+vector<Modificacion> ClienteControlador::pedir_y_comparar_indices() {
 	// pide a la base de datos que actualice el indice local
 	base_de_datos.actualizar_indice();
 	// mensaje al server pidiendo el indice suyo
@@ -50,45 +54,9 @@ vector<Modificacion> ClienteControlador::pedir_y_comparar_indices(){
 	// realiza la comparacion entre el indice local y el recibido por el server
 	return base_de_datos.comparar_indices();
 }
-vector<Modificacion> ClienteControlador::recibir_modificaciones(){
+vector<Modificacion> ClienteControlador::recibir_modificaciones() {
 	vector<Modificacion> aux;
 	return aux;
-}
-bool ClienteControlador::start() {
-	bool exito = armar_indice_local();
-	if(!exito){	return false;}
-
-	vector<Modificacion> mod1 = pedir_y_comparar_indices();
-	for(size_t i=0;i<mod1.size();++i){
-		//mod1[i].efectuar_cambios(*this);
-		exito = base_de_datos.aplicar_cambios_locales(mod1[i]);
-		if(!exito){return false;}
-		exito = enviar_modificacion(mod1[i]);
-		if(!exito){return false;}
-	}
-	while(terminar != true) {
-		vector<Modificacion> mod2 = comprobar_cambios_locales();
-		for(size_t i=0;i<mod2.size();++i){
-			//mod2[i].efectuar_cambios(*this);
-			exito = base_de_datos.aplicar_cambios_locales(mod2[i]);
-			if(!exito){return false;}
-			exito = enviar_modificacion(mod2[i]);
-			if(!exito){return false;}
-		}
-		vector<Modificacion> mod3 = recibir_modificaciones();
-		for(size_t i=0;i<mod3.size();++i){
-			//mod3[i].efectuar_cambios(*this);
-			exito = base_de_datos.aplicar_cambios_locales(mod3[i]);
-			if(!exito){return false;}
-		}
-
-		sleep(3);
-	}
-	return true;
-
-}
-std::vector<Modificacion> ClienteControlador::comprobar_cambios_locales(){
-	return base_de_datos.comprobar_cambios_locales();
 }
 bool ClienteControlador::borrar_archvio(std::string& nombre_archivo){
 	return base_de_datos.eliminar_archivo(nombre_archivo);
@@ -121,4 +89,68 @@ bool ClienteControlador::pedir_modificacion(std::string& nombre_archivo){
 	// falta definir
 	return true;
 }
+bool ClienteControlador::aplicar_modificacion(Modificacion& mod) {
+	switch (mod.accion) {
+	case SUBIR_NUEVO_ARCHIVO: {
+		return enviar_nuevo_archivo(mod.nombre_archivo);
+		break;
+	}
+	case BAJAR_NUEVO_ARCHIVO: {
+		return pedir_nuevo_archivo(mod.nombre_archivo);
+		break;
+	}
+	case BORRAR_ARCHIVO_LOCAL: {
+		return borrar_archvio(mod.nombre_archivo);
+		break;
+	}
+	case MANDAR_A_BORRAR_ARCHIVO: {
+		return mandar_a_borrar(mod.nombre_archivo);
+		break;
+	}
+	case SUBIR_MOD_ARCHIVO: {
+		return enviar_modificacion(mod);
+		break;
+	}
+	case BAJAR_MOD_ARCHIVO: {
+		return pedir_modificacion(mod.nombre_archivo);
+		break;
+	}
+	}
+	return false;
+}
+
+bool ClienteControlador::start() {
+	bool exito = armar_indice_local();
+	if(!exito){return false;}
+
+	vector<Modificacion> mod1 = pedir_y_comparar_indices();
+	for(size_t i=0; i<mod1.size(); ++i){
+		//mod1[i].efectuar_cambios(*this);
+		exito = aplicar_modificacion(mod1[i]);
+	}
+	while(terminar != true) {
+		vector<Modificacion> mod2 = comprobar_cambios_locales();
+		for(size_t i=0;i<mod2.size();++i){
+			//mod2[i].efectuar_cambios(*this);
+			exito = base_de_datos.aplicar_cambios_locales(mod2[i]);
+			if(!exito){return false;}
+			exito = enviar_modificacion(mod2[i]);
+			if(!exito){return false;}
+		}
+		vector<Modificacion> mod3 = recibir_modificaciones();
+		for(size_t i=0;i<mod3.size();++i){
+			//mod3[i].efectuar_cambios(*this);
+			exito = base_de_datos.aplicar_cambios_locales(mod3[i]);
+			if(!exito){return false;}
+		}
+
+		sleep(3);
+	}
+	return true;
+
+}
+std::vector<Modificacion> ClienteControlador::comprobar_cambios_locales(){
+	return base_de_datos.comprobar_cambios_locales();
+}
+
 

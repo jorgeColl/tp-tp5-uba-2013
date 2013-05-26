@@ -72,7 +72,7 @@ bool ClienteControlador::pedir_nuevo_archivo(Modificacion& mod){
 	mod.accion =  SUBIR_NUEVO_ARCHIVO;
 	sock1.enviar_modif(mod);
 	// parte prototipo
-	ofstream fd = base_de_datos.generar_archivo(mod.nombre_archivo.c_str());
+	ofstream& fd = base_de_datos.generar_archivo(mod.nombre_archivo);
 	sock1.recibir_archivo(fd);
 	fd.close();
 	return true;
@@ -84,7 +84,7 @@ bool ClienteControlador::enviar_nuevo_archivo(std::string& nombre_archivo){
 	sock1.enviar_flag(ARCH_NUEVO);
 	// ACA LE TENDRIA QUE PEDIR A LA BASE DE DATOS POR METODO QUE ABRA EL ARCHIVO
 	//ifstream fd(nombre_archivo.c_str(),ifstream::binary);
-	ifstream fd = base_de_datos.abrir_para_leer(nombre_archivo);
+	ifstream& fd = base_de_datos.abrir_para_leer(nombre_archivo);
 	sock1.enviar_archivo(fd);
 	fd.close();
 	return true;

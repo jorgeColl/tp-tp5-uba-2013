@@ -61,6 +61,11 @@ public:
 	 * @return True en caso de exito, false si falla
 	 */
 	bool recibir_pedazo_archivo(ofstream &arch, size_t offset, size_t len);
+	/**
+	 * @brief Recive el archivo entero
+	 * @details utiliza el metodo recibir_pedazo_archivo()
+	 */
+	bool recibir_archivo(std::ofstream& fd);
 };
 
 #endif /* COMMON_SOCKET_PROT_H_ */

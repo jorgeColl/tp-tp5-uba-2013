@@ -17,7 +17,9 @@ class Modificacion {
 public:
 	tipo_accion accion;
 	std::string nombre_archivo;
-	Modificacion(tipo_accion accion,std::string nombre_archivo);
+	size_t bloque_ini;
+	size_t bloque_fin;
+	Modificacion(tipo_accion accion,std::string nombre_archivo,size_t bloque_ini, size_t bloque_fin);
 	/**@brief metodo que convierte a la instancia en un string para luego ser
 	 * pasada a desserializar y volver a ser una instancia pero del ordenador
 	 * en donde llegó el mensaje

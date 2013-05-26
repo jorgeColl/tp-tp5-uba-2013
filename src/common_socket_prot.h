@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum Packet {LOGIN_OK, ARCH_MODIF, ARCH_NUEVO, ARCH_ELIM};
+enum Packet {LOGIN_OK, LOGIN_FAIL, ARCH_NUEVO, MODIFICACION, EXIT};
 
 /**
  * @class SocketProt common_socket_prot.h "common_socket_prot.h"
@@ -48,6 +48,11 @@ public:
 	 * @return True en caso de exito, false si falla
 	 */
 	bool enviar_pedazo_archivo(ifstream &arch, size_t offset, size_t len);
+	/**
+	 * @brief Envia el archivo entero
+	 * @details utilizará el metodo enviar_pedazo_archivo()
+	 */
+	bool enviar_archivo(ifstream &arch);
 	/**
 	 * @brief Recibe un pedazo de un archivo
 	 * @param arch Archivo donde se guardara

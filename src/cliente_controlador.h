@@ -59,7 +59,7 @@ public:
 	 * @details pide el archivo al servidor y lo guarda en su correspondiente lugar
 	 *  utilizando a la clase BaseDeDatos
 	 * @return devuelve true si toda la operacion fue un exito, caso contrario devuelve false */
-	bool pedir_nuevo_archivo(std::string& nombre_archivo);
+	bool pedir_nuevo_archivo(Modificacion& mod);
 	/**@brief enviar el archivo cuyo nombre es ingresado
 	 * @details el archivo a enviar será abierto y a medida que se lee se envia
 	 * @return devuelve true si la operacion fue un exito, caso contrario devuelve false */

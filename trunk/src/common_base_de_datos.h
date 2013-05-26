@@ -18,6 +18,15 @@ public:
 	 * @return true si pudo accederse al archivo, false en otro caso
 	 */
 	bool abrir(const std::string &directorio);
+	/**
+	 * @brief abre un archivo y devuelve el ifstream correspondiente al archivo abierto
+	 */
+	std::ifstream& abrir_para_leer(std::string& nombre_archivo);
+	/**
+	 * @brief dado un nombre de archivo ,crea y abre un nuevo archivo y devuelve el ofstream
+	 *  correspondiente a ese archivo
+	 */
+	std::ofstream& generar_archivo(std::string& nombre_archivo);
 	/**@brief actualiza el indice para que tenga los ultimos datos de los archivos locales
 	 */
 	bool actualizar_indice();

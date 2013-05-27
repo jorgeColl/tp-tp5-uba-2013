@@ -85,6 +85,7 @@ bool ClienteControlador::enviar_nuevo_archivo(std::string& nombre_archivo){
 	ifstream& fd = base_de_datos.abrir_para_leer(nombre_archivo);
 	sock1.enviar_archivo(fd);
 	fd.close();
+	delete &fd;
 	return true;
 }
 bool ClienteControlador::modificar_archivo(std::string& nombre_archivo){

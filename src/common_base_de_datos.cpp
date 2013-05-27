@@ -28,7 +28,7 @@ std::ofstream& BaseDeDatos::generar_archivo_temp(std::string& nombre_archivo){
 }
 bool BaseDeDatos::cerrar_exitosamente_archivo(std::string nombre_archivo, std::ofstream& fd) {
 	fd.close();
-	delete fd;
+	delete &fd;
 	string dir;
 	dir+= directorio;
 	dir+= nombre_archivo;
@@ -40,6 +40,15 @@ bool BaseDeDatos::cerrar_exitosamente_archivo(std::string nombre_archivo, std::o
 
 	return true;
 }
+std::ifstream& BaseDeDatos::abrir_para_leer(std::string& nombre_archivo) {
+	string dir;
+	dir+=directorio;
+	dir+=nombre_archivo;
+	ifstream* fd = new ifstream(dir.c_str());
+	return *fd;
+}
+
+
 std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 {
 	std::vector<Modificacion> modifs;

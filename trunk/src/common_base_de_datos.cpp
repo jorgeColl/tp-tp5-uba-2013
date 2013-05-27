@@ -18,7 +18,28 @@ bool BaseDeDatos::abrir(const std::string &directorio)
 	cargarARam();
 	return true;
 }
+std::ofstream& BaseDeDatos::generar_archivo_temp(std::string& nombre_archivo){
+	string dir;
+	dir+= directorio;
+	dir+= nombre_archivo;
+	dir+= ".temp";
+	ofstream* fd = new ofstream(dir.c_str());
+	return *fd;
+}
+bool BaseDeDatos::cerrar_exitosamente_archivo(std::string nombre_archivo, std::ofstream& fd) {
+	fd.close();
+	delete fd;
+	string dir;
+	dir+= directorio;
+	dir+= nombre_archivo;
+	// ACA LO DEJO A CRITERIO SI COMBIENE LEVANTAR UNA EXCEPCION SI EXITO != 0
+	int exito = rename((dir+=".temp").c_str(),dir.c_str());
 
+	//ACA SE ACTUALIZA EL INDICE CON EL NUEVO ARCHIVO
+		//FALTA HACER []
+
+	return true;
+}
 std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 {
 	std::vector<Modificacion> modifs;
@@ -42,12 +63,6 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 	return modifs;
 }
 
-bool BaseDeDatos::actualizar_indice()
-{
-	//TODO: Hacer
-	return true;
-}
-
 std::vector<Modificacion> BaseDeDatos::comparar_indices()
 {
 	//TODO: Terminar
@@ -59,23 +74,15 @@ void BaseDeDatos::cargarARam()
 
 }
 
-bool BaseDeDatos::aplicar_cambios_locales(Modificacion& mod)
-{
-	//TODO: Terminar
-	return true;
-}
-
-bool BaseDeDatos::agregar_archivo(std::string nombre_archivo, std::string datos)
-{
-	return true;
-}
 bool BaseDeDatos::eliminar_archivo(std::string nombre_archivo)
 {
+	// ACA DEJO A CRITERIO SI COMBIENE LEVANTAR EXCEPCION SI EXITO != 0
 	int exito = remove( nombre_archivo.c_str() );
 	if (exito != 0){
 		return false;
 	}
 	//ACA ACTUALIZA EL INDICE para indicar que el archivo se borró
+		// FALTA HACER []
 	return true;
 }
 

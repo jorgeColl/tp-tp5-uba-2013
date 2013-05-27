@@ -30,3 +30,7 @@ bool SocketProt::recibir_pedazo_archivo(ofstream &arch, size_t offset, size_t le
 {
 	return true;
 }
+bool recibir_archivo(std::ofstream& fd){
+
+	return true;
+}

@@ -71,6 +71,11 @@ bool BaseDeDatos::agregar_archivo(std::string nombre_archivo, std::string datos)
 }
 bool BaseDeDatos::eliminar_archivo(std::string nombre_archivo)
 {
+	int exito = remove( nombre_archivo.c_str() );
+	if (exito != 0){
+		return false;
+	}
+	//ACA ACTUALIZA EL INDICE para indicar que el archivo se borró
 	return true;
 }
 

@@ -20,16 +20,20 @@ public:
 	bool abrir(const std::string &directorio);
 	/**
 	 * @brief abre un archivo y devuelve el ifstream correspondiente al archivo abierto
+	 * @details sirve para que despues otras clases lean del archivo abierto
 	 */
 	std::ifstream& abrir_para_leer(std::string& nombre_archivo);
 	/**
 	 * @brief dado un nombre de archivo ,crea y abre un nuevo archivo y devuelve el ofstream
 	 *  correspondiente a ese archivo
+	 *  @details esto sirve para que otras clases llenen con datos este archivo
 	 */
-	std::ofstream& generar_archivo(std::string& nombre_archivo);
-	/**@brief actualiza el indice para que tenga los ultimos datos de los archivos locales
+	std::ofstream& generar_archivo_temp(std::string& nombre_archivo);
+	/**
+	 * @brief si la carga de datos al archivo finalizó y se realizó con exito,
+	 *  se guarda con el verdadero nombre y se lo indexa
 	 */
-	bool actualizar_indice();
+	bool cerrar_exitosamente_archivo(std::string nombre_archivo, std::ofstream& fd);
 	/**@brief se encarga de encontrar los archivos modificados y
 	 *  generar un vector de modificaciones
 	 */
@@ -38,18 +42,21 @@ public:
 	 * y genera un vector de modificaciones
 	 */
 	std::vector<Modificacion> comparar_indices();
-	/**@brief recibe una modificacion, y realiza los cambios de acuerdo a ella a los archivos locales
-	 */
-	bool aplicar_cambios_locales(Modificacion& mod);
+
 	/**@brief agrega un archivo nuevo
 	 * @details modifica indice para que tenga al nuevo archivo , y le calcula su hash/hashes
 	 */
-	bool agregar_archivo(std::string nombre_archivo, std::string datos);
+	// POR AHORA LO SACO
+	//bool agregar_archivo(std::string nombre_archivo, std::string datos);
+
 	/**@brief elimina un archivo del directorio
 	 * @details elimina los datos del indice con de ese archivo eliminado
 	 */
 	bool eliminar_archivo(std::string nombre_archivo);
+
+	// FALTA DEFINIR FORMA DE QUE PARAMETROS PASAR !!!
 	bool modificar_archvivo();
+
 private:
 	void cargarARam();
 	string directorio;

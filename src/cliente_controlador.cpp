@@ -42,8 +42,6 @@ bool ClienteControlador::armar_indice_local() {
 	return base_de_datos.abrir(dir);
 }
 vector<Modificacion> ClienteControlador::pedir_y_comparar_indices() {
-	// pide a la base de datos que actualice el indice local
-	base_de_datos.actualizar_indice();
 	// mensaje al server pidiendo el indice suyo
 	//recibir_indice();
 	// realiza la comparacion entre el indice local y el recibido por el server
@@ -72,9 +70,9 @@ bool ClienteControlador::pedir_nuevo_archivo(Modificacion& mod){
 	mod.accion =  SUBIR_NUEVO_ARCHIVO;
 	sock1.enviar_modif(mod);
 	// parte prototipo
-	ofstream& fd = base_de_datos.generar_archivo(mod.nombre_archivo);
+	ofstream& fd = base_de_datos.generar_archivo_temp(mod.nombre_archivo);
 	sock1.recibir_archivo(fd);
-	fd.close();
+	base_de_datos.cerrar_exitosamente_archivo(mod.nombre_archivo,fd);
 	return true;
 }
 bool ClienteControlador::enviar_nuevo_archivo(std::string& nombre_archivo){

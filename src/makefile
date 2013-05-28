@@ -27,14 +27,13 @@ pthreads = si
 gtkmm = si
 
 # Descomentar si se quiere ver como se invoca al compilador
-verbose = si
-
+#verbose = si
 
 # CONFIGURACION "AVANZADA"
 ###########################
 
 # Opciones para el compilador C/C++ en modo ansi.
-CFLAGS = -Wall -pedantic
+CFLAGS = -Wall -pedantic -pedantic-errors -Wno-long-long
 
 # Para que explote lo mas posible
 CFLAGS += -O3 -DNDEBUG
@@ -119,6 +118,7 @@ endif
 fuentes_client ?= $(wildcard client*.$(extension))
 fuentes_server ?= $(wildcard server*.$(extension))
 fuentes_common ?= $(wildcard common*.$(extension))
+fuentes_common += $(wildcard ./hashlib/*.$(extension))
 
 
 # REGLAS

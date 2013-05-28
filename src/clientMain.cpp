@@ -1,5 +1,3 @@
-//#define parte_grafica
-#ifndef parte_grafica
 #include <iostream>
 #include "cliente_controlador.h"
 #include "clientInterface.h"
@@ -32,4 +30,3 @@ int main (int argc, char** argv)
 	}
 	return 0;
 }
-#endif

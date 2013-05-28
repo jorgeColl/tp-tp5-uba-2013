@@ -1,7 +1,7 @@
 #include "common_base_de_datos.h"
-#include <dirent.h>		// Explorar directorios
-#include <sys/stat.h>	// Stat
-#include <cstring> 		// memcpy
+#include <dirent.h>			// Explorar directorios
+#include <sys/stat.h>		// Stat
+#include <cstring> 			// memcpy
 #include <sstream>
 
 bool BaseDeDatos::abrir(const std::string &directorio)
@@ -83,13 +83,17 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 		path.append(dirEnt->d_name);
 		struct stat buf;
 		int val = stat(path.c_str(), &buf);
+		if (val == -1 || !S_ISREG(buf.st_mode)) //Veo que efectivamente fuera un archivo
+		{
+			dirEnt = readdir(dir); //Error, seguimos
+			continue;
+		}
 		//Todo: hacer algo con esto
-		//buf.st_size; //Tamaño en bytes
-		//buf.st_mtim; //ultima modificacion
+		RegistroIndice reg(string(dirEnt->d_name), buf.st_mtim.tv_sec, buf.st_size, string());
 		dirEnt = readdir(dir);
 	}
 	closedir(dir);
-	//No liberar dirent
+	//Nota: No liberar dirent
 	return modifs;
 }
 
@@ -132,13 +136,16 @@ bool BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string 
 void BaseDeDatos::cargarARam()
 {
 	archivo.seekg(0);
+	char* buffer = new char[RegistroIndice::tamMax()];
 	while(archivo.good())
 	{
 		uint8_t prefijo;
 		archivo.read((char*)&prefijo,1);
-		//char* buffer
-		//delete buffer;
+		size_t tamReg = RegistroIndice::tamReg(prefijo);
+		RegistroIndice reg(buffer, tamReg);
+		//TODO: Meter esto en un coso
 	}
+	delete[] buffer;
 }
 
 //----- Registro Indice
@@ -146,13 +153,12 @@ void BaseDeDatos::cargarARam()
 BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash)
 	: nombre(nombre), modif(modif), tam(tam), hash(hash) {}
 
-BaseDeDatos::RegistroIndice::RegistroIndice(string &bytes, uint8_t tamNombre) : modif(0), tam(0)
+BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre) : modif(), tam()
 {
-	const char* src = bytes.c_str();
-	nombre.append(src, tamNombre);
-	memcpy((void*) &modif,(void*) (src+tamNombre), sizeof(time_t));
-	memcpy((void*) &tam,(void*)(src+tamNombre+sizeof(time_t)), sizeof(off_t));
-	hash.append(src+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
+	nombre.append(bytes, tamNombre);
+	memcpy((void*) &modif,(void*) (bytes+tamNombre), sizeof(time_t));
+	memcpy((void*) &tam,(void*)(bytes+tamNombre+sizeof(time_t)), sizeof(off_t));
+	hash.append(bytes+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
 }
 
 string BaseDeDatos::RegistroIndice::serializar()
@@ -166,3 +172,15 @@ string BaseDeDatos::RegistroIndice::serializar()
 	result.write(hash.c_str(), BYTES_HASH);
 	return result.str();
 }
+
+size_t BaseDeDatos::RegistroIndice::tamMax()
+{
+	return NAME_MAX+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
+}
+
+size_t BaseDeDatos::RegistroIndice::tamReg(size_t prefijo)
+{
+	return prefijo+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
+}
+
+//----- Indice en ram

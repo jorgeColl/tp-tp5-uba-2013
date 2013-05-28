@@ -245,9 +245,6 @@
               <object class="GtkLabel" id="lConex">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">No conectado</property>
-                <attributes>
-                  <attribute name="foreground" value="#ffff00000000"/>
-                </attributes>
               </object>
               <packing>
                 <property name="expand">False</property>

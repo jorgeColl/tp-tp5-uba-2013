@@ -15,7 +15,6 @@ int main (int argc, char** argv)
 {
 	try
 	{
-		BaseDeDatos b;
 		Gtk::Main kit(argc,argv);
 		ClientInterface interface(argc, argv);
 		interface.correr();

@@ -2,7 +2,7 @@
 #include <string>
 #include <gtkmm.h>
 #include <glibmm.h>
-#include "cliente_controlador.h"
+
 ClientInterface::ClientInterface(int argc, char** argv)
 {
 	builder = Gtk::Builder::create_from_file(USER_GLADE);
@@ -51,14 +51,21 @@ void ClientInterface::login()
 	builder->get_widget("eDir", chooser);
 	std::cout << "Carpeta: " << chooser->get_current_folder() << std::endl;
 
-	// crea una instancia de la clase cliente e intenta loguearse
-	ClienteControlador cli;
-	cli.set_directorio(chooser->get_current_folder());
-	bool exito = cli.login(entry_server->get_text(), entry_puerto1->get_text(),
-			entry_puerto2->get_text(), entry_user->get_text(), entry_password->get_text());
-	if(!exito)
+	// Intenta loguearse
+	try
 	{
-		//!!!!!!!!!!! ver como reaccionar frente a login fallido
+		cli.set_directorio(chooser->get_current_folder());
+		cli.login(entry_server->get_text(), entry_puerto1->get_text(),
+				entry_puerto2->get_text(), entry_user->get_text(), entry_password->get_text());
+		//Login exitoso
+		Gtk::Label* logged;
+		builder->get_widget("lConex", logged);
+		logged->set_text("Conectado");
+	}
+	catch (exception &e)
+	{
+		//TODO: Popup
+		cout << e.what() << endl;
 	}
 
 

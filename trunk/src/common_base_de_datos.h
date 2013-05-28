@@ -8,6 +8,7 @@
 using namespace std;
 
 #define NOMBRE_ARCH_DEF ".auindice"
+#define EXT_TMP ".tmp"
 
 class BaseDeDatos
 {
@@ -17,48 +18,100 @@ public:
 	 * @param directorio Directorio donde se ubicara el archivo
 	 * @return true si pudo accederse al archivo, false en otro caso
 	 */
-	bool abrir(const std::string &directorio);
+	bool abrir(const string &directorio);
+
+	//----- Modificacion de archivos en el directorio
+
 	/**
-	 * @brief abre un archivo y devuelve el ifstream correspondiente al archivo abierto
-	 * @details sirve para que despues otras clases lean del archivo abierto
+	 * @brief Abre un archivo y devuelve el ifstream correspondiente al archivo abierto
+	 * @param nombre_archivo Nombre del archivo (solo el nombre, no el path)
+	 * @param ifstream Aqui se intentara abrir el archivo
+	 * @return True si pudo abrirse correctamente el archivo
+	 * @post Si la operacion fue exitosa ifstream esta abierto para lectura en modo binario
 	 */
-	std::ifstream* abrir_para_leer(std::string& nombre_archivo);
+	bool abrir_para_leer(const string &nombre_archivo, ifstream &ifstream);
+
 	/**
-	 * @brief dado un nombre de archivo ,crea y abre un nuevo archivo y devuelve el ofstream
-	 *  correspondiente a ese archivo
-	 *  @details esto sirve para que otras clases llenen con datos este archivo
+	 * @brief Dado un nombre de archivo, crea y abre un nuevo archivo en el ofstream
+	 * @param nombre_archivo Nombre del archivo (solo el nombre, no el path)
+	 * @param ifstream Aqui se intentara abrir el archivo
+	 * @return True si pudo crearse y abrirse correctamente el archivo
+	 * @post Si la operacion fue exitosa ofstream esta abierto para escritura en modo binario
 	 */
-	std::ofstream* generar_archivo_temp(std::string& nombre_archivo);
+	bool abrir_para_escribir(const string& nombre_archivo, ofstream &ofstream);
+
+	/**
+	 * @brief Lo mismo que el metodo anterior pero le agrega como extension al archivo un .tmp
+	 */
+	bool abrir_para_escribir_temporal(const string& nombre_archivo, ofstream &ofstream);
+
 	/**
 	 * @brief si la carga de datos al archivo finalizó y se realizó con exito,
 	 *  se guarda con el verdadero nombre y se lo indexa
 	 */
-	bool cerrar_exitosamente_archivo(std::string nombre_archivo, std::ofstream& fd);
+	bool renombrar(const string &viejo_nombre, const string &nuevo_nombre);
+
+	/**
+	 * @brief Lo mismo que el metodo renombrar pero los archivos nombres de archivo son los mismos salvo extension
+	 * @param nombre_archivo Nombre de archivo compartido entre el original y el temporal
+	 * @return True si la operacion fue exitosa
+	 */
+	bool renombrar_temporal(const string &nombre_archivo);
+
+	/**
+	 * @brief Elimina un archivo del directorio. Si se lo quiere eliminar de la indexacion luego llamar a registrar_eliminado
+	 */
+	bool eliminar_archivo(const string &nombre_archivo);
+
+	//----- Registracion en el indice de eventos
+
+	/**
+	 * @brief Registra un nuevo archivo en la indexacion
+	 * @pre El archivo existe y esta en el directorio correcto y no fue previamente indexado
+	 * @return True si la operacion tiene exito
+	 */
+	bool registrar_nuevo(const string &nombre_archivo);
+
+	/**
+	 * @brief Registra que se elimino un archivo de la indexacion
+	 * @pre El archivo no exista y habia sido previamente indexado
+	 * @return True si la operacion tiene exito
+	 */
+	bool registrar_eliminado(const string &nombre_archivo);
+
+	/**
+	 * @brief Registra que se cambiaron los contenidos de un archivo
+	 * @pre El archivo existe y habia sido previamente indexado
+	 * @return True si la operacion tiene exito
+	 */
+	bool registrar_modificado(const string &nombre_archivo);
+
+	/**
+	 * @brief Registra que se cambio el nombre de un archivo ya indexado
+	 * @pre El archivo de nombre_viejo habia sido previamente indexado
+	 * @return True si la operacion tiene exito
+	 */
+	bool registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo);
+
+	//----- Operaciones pertinentes al indice y registro de cambios
+
 	/**@brief se encarga de encontrar los archivos modificados y
 	 *  generar un vector de modificaciones
 	 */
-	std::vector<Modificacion> comprobar_cambios_locales();
-	/**@brief compara dos indices, uno que es el recibido por el servidor y el otro que es el local
-	 * y genera un vector de modificaciones
-	 */
-	std::vector<Modificacion> comparar_indices();
+	vector<Modificacion> comprobar_cambios_locales();
 
-	/**@brief agrega un archivo nuevo
-	 * @details modifica indice para que tenga al nuevo archivo , y le calcula su hash/hashes
+	/**
+	 * @brief Compara el indice local con otro devuelve las discrepancias
+	 *
 	 */
-	// POR AHORA LO SACO
-	//bool agregar_archivo(std::string nombre_archivo, std::string datos);
-
-	/**@brief elimina un archivo del directorio
-	 * @details elimina los datos del indice con de ese archivo eliminado
-	 */
-	bool eliminar_archivo(std::string nombre_archivo);
-
-	// FALTA DEFINIR FORMA DE QUE PARAMETROS PASAR !!!
-	bool modificar_archvivo();
+	vector<Modificacion> comparar_indices(fstream &otro);
 
 private:
+	/**
+	 * @brief Carga los contenidos del archivo indice a una estructura en ram
+	 */
 	void cargarARam();
+
 	string directorio;
 	string pathArchivo;
 	fstream archivo;

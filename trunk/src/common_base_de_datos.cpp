@@ -18,36 +18,55 @@ bool BaseDeDatos::abrir(const std::string &directorio)
 	cargarARam();
 	return true;
 }
-std::ofstream* BaseDeDatos::generar_archivo_temp(std::string& nombre_archivo){
-	string dir;
-	dir+= directorio;
-	dir+= nombre_archivo;
-	dir+= ".temp";
-	ofstream* fd = new ofstream(dir.c_str());
-	return fd;
-}
-bool BaseDeDatos::cerrar_exitosamente_archivo(std::string nombre_archivo, std::ofstream& fd) {
-	fd.close();
-	delete &fd;
-	string dir;
-	dir+= directorio;
-	dir+= nombre_archivo;
-	// ACA LO DEJO A CRITERIO SI COMBIENE LEVANTAR UNA EXCEPCION SI EXITO != 0
-	int exito = rename((dir+=".temp").c_str(),dir.c_str());
 
-	//ACA SE ACTUALIZA EL INDICE CON EL NUEVO ARCHIVO
-		//FALTA HACER []
+//----- Modificacion de archivos en el directorio
 
-	return true;
-}
-std::ifstream* BaseDeDatos::abrir_para_leer(std::string& nombre_archivo) {
-	string dir;
-	dir+=directorio;
-	dir+=nombre_archivo;
-	ifstream* fd = new ifstream(dir.c_str());
-	return fd;
+bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, ofstream &ofstream)
+{
+	string dir(directorio);
+	dir.append(nombre_archivo);
+	ofstream.open(dir.c_str(), ios::out | ios::binary);
+	return (ofstream.is_open());
 }
 
+bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, ofstream &ofstream)
+{
+	string nombre(nombre_archivo);
+	nombre.append(EXT_TMP);
+	return abrir_para_escribir(nombre, ofstream);
+}
+
+bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombre) {
+	string path1(directorio);
+	string path2(directorio);
+	path1.append(viejo_nombre);
+	path2.append(nuevo_nombre);
+	// A criterio si conviene levantar una excepcion si rename != 0
+	return rename(path1.c_str(), path2.c_str());
+}
+
+bool BaseDeDatos::renombrar_temporal(const string &nombre_archivo)
+{
+	string viejo_nombre(nombre_archivo);
+	viejo_nombre.append(EXT_TMP);
+	return renombrar(viejo_nombre, nombre_archivo);
+}
+
+bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
+{
+	// A criterio si conviene levantar una excepcion si rename != 0
+	return remove( nombre_archivo.c_str() );
+}
+
+bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, ifstream &ifstream)
+{
+	string path(directorio);
+	path.append(nombre_archivo);
+	ifstream.open(path.c_str(), ios::in | ios::binary);
+	return ifstream.is_open();
+}
+
+//----- Registracion en el indice de eventos
 
 std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 {
@@ -72,30 +91,43 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 	return modifs;
 }
 
-std::vector<Modificacion> BaseDeDatos::comparar_indices()
+vector<Modificacion> comparar_indices(fstream &otro)
 {
 	//TODO: Terminar
 	return vector<Modificacion>();
 }
 
+
+
+//----- Registracion en el indice de eventos
+
+bool BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
+{
+	//TODO: Terminar
+	return true;
+}
+
+bool BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
+{
+	//TODO: Terminar
+	return true;
+}
+
+bool BaseDeDatos::registrar_modificado(const string &nombre_archivo)
+{
+	//TODO: Terminar
+	return true;
+}
+
+bool BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo)
+{
+	//TODO: Terminar
+	return true;
+}
+
+//----- Metodos privados
+
 void BaseDeDatos::cargarARam()
 {
 
-}
-
-bool BaseDeDatos::eliminar_archivo(std::string nombre_archivo)
-{
-	// ACA DEJO A CRITERIO SI COMBIENE LEVANTAR EXCEPCION SI EXITO != 0
-	int exito = remove( nombre_archivo.c_str() );
-	if (exito != 0){
-		return false;
-	}
-	//ACA ACTUALIZA EL INDICE para indicar que el archivo se borró
-		// FALTA HACER []
-	return true;
-}
-
-bool BaseDeDatos::modificar_archvivo()
-{
-	return true;
 }

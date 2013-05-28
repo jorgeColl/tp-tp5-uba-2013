@@ -59,13 +59,11 @@ class Socket
 		 * @brief Recibe hasta que logre recibirse len. El "sobrante" si existe queda en este socket
 		 * @return True si pudo recibirse, false en otro caso
 		 */
-		bool recibirLen(void *msg, size_t len);
+		bool recibirLen(char *msg, size_t len);
 		/**
 		 * @var Socket file descriptor asociado
 		 */
 		int sockfd;
-	private:
-		stringstream sobrantes;
 };
 
 #endif /* COMMON_SOCKET_H_ */

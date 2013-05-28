@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum Packet {LOGIN_OK, LOGIN_FAIL, ARCH_NUEVO, MODIFICACION, EXIT};
+enum Packet {OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PARTES, HASHES_BLOQUES};
 
 /**
  * @class SocketProt common_socket_prot.h "common_socket_prot.h"

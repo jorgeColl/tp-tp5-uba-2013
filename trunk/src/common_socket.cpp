@@ -82,21 +82,18 @@ int Socket::recibir(void *msg, size_t len)
 	return recv(sockfd, msg, len, 0);
 }
 
-bool Socket::recibirLen(void *msg, size_t len)
+bool Socket::recibirLen(char *msg, size_t len)
 {
-	//TODO: Terminar
-	//Obtenemos el sobrante de alguna otra lectura que haya quedado
-	/*size_t deSobras = (len < )?len: //Minimo entre len y tam del stream
+	//TODO: Teastear con gran cantidad de datos
 	size_t totalRecibidos = 0;
-	while (dest > 0)
+	while (totalRecibidos < len)
 	{
-		int recibidos = recv(sockfd, buffer, 512, 0);
+		//Por cada envio vamos corriendo el puntero y reduciendo la cantidad
+		int recibidos = recv(sockfd, msg+totalRecibidos, len-totalRecibidos, 0);
 		if (recibidos == -1) return false;
-		recib.write(buffer, recibidos); //Guardo en el stringstream lo que obtenga del recv
-		dest -= recibidos;
+		totalRecibidos += recibidos;
 	}
-	return true*/
-	return false;
+	return true;
 }
 
 void Socket::cerrar()

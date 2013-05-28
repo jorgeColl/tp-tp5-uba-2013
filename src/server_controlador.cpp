@@ -5,9 +5,16 @@
  *      Author: jorge
  */
 #include "server_controlador.h"
-
-ServerControlador::ServerControlador(std::string puerto, std::string directorio){
-
+#include <sstream>
+ServerControlador::ServerControlador(std::string puerto, std::string directorio) {
+	this->puerto=0;
+	stringstream ss;
+	ss<<puerto;
+	ss>>this->puerto;
+	this->dir=directorio;
 }
 
 
+void ServerControlador::start(){
+	return;
+}

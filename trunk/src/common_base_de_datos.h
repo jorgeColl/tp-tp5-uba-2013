@@ -140,6 +140,8 @@ private:
 			static size_t tamMax();
 			/** @brief Devuelve el tam que ocupa un registro dado su prefijo de longitud */
 			static size_t tamReg(size_t prefijo);
+			/** @brief overloads */
+			bool operator==(const RegistroIndice &r2);
 			string nombre;
 			time_t modif;
 			off_t tam;
@@ -182,7 +184,7 @@ private:
 	 * @brief Persiste un nuevo archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	bool registrar_nuevo_fis(const RegistroIndice &reg);
+	bool registrar_nuevo_fis(RegistroIndice &reg);
 
 	/**
 	 * @brief Persiste una eliminacion de archivo en la indexacion fisica

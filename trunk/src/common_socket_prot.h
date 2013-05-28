@@ -8,7 +8,7 @@
 
 using namespace std;
 
-enum PacketID {OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PARTES, HASHES_BLOQUES};
+enum PacketID {OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PARTES, HASHES_BLOQUES, PEDIDO_INDICE};
 
 /**
  * @class SocketProt common_socket_prot.h "common_socket_prot.h"
@@ -60,13 +60,13 @@ public:
 	 * @param len Longitud del pedazo a enviar
 	 * @return True en caso de exito, false si falla
 	 */
-	bool enviar_pedazo_archivo(ifstream &arch, size_t offset, size_t len);
+	bool enviar_pedazo_archivo(istream &arch, size_t offset, size_t len);
 	/**
 	 * @brief Envia un archivo entero
 	 * @param arch Archivo a enviar
 	 * @pre El archivo esta abierto en modo lectura binaria
 	 */
-	bool enviar_archivo(ifstream &arch);
+	bool enviar_archivo(istream &arch);
 	/**
 	 * @brief Recibe un pedazo de un archivo
 	 * @param arch Archivo donde se guardara
@@ -74,7 +74,7 @@ public:
 	 * @param len Longitud del pedazo a recibir
 	 * @return True en caso de exito, false si falla
 	 */
-	bool recibir_pedazo_archivo(ofstream &arch, size_t offset, size_t len);
+	bool recibir_pedazo_archivo(ostream &arch, size_t offset, size_t len);
 	/**
 	 * @brief Recibe un archivo entero
 	 * @param arch Archivo a recibir
@@ -82,7 +82,7 @@ public:
 	 * @return True en caso de exito, false si falla
 	 * @pre El archivo esta abierto en modo escritura binaria
 	 */
-	bool recibir_archivo(std::ofstream &arch, streamsize tam);
+	bool recibir_archivo(std::ostream &arch);
 };
 
 #endif /* COMMON_SOCKET_PROT_H_ */

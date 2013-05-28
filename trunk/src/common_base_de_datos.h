@@ -40,7 +40,7 @@ public:
 	 * @return True si pudo abrirse correctamente el archivo
 	 * @post Si la operacion fue exitosa ifstream esta abierto para lectura en modo binario
 	 */
-	bool abrir_para_leer(const string &nombre_archivo, ifstream &ifstream);
+	bool abrir_para_leer(const string &nombre_archivo, fstream &ifstream);
 
 	/**
 	 * @brief Dado un nombre de archivo, crea y abre un nuevo archivo en el ofstream
@@ -49,12 +49,12 @@ public:
 	 * @return True si pudo crearse y abrirse correctamente el archivo
 	 * @post Si la operacion fue exitosa ofstream esta abierto para escritura en modo binario
 	 */
-	bool abrir_para_escribir(const string& nombre_archivo, ofstream &ofstream);
+	bool abrir_para_escribir(const string& nombre_archivo, fstream &ofstream);
 
 	/**
 	 * @brief Lo mismo que el metodo anterior pero le agrega como extension al archivo un .tmp
 	 */
-	bool abrir_para_escribir_temporal(const string& nombre_archivo, ofstream &ofstream);
+	bool abrir_para_escribir_temporal(const string& nombre_archivo, fstream &ofstream);
 
 	/**
 	 * @brief si la carga de datos al archivo finalizó y se realizó con exito,

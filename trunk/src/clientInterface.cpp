@@ -52,7 +52,7 @@ void ClientInterface::login()
 	Gtk::Entry* entry_server = NULL;
 	Gtk::Entry* entry_puerto1 = NULL;
 	Gtk::Entry* entry_puerto2 = NULL;
-	Gtk::Entry* entry_intrevalo_polling = NULL;
+	Gtk::Entry* entry_int_polling = NULL;
 
 	builder->get_widget("eUser", entry_user);
 	std::cout << "Usuario: " << entry_user->get_text() << std::endl;
@@ -64,8 +64,8 @@ void ClientInterface::login()
 	std::cout << "Puerto 1: " << entry_puerto1->get_text() << std::endl;
 	builder->get_widget("ePort2", entry_puerto2);
 	std::cout << "Puerto 2: " << entry_puerto2->get_text() << std::endl;
-	builder->get_widget("ePoll", entry_intrevalo_polling);
-	std::cout << "Polling: " << entry_intrevalo_polling->get_text() << std::endl;
+	builder->get_widget("ePoll", entry_int_polling);
+	std::cout << "Polling: " << entry_int_polling->get_text() << std::endl;
 	Gtk::FileChooserButton* chooser;
 	builder->get_widget("eDir", chooser);
 	std::cout << "Carpeta: " << chooser->get_current_folder() << std::endl;
@@ -74,12 +74,13 @@ void ClientInterface::login()
 	try
 	{
 		cli.set_directorio(chooser->get_current_folder());
-		cli.login(entry_server->get_text(), entry_puerto1->get_text(),
-				entry_puerto2->get_text(), entry_user->get_text(), entry_password->get_text());
+		cli.login(entry_server->get_text(), entry_puerto1->get_text(),entry_puerto2->get_text(),
+				entry_user->get_text(), entry_password->get_text(), entry_int_polling->get_text());
 		//Login exitoso
 		Gtk::Label* logged;
 		builder->get_widget("lConex", logged);
 		logged->set_text("Conectado");
+		cli.start();
 	}
 	catch (exception &e)
 	{

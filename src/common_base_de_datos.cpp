@@ -23,7 +23,7 @@ bool BaseDeDatos::abrir(const std::string &directorio)
 
 //----- Modificacion de archivos en el directorio
 
-bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, ofstream &ofstream)
+bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, fstream &ofstream)
 {
 	string dir(directorio);
 	dir.append(nombre_archivo);
@@ -31,7 +31,7 @@ bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, ofstream &of
 	return (ofstream.is_open());
 }
 
-bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, ofstream &ofstream)
+bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, fstream &ofstream)
 {
 	string nombre(nombre_archivo);
 	nombre.append(EXT_TMP);
@@ -60,7 +60,7 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 	return remove( nombre_archivo.c_str() );
 }
 
-bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, ifstream &ifstream)
+bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, fstream &ifstream)
 {
 	string path(directorio);
 	path.append(nombre_archivo);

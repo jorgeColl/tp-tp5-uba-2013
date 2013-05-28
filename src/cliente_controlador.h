@@ -5,6 +5,8 @@
 #include "common_controlador.h"
 using namespace std;
 
+#define NOM_IDX_SERV ".auserver"
+#define POLLING_DEFAULT 30
 #define BYTES_CLI_CONT 1
 
 /**
@@ -19,6 +21,7 @@ private:
 	string dir;
 	BaseDeDatos base_de_datos;
 	bool terminar;
+	size_t delay_polling;
 
 	vector<Modificacion> pedir_y_comparar_indices();
 public:
@@ -28,7 +31,8 @@ public:
 	 * @details Se comunicarÃ  con el servidor y este le responderÃ¡ si el usuario y contraseÃ±a son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
-	bool login(string server, string puerto1, string puerto2, string usuario, string contrasenia);
+	void login(string server, string puerto1, string puerto2, string usuario,
+			string contrasenia, string polling);
 
 	void logout();
 

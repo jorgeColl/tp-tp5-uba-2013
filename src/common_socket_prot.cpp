@@ -45,17 +45,17 @@ bool SocketProt::recibir_modif(Modificacion &modif)
 	return true;
 }
 
-bool SocketProt::enviar_pedazo_archivo(ifstream &arch, size_t offset, size_t len)
+bool SocketProt::enviar_pedazo_archivo(istream &arch, size_t offset, size_t len)
 {
 	return true;
 }
 
-bool SocketProt::recibir_pedazo_archivo(ofstream &arch, size_t offset, size_t len)
+bool SocketProt::recibir_pedazo_archivo(ostream &arch, size_t offset, size_t len)
 {
 	return true;
 }
 
-bool SocketProt::enviar_archivo(ifstream &arch)
+bool SocketProt::enviar_archivo(istream &arch)
 {
 	//TODO: Optimizar viendo como funciona el buffer interno de ifstream
 	arch.seekg(0,ios::end);
@@ -74,9 +74,11 @@ bool SocketProt::enviar_archivo(ifstream &arch)
 	return true;
 }
 
-bool SocketProt::recibir_archivo(std::ofstream &arch, streamsize tam)
+bool SocketProt::recibir_archivo(ostream &arch)
 {
 	//TODO: Optimizar viendo como funciona el buffer interno de ofstream
+	streampos tam;
+	if (!recibirLen((char*) tam, sizeof(streampos))) return false;
 	char buffer[TAM_BUFFER];
 	while (tam > 0)
 	{

@@ -78,7 +78,7 @@ bool SocketProt::recibir_archivo(ostream &arch)
 {
 	//TODO: Optimizar viendo como funciona el buffer interno de ofstream
 	streampos tam;
-	if (!recibirLen((char*) tam, sizeof(streampos))) return false;
+	if (!recibirLen((char*) &tam, sizeof(streampos))) return false;
 	char buffer[TAM_BUFFER];
 	while (tam > 0)
 	{

@@ -21,6 +21,11 @@ bool BaseDeDatos::abrir(const std::string &directorio)
 	return true;
 }
 
+vector<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)
+{
+	return vector<Modificacion>();
+}
+
 //----- Modificacion de archivos en el directorio
 
 bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, fstream &ofstream)

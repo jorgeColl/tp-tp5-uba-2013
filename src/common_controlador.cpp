@@ -48,12 +48,12 @@ bool Controlador::pedir_nuevo_archivo(Modificacion& mod){
 	mod.accion =  SUBIR_NUEVO_ARCHIVO;
 	sock1.enviar_modif(mod);
 	// parte prototipo
-	ofstream fd;
-	base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, fd);
+	fstream ofstream;
+	base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, ofstream);
 	streampos largo;
 	sock1.recibirLen((char*)&largo, sizeof(streampos));
-	sock1.recibir_archivo(fd, largo);
-	fd.close();
+	sock1.recibir_archivo(ofstream);
+	ofstream.close();
 	base_de_datos.renombrar_temporal(mod.nombre_archivo);
 	base_de_datos.registrar_nuevo(mod.nombre_archivo);
 	return true;
@@ -66,7 +66,7 @@ bool Controlador::enviar_nuevo_archivo(std::string& nombre_archivo){
 	sock1.enviar_flag(ARCHIVO_ENTERO);
 	// ACA LE TENDRIA QUE PEDIR A LA BASE DE DATOS POR METODO QUE ABRA EL ARCHIVO
 	//ifstream fd(nombre_archivo.c_str(),ifstream::binary);
-	ifstream fd;
+	fstream fd;
 	base_de_datos.abrir_para_leer(nombre_archivo, fd);
 	sock1.enviar_archivo(fd);
 	fd.close();

@@ -130,9 +130,9 @@ private:
 			/** @brief Constructor por parametros explicitos */
 			RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash);
 			/** @brief Constructor por deserializacion */
-			RegistroIndice(const char* bytes, uint8_t tamNombre);
+			RegistroIndice(const char* bytes, uint8_t tamNombre, uint32_t archOffset);
 			/** @brief Devuelve el registro serializado */
-			string serializar();
+			string serializar() const;
 			/** @brief Calcula el hash del archivo y lo agrega al reg en el campo corresp
 			 * @return True si fue exitoso */
 			bool calcularHash();
@@ -144,6 +144,7 @@ private:
 			time_t modif;
 			off_t tam;
 			string hash;
+			uint32_t archOffset;
 	};
 
 	/**
@@ -153,12 +154,24 @@ private:
 	class IndiceRam
 	{
 		public:
+			/** @brief Carga el indice desde un archivo abiert */
 			void cargar(fstream &arch);
+			/** @brief Agrega un registro al indice en ram */
 			void agregar(RegistroIndice &reg);
-			RegistroIndice* buscarNombre(string &nombre);
-			RegistroIndice* buscarFecha(time_t fecha);
-			list<RegistroIndice*> buscarTam(off_t tam);
-			RegistroIndice* buscarHash(string &hash);
+			/** @brief Eliminar un registro al indice en ram */
+			void eliminar(RegistroIndice &reg);
+			/** @brief Modifica un registro del indice en ram */
+			void modificar(RegistroIndice &reg);
+			/** @brief Renombra un registro al indice en ram */
+			void renombrar(RegistroIndice &reg, const string &nombre_nuevo);
+			/** Devuelve un puntero al registro de un dado nombre */
+			RegistroIndice* buscarNombre(const string &nombre);
+			/** Devuelve un puntero al registro de una dada fecha de modificado */
+			RegistroIndice* buscarFecha(const time_t fecha);
+			/** Devuelve un puntero a registros de un dado tamanio */
+			list<RegistroIndice*> buscarTam(const off_t tam);
+			/** Devuelve un puntero a registros dado un hash */
+			RegistroIndice* buscarHash(const string &hash);
 		private:
 			list<RegistroIndice> almacenamiento;
 	};
@@ -175,19 +188,19 @@ private:
 	 * @brief Persiste una eliminacion de archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	bool registrar_eliminado(const RegistroIndice &reg);
+	bool registrar_eliminado_fis(const RegistroIndice &reg);
 
 	/**
 	 * @brief Persiste una modificacion de archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	bool registrar_modificado(const RegistroIndice &reg);
+	bool registrar_modificado_fis(const RegistroIndice &reg);
 
 	/**
 	 * @brief Persiste un renombramiento de archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	bool registrar_renombrado(const RegistroIndice &reg, const string &nombre_nuevo);
+	bool registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo);
 
 	/**
 	 * @brief Carga los contenidos del archivo indice a una estructura en ram

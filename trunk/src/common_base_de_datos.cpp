@@ -116,30 +116,38 @@ bool BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 {
 	try
 	{
+		//Armo el registro con el archivo, y lo agrego al indice en ram y fisico
 		RegistroIndice reg(nombre_archivo, directorio); //Puede fallar si el archivo no es bueno
 		if (!reg.calcularHash()) return false;
 		indice.agregar(reg);
-		return true;
+		return registrar_nuevo_fis(reg);
 	}
 	catch (exception &e) { return false; }
 }
 
 bool BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 {
-	//indice.
-	return true;
+	//Busco el registro y lo elimino de ram y del fisico
+	RegistroIndice *reg = indice.buscarNombre(nombre_archivo);
+	indice.eliminar(*reg);
+	return registrar_eliminado_fis(*reg);
 }
 
 bool BaseDeDatos::registrar_modificado(const string &nombre_archivo)
 {
-	//TODO: Terminar
-	return true;
+	//Busco el registro y le recalculo el hash, y luego lo pongo en ram y el fisico
+	RegistroIndice* reg = indice.buscarNombre(nombre_archivo);
+	if (!reg->calcularHash()) return false;
+	indice.modificar(*reg);
+	return registrar_modificado_fis(*reg);
 }
 
 bool BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo)
 {
-	//TODO: Terminar
-	return true;
+	//Busco el reg y lo edito en ram y luego en el fisico
+	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
+	indice.renombrar(*reg, nombre_nuevo);
+	return registrar_renombrado_fis(*reg, nombre_nuevo);
 }
 
 //----- Metodos privados
@@ -149,12 +157,44 @@ void BaseDeDatos::cargarARam()
 	indice.cargar(archivo);
 }
 
+bool BaseDeDatos::registrar_nuevo_fis(const RegistroIndice &reg)
+{
+	archivo.seekp(0, ios::end);
+	reg.archOffset = archivo.tellp();
+	archivo << reg.serializar();
+	return true;
+}
+
+bool BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
+{
+	//TODO: Eliminado logico y etc
+	return true;
+}
+
+bool BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
+{
+	archivo.seekp(reg.archOffset, ios::beg);
+	archivo << reg.serializar();
+	return true;
+}
+
+bool BaseDeDatos::registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo)
+{
+	reg.nombre = nombre_nuevo;
+	archivo.seekp(reg.archOffset, ios::beg);
+	archivo << reg.serializar();
+	return true;
+}
+
+
 //----- Registro Indice
 
-BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash)
-	: nombre(nombre), modif(modif), tam(tam), hash(hash) {}
+BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif,
+		off_t tam, const string &hash)	: nombre(nombre), modif(modif),
+		tam(tam), hash(hash), archOffset(-1) {}
 
-BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre) : modif(), tam()
+BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre,
+		uint32_t archOffset)	: modif(), tam(), archOffset(archOffset)
 {
 	nombre.append(bytes, tamNombre);
 	memcpy((void*) &modif,(void*) (bytes+tamNombre), sizeof(time_t));
@@ -162,7 +202,9 @@ BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre
 	hash.append(bytes+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
 }
 
-BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre_archivo, const string &dir)
+BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre_archivo,
+		const string &dir) : archOffset(-1)
+
 {
 	string path(dir);
 	path.append(nombre_archivo);
@@ -174,7 +216,7 @@ BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre_archivo, const 
 	tam = buf.st_size;
 }
 
-string BaseDeDatos::RegistroIndice::serializar()
+string BaseDeDatos::RegistroIndice::serializar() const
 {
 	stringstream result;
 	uint8_t tamString = nombre.size();
@@ -183,7 +225,8 @@ string BaseDeDatos::RegistroIndice::serializar()
 	result.write((char*)&modif, sizeof(time_t));
 	result.write((char*)&tam, sizeof(off_t));
 	result.write(hash.c_str(), BYTES_HASH);
-	return result.str();
+	string ret(result.str());
+	return ret;
 }
 
 size_t BaseDeDatos::RegistroIndice::tamMax()
@@ -223,7 +266,22 @@ void BaseDeDatos::IndiceRam::agregar(RegistroIndice &reg)
 	almacenamiento.push_back(reg);
 }
 
-BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(string &nombre)
+void BaseDeDatos::IndiceRam::eliminar(RegistroIndice &reg)
+{
+	almacenamiento.remove(reg);
+}
+
+void BaseDeDatos::IndiceRam::modificar(RegistroIndice &reg)
+{
+	reg.calcularHash();
+}
+
+void BaseDeDatos::IndiceRam::renombrar(RegistroIndice &reg, const string &nombre_nuevo)
+{
+	reg.nombre = nombre_nuevo;
+}
+
+BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(const string &nombre)
 {
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{
@@ -232,7 +290,7 @@ BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(string &nombre
 	return NULL;
 }
 
-BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarFecha(time_t fecha)
+BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarFecha(const time_t fecha)
 {
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{
@@ -241,7 +299,7 @@ BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarFecha(time_t fecha)
 	return NULL;
 }
 
-list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarTam(off_t tam)
+list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarTam(const off_t tam)
 {
 	list<BaseDeDatos::RegistroIndice*> lista;
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
@@ -251,7 +309,7 @@ list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarTam(off_t tam)
 	return lista;
 }
 
-BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarHash(string &hash)
+BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarHash(const string &hash)
 {
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{

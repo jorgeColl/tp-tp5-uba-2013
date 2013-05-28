@@ -2,38 +2,37 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <stdexcept>
 #include "cliente_controlador.h"
-
 using namespace std;
-ClienteControlador::ClienteControlador(){
+
+ClienteControlador::ClienteControlador()
+{
 	terminar = false;
 	dir = "default";
 
 }
-bool ClienteControlador::login(std::string server, std::string puerto1, std::string puerto2, std::string usuario, std::string contrasenia)
+
+bool ClienteControlador::login(string server, string puerto1, string puerto2, string usuario, string contrasenia)
 {
-	cout<<"clienteControlador: me hicieron login con:"<<endl;
-	cout<<"usuario:"<<usuario<<" contreseña:"<<contrasenia<<endl;
 	bool exito;
 	//Estos tiran excepciones dependiendo que falle
 	sock1.conectar(server.c_str(),puerto1.c_str());
-	sock2.conectar(server.c_str(),puerto2.c_str());
 
 	string mensaje;
-	mensaje += "1 ";
-	mensaje += usuario;
-	mensaje += contrasenia;
+	sock1.enviar_flag(LOGIN);
+	sock1.enviar_msg_c_prefijo(usuario, BYTES_CLI_CONT);
+	sock1.enviar_msg_c_prefijo(contrasenia, BYTES_CLI_CONT);
 	exito = sock1.enviarLen(mensaje.c_str(), mensaje.size());
-	if(!exito) {return false;}
+	if(!exito) throw runtime_error("Fallo en la comunicación con el servidor.");
 
-	Packet login;
+	PacketID login;
 	exito = sock1.recibir_flag(login);
-	if(!exito) {return false;}
-	if(login == OK)
-	{
-		return true;
-	}
-	return false;
+	if(!exito) throw runtime_error("Fallo en la comunicación con el servidor.");
+	if(login != OK) throw runtime_error("Los datos de login son incorrectos.");
+
+	sock2.conectar(server.c_str(),puerto2.c_str());
+	return true;
 }
 
 vector<Modificacion> ClienteControlador::pedir_y_comparar_indices() {

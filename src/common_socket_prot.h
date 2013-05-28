@@ -2,12 +2,13 @@
 #define COMMON_SOCKET_PROT_H_
 
 #include <fstream>
+#include <stdint.h>
 #include "common_socket.h"
 #include "common_modificacion.h"
 
 using namespace std;
 
-enum Packet {OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PARTES, HASHES_BLOQUES};
+enum PacketID {OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PARTES, HASHES_BLOQUES};
 
 /**
  * @class SocketProt common_socket_prot.h "common_socket_prot.h"
@@ -21,13 +22,25 @@ public:
 	 * @param flag Byte que contiene los flags
 	 * @return True en caso de exito, false si falla
 	 */
-	bool enviar_flag(const Packet flag);
+	bool enviar_flag(const PacketID flag);
 	/**
 	 * @brief Recibe un byte con flags seteados que indica un mensaje, o el tipo de mensaje que vendra
 	 * @param flag Byte donde se almacenaran los flags
 	 * @return True en caso de exito, false si falla
 	 */
-	bool recibir_flag(Packet &flag);
+	bool recibir_flag(PacketID &flag);
+	/**
+	 * @brief Envia un mensaje, pero le encaja un prefijo de longitud adelante
+	 * @param msg Mensaje a enviar
+	 * @return True en caso de exito, false si falla
+	 */
+	bool enviar_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo);
+	/**
+	 * @brief Recibe un mensaje, esperando que tenga un prefijo de longitud adelante
+	 * @param msg Mensaje a enviar
+	 * @return True en caso de exito, false si falla
+	 */
+	bool recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo);
 	/**
 	 * @brief Envia una modificacion a travez del socket
 	 * @param modif Modificacion que sera enviada

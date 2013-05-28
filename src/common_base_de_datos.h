@@ -5,7 +5,7 @@
 #include <vector>
 #include <stdint.h> 		//uint8_t
 #include <linux/limits.h>	//NAME_MAX
-#include <vector>
+#include <list>
 #include "common_modificacion.h"
 
 using namespace std;
@@ -119,15 +119,6 @@ public:
 
 private:
 	/**
-	 * @brief Carga los contenidos del archivo indice a una estructura en ram
-	 */
-	void cargarARam();
-
-	string directorio;
-	string pathArchivo;
-	fstream archivo;
-
-	/**
 	 * @class RegistroIndice
 	 * @brief Clase auxiliar para pasar datos a ram
 	 */
@@ -157,16 +148,24 @@ private:
 	class IndiceRam
 	{
 		public:
-			IndiceRam(ifstream &arch);
+			void cargar(fstream &arch);
 			void agregar(RegistroIndice &reg);
 			RegistroIndice* buscarNombre(string &nombre);
 			RegistroIndice* buscarFecha(time_t fecha);
-			RegistroIndice* buscarTam(off_t tam);
+			list<RegistroIndice*> buscarTam(off_t tam);
 			RegistroIndice* buscarHash(string &hash);
 		private:
-			vector<RegistroIndice> almacenamiento;
+			list<RegistroIndice> almacenamiento;
 	};
 
+	/**
+	 * @brief Carga los contenidos del archivo indice a una estructura en ram
+	 */
+	void cargarARam();
+	string directorio;
+	string pathArchivo;
+	fstream archivo;
+	IndiceRam indice;
 };
 
 

@@ -135,17 +135,7 @@ bool BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string 
 
 void BaseDeDatos::cargarARam()
 {
-	archivo.seekg(0);
-	char* buffer = new char[RegistroIndice::tamMax()];
-	while(archivo.good())
-	{
-		uint8_t prefijo;
-		archivo.read((char*)&prefijo,1);
-		size_t tamReg = RegistroIndice::tamReg(prefijo);
-		RegistroIndice reg(buffer, tamReg);
-		//TODO: Meter esto en un coso
-	}
-	delete[] buffer;
+	indice.cargar(archivo);
 }
 
 //----- Registro Indice
@@ -184,3 +174,60 @@ size_t BaseDeDatos::RegistroIndice::tamReg(size_t prefijo)
 }
 
 //----- Indice en ram
+
+void BaseDeDatos::IndiceRam::cargar(fstream &arch)
+{
+	arch.seekg(0);
+	char* buffer = new char[RegistroIndice::tamMax()];
+	while(arch.good())
+	{
+		uint8_t prefijo;
+		arch.read((char*)&prefijo,1);
+		size_t tamReg = RegistroIndice::tamReg(prefijo);
+		RegistroIndice reg(buffer, tamReg);
+		almacenamiento.push_back(reg);
+	}
+	delete[] buffer;
+}
+
+void BaseDeDatos::IndiceRam::agregar(RegistroIndice &reg)
+{
+	almacenamiento.push_back(reg);
+}
+
+BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(string &nombre)
+{
+	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
+	{
+		if (it->nombre == nombre) return &(*it);
+	}
+	return NULL;
+}
+
+BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarFecha(time_t fecha)
+{
+	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
+	{
+		if (it->modif == fecha) return &(*it);
+	}
+	return NULL;
+}
+
+list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarTam(off_t tam)
+{
+	list<BaseDeDatos::RegistroIndice*> lista;
+	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
+	{
+		if (it->tam == tam) lista.push_back(&(*it));
+	}
+	return lista;
+}
+
+BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarHash(string &hash)
+{
+	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
+	{
+		if (it->hash == hash) return &(*it);
+	}
+	return NULL;
+}

@@ -3,6 +3,9 @@
 #include <string>
 #include <vector>
 #include "common_controlador.h"
+using namespace std;
+
+#define BYTES_CLI_CONT 1
 
 /**
  * @class Cliente cliente_controlador.h
@@ -25,7 +28,7 @@ public:
 	 * @details Se comunicarÃ  con el servidor y este le responderÃ¡ si el usuario y contraseÃ±a son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
-	bool login(std::string server, std::string puerto1, std::string puerto2, std::string usuario, std::string contrasenia);
+	bool login(string server, string puerto1, string puerto2, string usuario, string contrasenia);
 
 	void logout();
 

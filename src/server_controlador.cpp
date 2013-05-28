@@ -1,13 +1,11 @@
-/*
- * server_controlador.cpp
- *
- *  Created on: 24/05/2013
- *      Author: jorge
- */
 #include "server_controlador.h"
+#include <sstream>
+using namespace std;
 
-ServerControlador::ServerControlador(std::string puerto, std::string directorio){
+ServerControlador::ServerControlador(const string &puerto, const string &directorio)
+	: puerto(puerto), directorio(directorio) { }
 
+
+void ServerControlador::start(){
+	return;
 }
-
-

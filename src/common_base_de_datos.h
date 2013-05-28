@@ -9,6 +9,8 @@ using namespace std;
 
 #define NOMBRE_ARCH_DEF ".auindice"
 #define EXT_TMP ".tmp"
+#define BYTES_PREF_NOMBRE 1
+#define BYTES_HASH 16
 
 class BaseDeDatos
 {
@@ -115,6 +117,26 @@ private:
 	string directorio;
 	string pathArchivo;
 	fstream archivo;
+
+	/**
+	 * @class RegistroIndice
+	 * @brief Clase auxiliar para pasar datos a ram
+	 */
+	class RegistroIndice
+	{
+		public:
+			/** @brief Constructor por parametros */
+			RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash);
+			/** @brief Constructor por deserializacion */
+			RegistroIndice(string &bytes, uint8_t tamNombre);
+			/** @brief Devuelve el registro serializado */
+			string serializar();
+			string nombre;
+			time_t modif;
+			off_t tam;
+			string hash;
+	};
+
 };
 
 

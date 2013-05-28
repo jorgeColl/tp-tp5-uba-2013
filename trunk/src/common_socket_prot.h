@@ -49,8 +49,9 @@ public:
 	 */
 	bool enviar_pedazo_archivo(ifstream &arch, size_t offset, size_t len);
 	/**
-	 * @brief Envia el archivo entero
-	 * @details utilizará el metodo enviar_pedazo_archivo()
+	 * @brief Envia un archivo entero
+	 * @param arch Archivo a enviar
+	 * @pre El archivo esta abierto en modo lectura binaria
 	 */
 	bool enviar_archivo(ifstream &arch);
 	/**
@@ -62,10 +63,13 @@ public:
 	 */
 	bool recibir_pedazo_archivo(ofstream &arch, size_t offset, size_t len);
 	/**
-	 * @brief Recive el archivo entero
-	 * @details utiliza el metodo recibir_pedazo_archivo()
+	 * @brief Recibe un archivo entero
+	 * @param arch Archivo a recibir
+	 * @param tam Tamaño en bytes del archivo
+	 * @return True en caso de exito, false si falla
+	 * @pre El archivo esta abierto en modo escritura binaria
 	 */
-	bool recibir_archivo(std::ofstream& fd);
+	bool recibir_archivo(std::ofstream &arch, streamsize tam);
 };
 
 #endif /* COMMON_SOCKET_PROT_H_ */

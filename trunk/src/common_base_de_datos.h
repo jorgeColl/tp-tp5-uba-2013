@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <vector>
+#include <stdint.h> 	//uint8_t
 #include "common_modificacion.h"
 
 using namespace std;

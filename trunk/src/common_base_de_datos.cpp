@@ -1,7 +1,8 @@
 #include "common_base_de_datos.h"
 #include <dirent.h>		// Explorar directorios
 #include <sys/stat.h>	// Stat
-#include <stdint.h> 	// uint8_t
+#include <cstring> 		// memcpy
+#include <sstream>
 
 bool BaseDeDatos::abrir(const std::string &directorio)
 {

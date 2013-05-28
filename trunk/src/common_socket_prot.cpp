@@ -2,16 +2,37 @@
 
 #define TAM_BUFFER 4096
 
-bool SocketProt::enviar_flag(const Packet flag)
+bool SocketProt::enviar_flag(const PacketID flag)
 {
 	if (enviar((void*) &flag, 1) <= 0) return false;
 	return true;
 }
 
-bool SocketProt::recibir_flag(Packet &flag)
+bool SocketProt::recibir_flag(PacketID &flag)
 {
 	if (recibir((void*) &flag, 1) <= 0) return false;
 	return true;
+}
+
+bool SocketProt::enviar_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
+{
+	if (enviarLen((char*)msg.length(), bytes_para_prefijo) == false) return false;
+	return enviarLen(msg.c_str(), msg.length());
+}
+
+bool SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
+{
+	bool exito;
+	char* buffer1 = new char[bytes_para_prefijo];
+	exito = recibirLen(buffer1, bytes_para_prefijo);
+	if (exito) msg.append(buffer1, bytes_para_prefijo);
+	delete buffer1;
+	if (!exito) return false;
+	char* buffer2 = new char[msg.length()];
+	exito = recibirLen(buffer2, msg.length());
+	if (exito) msg.append(buffer2, msg.length());
+	delete buffer2;
+	return exito;
 }
 
 bool SocketProt::enviar_modif(const Modificacion &modif)

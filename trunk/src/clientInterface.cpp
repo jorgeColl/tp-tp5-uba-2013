@@ -14,7 +14,28 @@ ClientInterface::ClientInterface(int argc, char** argv)
 	{
 	  pButton->signal_clicked().connect(sigc::mem_fun(this,&ClientInterface::login));
 	}
-	//TODO: Cargar parametros guardados
+	cargarPreferencias();
+}
+
+void ClientInterface::cargarPreferencias()
+{
+	//TODO: Leer de archivo
+	Gtk::Entry* entry_server = NULL;
+	Gtk::Entry* entry_puerto1 = NULL;
+	Gtk::Entry* entry_puerto2 = NULL;
+	Gtk::Entry* entry_intrevalo_polling = NULL;
+	Gtk::FileChooserButton* chooser = NULL;
+	builder->get_widget("eServ", entry_server);
+	entry_server->set_text("127.0.0.1");
+	builder->get_widget("ePort1", entry_puerto1);
+	entry_puerto1->set_text("12700");
+	builder->get_widget("ePort2", entry_puerto2);
+	entry_puerto2->set_text("12701");
+	builder->get_widget("ePoll", entry_intrevalo_polling);
+	entry_intrevalo_polling->set_text("10");
+	//Sin archivo esta parte no tiene chiste
+	//builder->get_widget("eDir", chooser);
+	//chooser->set_current_folder(chooser->get_current_folder().append("/user1"));
 }
 
 void ClientInterface::correr()
@@ -26,14 +47,12 @@ void ClientInterface::correr()
 #include <iostream>
 void ClientInterface::login()
 {
-	std::cout << "CLICK" << std::endl;
-
-	Gtk::Entry* entry_user = 0;
-	Gtk::Entry* entry_password = 0;
-	Gtk::Entry* entry_server = 0;
-	Gtk::Entry* entry_puerto1 = 0;
-	Gtk::Entry* entry_puerto2 = 0;
-	Gtk::Entry* entry_intrevalo_polling = 0;
+	Gtk::Entry* entry_user = NULL;
+	Gtk::Entry* entry_password = NULL;
+	Gtk::Entry* entry_server = NULL;
+	Gtk::Entry* entry_puerto1 = NULL;
+	Gtk::Entry* entry_puerto2 = NULL;
+	Gtk::Entry* entry_intrevalo_polling = NULL;
 
 	builder->get_widget("eUser", entry_user);
 	std::cout << "Usuario: " << entry_user->get_text() << std::endl;

@@ -15,6 +15,7 @@ class ClientInterface
 {
 public:
 	ClientInterface(int argc, char** argv);
+	void cargarPreferencias();
 	void login();
 	void correr();
 private:

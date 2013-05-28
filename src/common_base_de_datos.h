@@ -3,15 +3,23 @@
 
 #include <fstream>
 #include <vector>
-#include <stdint.h> 	//uint8_t
+#include <stdint.h> 		//uint8_t
+#include <linux/limits.h>	//NAME_MAX
+#include <vector>
 #include "common_modificacion.h"
 
 using namespace std;
 
 #define NOMBRE_ARCH_DEF ".auindice"
 #define EXT_TMP ".tmp"
-#define BYTES_PREF_NOMBRE 1
 #define BYTES_HASH 16
+//Definicion de bytes para prefijo de largo de nombre de archivo
+#define BYTES_PREF_NOMBRE 1
+#if NAME_MAX > 255 //Si el sistema operativo permite nombres mas largos
+#undef BYTES_PREF_NOMBRE
+#define BYTES_PREF_NOMBRE 2
+#endif
+
 
 class BaseDeDatos
 {
@@ -129,13 +137,34 @@ private:
 			/** @brief Constructor por parametros */
 			RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash);
 			/** @brief Constructor por deserializacion */
-			RegistroIndice(string &bytes, uint8_t tamNombre);
+			RegistroIndice(const char* bytes, uint8_t tamNombre);
 			/** @brief Devuelve el registro serializado */
 			string serializar();
+			/** @brief Devuelve el tam maximo que puede ocupar un registro */
+			static size_t tamMax();
+			/** @brief Devuelve el tam que ocupa un registro dado su prefijo de longitud */
+			static size_t tamReg(size_t prefijo);
 			string nombre;
 			time_t modif;
 			off_t tam;
 			string hash;
+	};
+
+	/**
+	 * @class IndiceRam
+	 * @brief Clase auxiliar para contener en ram el indice
+	 */
+	class IndiceRam
+	{
+		public:
+			IndiceRam(ifstream &arch);
+			void agregar(RegistroIndice &reg);
+			RegistroIndice* buscarNombre(string &nombre);
+			RegistroIndice* buscarFecha(time_t fecha);
+			RegistroIndice* buscarTam(off_t tam);
+			RegistroIndice* buscarHash(string &hash);
+		private:
+			vector<RegistroIndice> almacenamiento;
 	};
 
 };

@@ -3,6 +3,7 @@
 
 #include <gtkmm.h>
 #include <glibmm.h>
+#include "cliente_controlador.h"
 
 #define USER_GLADE "user.glade"
 
@@ -19,6 +20,7 @@ public:
 private:
 	Gtk::Dialog* window;
 	Glib::RefPtr<Gtk::Builder> builder;
+	ClienteControlador cli;
 };
 
 #endif /* CLIENTINTERFACE_H_ */

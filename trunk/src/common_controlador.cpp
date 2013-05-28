@@ -50,7 +50,9 @@ bool Controlador::pedir_nuevo_archivo(Modificacion& mod){
 	// parte prototipo
 	ofstream fd;
 	base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, fd);
-	sock1.recibir_archivo(fd);
+	streampos largo;
+	sock1.recibirLen((char*)&largo, sizeof(streampos));
+	sock1.recibir_archivo(fd, largo);
 	fd.close();
 	base_de_datos.renombrar_temporal(mod.nombre_archivo);
 	base_de_datos.registrar_nuevo(mod.nombre_archivo);

@@ -157,7 +157,7 @@ void BaseDeDatos::cargarARam()
 	indice.cargar(archivo);
 }
 
-bool BaseDeDatos::registrar_nuevo_fis(const RegistroIndice &reg)
+bool BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
 {
 	archivo.seekp(0, ios::end);
 	reg.archOffset = archivo.tellp();
@@ -180,9 +180,10 @@ bool BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
 
 bool BaseDeDatos::registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo)
 {
-	reg.nombre = nombre_nuevo;
-	archivo.seekp(reg.archOffset, ios::beg);
-	archivo << reg.serializar();
+	//Ojala fuera tan sencillo, el nombre nuevo puede ser más grande,
+	//mejor borrar y volver a agregar
+	//archivo.seekp(reg.archOffset, ios::beg);
+	//archivo << reg.serializar();
 	return true;
 }
 
@@ -244,6 +245,12 @@ bool BaseDeDatos::RegistroIndice::calcularHash()
 	return MD5_arch(nombre, hash);
 }
 
+bool BaseDeDatos::RegistroIndice::operator==(const RegistroIndice &r2)
+{
+	return (nombre == r2.nombre && modif == r2.modif && tam == r2.tam
+			&& hash == r2.hash && archOffset == r2.archOffset);
+}
+
 //----- Indice en ram
 
 void BaseDeDatos::IndiceRam::cargar(fstream &arch)
@@ -255,7 +262,7 @@ void BaseDeDatos::IndiceRam::cargar(fstream &arch)
 		uint8_t prefijo;
 		arch.read((char*)&prefijo,1);
 		size_t tamReg = RegistroIndice::tamReg(prefijo);
-		RegistroIndice reg(buffer, tamReg);
+		RegistroIndice reg(buffer, tamReg, arch.tellg());
 		almacenamiento.push_back(reg);
 	}
 	delete[] buffer;

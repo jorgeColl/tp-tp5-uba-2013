@@ -3,6 +3,8 @@
 #include <sys/stat.h>		// Stat
 #include <cstring> 			// memcpy
 #include <sstream>
+#include <stdexcept>
+#include "common_hashing.h"
 
 bool BaseDeDatos::abrir(const std::string &directorio)
 {
@@ -108,19 +110,23 @@ vector<Modificacion> comparar_indices(fstream &otro)
 	return vector<Modificacion>();
 }
 
-
-
 //----- Registracion en el indice de eventos
 
 bool BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 {
-	//TODO: Terminar
-	return true;
+	try
+	{
+		RegistroIndice reg(nombre_archivo, directorio); //Puede fallar si el archivo no es bueno
+		if (!reg.calcularHash()) return false;
+		indice.agregar(reg);
+		return true;
+	}
+	catch (exception &e) { return false; }
 }
 
 bool BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 {
-	//TODO: Terminar
+	//indice.
 	return true;
 }
 
@@ -156,6 +162,18 @@ BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre
 	hash.append(bytes+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
 }
 
+BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre_archivo, const string &dir)
+{
+	string path(dir);
+	path.append(nombre_archivo);
+	struct stat buf;
+	int val = stat(path.c_str(), &buf);
+	if (val == -1 || !S_ISREG(buf.st_mode)) throw invalid_argument("Archivo malo");
+	nombre = string(nombre_archivo);
+	modif = buf.st_mtim.tv_sec;
+	tam = buf.st_size;
+}
+
 string BaseDeDatos::RegistroIndice::serializar()
 {
 	stringstream result;
@@ -176,6 +194,11 @@ size_t BaseDeDatos::RegistroIndice::tamMax()
 size_t BaseDeDatos::RegistroIndice::tamReg(size_t prefijo)
 {
 	return prefijo+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
+}
+
+bool BaseDeDatos::RegistroIndice::calcularHash()
+{
+	return MD5_arch(nombre, hash);
 }
 
 //----- Indice en ram

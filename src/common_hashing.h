@@ -15,7 +15,7 @@ using namespace std;
  * @param hash String donde se guardara el hash
  * @return True si el proceso fue exitoso, false de no serlo
  */
-bool MD5_arch(ifstream &arch, string &hash);
+bool MD5_arch(string &nombre_arch, string &hash);
 
 /**
  * @brief Devuelve el hash MD5 aplicado a cada bloque del archivo

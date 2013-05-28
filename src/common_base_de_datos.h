@@ -125,12 +125,17 @@ private:
 	class RegistroIndice
 	{
 		public:
-			/** @brief Constructor por parametros */
+			/** @brief Constructor por toma de datos de archivo fisico */
+			RegistroIndice(const string &nombre_archivo, const string &dir);
+			/** @brief Constructor por parametros explicitos */
 			RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash);
 			/** @brief Constructor por deserializacion */
 			RegistroIndice(const char* bytes, uint8_t tamNombre);
 			/** @brief Devuelve el registro serializado */
 			string serializar();
+			/** @brief Calcula el hash del archivo y lo agrega al reg en el campo corresp
+			 * @return True si fue exitoso */
+			bool calcularHash();
 			/** @brief Devuelve el tam maximo que puede ocupar un registro */
 			static size_t tamMax();
 			/** @brief Devuelve el tam que ocupa un registro dado su prefijo de longitud */
@@ -158,10 +163,37 @@ private:
 			list<RegistroIndice> almacenamiento;
 	};
 
+	//----- Modificacion del archivo fisico
+
+	/**
+	 * @brief Persiste un nuevo archivo en la indexacion fisica
+	 * @return True si la operacion tiene exito
+	 */
+	bool registrar_nuevo_fis(const RegistroIndice &reg);
+
+	/**
+	 * @brief Persiste una eliminacion de archivo en la indexacion fisica
+	 * @return True si la operacion tiene exito
+	 */
+	bool registrar_eliminado(const RegistroIndice &reg);
+
+	/**
+	 * @brief Persiste una modificacion de archivo en la indexacion fisica
+	 * @return True si la operacion tiene exito
+	 */
+	bool registrar_modificado(const RegistroIndice &reg);
+
+	/**
+	 * @brief Persiste un renombramiento de archivo en la indexacion fisica
+	 * @return True si la operacion tiene exito
+	 */
+	bool registrar_renombrado(const RegistroIndice &reg, const string &nombre_nuevo);
+
 	/**
 	 * @brief Carga los contenidos del archivo indice a una estructura en ram
 	 */
 	void cargarARam();
+
 	string directorio;
 	string pathArchivo;
 	fstream archivo;

@@ -1,6 +1,7 @@
 #include "common_base_de_datos.h"
-#include <dirent.h>
-#include <sys/stat.h>
+#include <dirent.h>		// Explorar directorios
+#include <sys/stat.h>	// Stat
+#include <stdint.h> 	// uint8_t
 
 bool BaseDeDatos::abrir(const std::string &directorio)
 {
@@ -129,5 +130,38 @@ bool BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string 
 
 void BaseDeDatos::cargarARam()
 {
+	archivo.seekg(0);
+	while(archivo.good())
+	{
+		uint8_t prefijo;
+		archivo.read((char*)&prefijo,1);
+		//char* buffer
+		//delete buffer;
+	}
+}
 
+//----- Registro Indice
+
+BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash)
+	: nombre(nombre), modif(modif), tam(tam), hash(hash) {}
+
+BaseDeDatos::RegistroIndice::RegistroIndice(string &bytes, uint8_t tamNombre) : modif(0), tam(0)
+{
+	const char* src = bytes.c_str();
+	nombre.append(src, tamNombre);
+	memcpy((void*) &modif,(void*) (src+tamNombre), sizeof(time_t));
+	memcpy((void*) &tam,(void*)(src+tamNombre+sizeof(time_t)), sizeof(off_t));
+	hash.append(src+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
+}
+
+string BaseDeDatos::RegistroIndice::serializar()
+{
+	stringstream result;
+	uint8_t tamString = nombre.size();
+	result.write((char*)&tamString, BYTES_PREF_NOMBRE);
+	result.write(nombre.c_str(), nombre.size());
+	result.write((char*)&modif, sizeof(time_t));
+	result.write((char*)&tam, sizeof(off_t));
+	result.write(hash.c_str(), BYTES_HASH);
+	return result.str();
 }

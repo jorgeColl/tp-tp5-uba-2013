@@ -40,13 +40,14 @@ bool SocketProt::enviar_archivo(ifstream &arch)
 	arch.seekg(0,ios::end);
 	streampos fin = arch.tellg();
 	arch.seekg(0);
+	if (!enviarLen((const char*) &fin, sizeof(streampos))) return false; //Envio el prefijo de longitud
 	char buffer[TAM_BUFFER];
 	while (fin > 0)
 	{
 		streamsize aEnviar = TAM_BUFFER;
 		if (fin < TAM_BUFFER) aEnviar = fin;
 		arch.read(buffer, aEnviar);
-		if (!enviarLen(buffer, aEnviar)) return false;
+		if (!enviarLen(buffer, aEnviar)) return false; //Envio el archivo
 		fin -= aEnviar;
 	}
 	return true;
@@ -60,7 +61,7 @@ bool SocketProt::recibir_archivo(std::ofstream &arch, streamsize tam)
 	{
 		streamsize aRecibir = TAM_BUFFER;
 		if (tam < TAM_BUFFER) aRecibir = tam;
-		if (!recibirLen(buffer, aRecibir)) return false;
+		if (!recibirLen(buffer, aRecibir)) return false;  //Recibo el archivo
 		arch.write(buffer, aRecibir);
 		tam -= aRecibir;
 	}

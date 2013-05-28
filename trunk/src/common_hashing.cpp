@@ -1,5 +1,5 @@
 #include "common_hashing.h"
-#include "hashlib/hashlibpp.h"
+#include "hashlib/hl_md5wrapper.h"
 
 bool MD5_arch(string &nombre_arch, string &hash)
 {

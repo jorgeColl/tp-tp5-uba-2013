@@ -22,13 +22,13 @@ public:
 	 * @brief abre un archivo y devuelve el ifstream correspondiente al archivo abierto
 	 * @details sirve para que despues otras clases lean del archivo abierto
 	 */
-	std::ifstream& abrir_para_leer(std::string& nombre_archivo);
+	std::ifstream* abrir_para_leer(std::string& nombre_archivo);
 	/**
 	 * @brief dado un nombre de archivo ,crea y abre un nuevo archivo y devuelve el ofstream
 	 *  correspondiente a ese archivo
 	 *  @details esto sirve para que otras clases llenen con datos este archivo
 	 */
-	std::ofstream& generar_archivo_temp(std::string& nombre_archivo);
+	std::ofstream* generar_archivo_temp(std::string& nombre_archivo);
 	/**
 	 * @brief si la carga de datos al archivo finalizó y se realizó con exito,
 	 *  se guarda con el verdadero nombre y se lo indexa

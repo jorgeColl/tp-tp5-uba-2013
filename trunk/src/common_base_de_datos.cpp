@@ -18,13 +18,13 @@ bool BaseDeDatos::abrir(const std::string &directorio)
 	cargarARam();
 	return true;
 }
-std::ofstream& BaseDeDatos::generar_archivo_temp(std::string& nombre_archivo){
+std::ofstream* BaseDeDatos::generar_archivo_temp(std::string& nombre_archivo){
 	string dir;
 	dir+= directorio;
 	dir+= nombre_archivo;
 	dir+= ".temp";
 	ofstream* fd = new ofstream(dir.c_str());
-	return *fd;
+	return fd;
 }
 bool BaseDeDatos::cerrar_exitosamente_archivo(std::string nombre_archivo, std::ofstream& fd) {
 	fd.close();
@@ -40,12 +40,12 @@ bool BaseDeDatos::cerrar_exitosamente_archivo(std::string nombre_archivo, std::o
 
 	return true;
 }
-std::ifstream& BaseDeDatos::abrir_para_leer(std::string& nombre_archivo) {
+std::ifstream* BaseDeDatos::abrir_para_leer(std::string& nombre_archivo) {
 	string dir;
 	dir+=directorio;
 	dir+=nombre_archivo;
 	ifstream* fd = new ifstream(dir.c_str());
-	return *fd;
+	return fd;
 }
 
 

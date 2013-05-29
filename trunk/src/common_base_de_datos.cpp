@@ -16,7 +16,8 @@ bool BaseDeDatos::abrir(const string directorio)
 {
 	this->directorio.append(directorio);
 	pathArchivo.append(directorio);
-	pathArchivo.append(NOMBRE_ARCH_DEF);
+	pathArchivo += "/";
+	pathArchivo += NOMBRE_ARCH_DEF;
 	archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
 	if (!archivo.is_open())
 	{

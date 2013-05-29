@@ -7,6 +7,8 @@
 
 Socket::Socket() : sockfd(-1) {}
 
+Socket::Socket(int sockfd) : sockfd(sockfd) {}
+
 void Socket::conectar(const char* address, const char* puerto)
 {
 	//Todo: Encapsular addrinfo en un objeto para evitar problemas de memoria

@@ -1,3 +1,4 @@
+#include <cstring>	// Memcpy
 #include "common_socket_prot.h"
 
 #define TAM_BUFFER 4096

@@ -29,7 +29,7 @@ public:
 	 * @param directorio Directorio donde se ubicara el archivo
 	 * @return true si pudo accederse al archivo, false en otro caso
 	 */
-	bool abrir(const string &directorio);
+	bool abrir(const std::string directorio);
 
 	//----- Modificacion de archivos en el directorio
 
@@ -45,7 +45,7 @@ public:
 	/**
 	 * @brief Dado un nombre de archivo, crea y abre un nuevo archivo en el ofstream
 	 * @param nombre_archivo Nombre del archivo (solo el nombre, no el path)
-	 * @param ifstream Aqui se intentara abrir el archivo
+	 * @param ofstream Aqui se intentara abrir el archivo
 	 * @return True si pudo crearse y abrirse correctamente el archivo
 	 * @post Si la operacion fue exitosa ofstream esta abierto para escritura en modo binario
 	 */

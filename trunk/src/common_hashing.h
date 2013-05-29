@@ -11,7 +11,7 @@ using namespace std;
 
 /**
  * @brief Devuelve el hash MD5 de un archivo entero
- * @param arch Archivo que se leera
+ * @param nombre_arch Archivo que se leera
  * @param hash String donde se guardara el hash
  * @return True si el proceso fue exitoso, false de no serlo
  */

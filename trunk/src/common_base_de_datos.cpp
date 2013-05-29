@@ -5,11 +5,17 @@
 #include <sstream>
 #include <stdexcept>
 #include "common_hashing.h"
+#include <iostream>
 
-bool BaseDeDatos::abrir(const std::string &directorio)
+#include <stdexcept> 	// Excepciones genericas
+#include <cstring>		// Para manejar los buffers
+#include <cerrno> 		// Errores de C
+
+
+bool BaseDeDatos::abrir(const string directorio)
 {
-	this->directorio = directorio;
-	pathArchivo = directorio;
+	this->directorio.append(directorio);
+	pathArchivo.append(directorio);
 	pathArchivo.append(NOMBRE_ARCH_DEF);
 	archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
 	if (!archivo.is_open())
@@ -48,6 +54,8 @@ bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, fst
 bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombre) {
 	string path1(directorio);
 	string path2(directorio);
+	path1+="/";
+	path2+="/";
 	path1.append(viejo_nombre);
 	path2.append(nuevo_nombre);
 	// A criterio si conviene levantar una excepcion si rename != 0
@@ -64,7 +72,16 @@ bool BaseDeDatos::renombrar_temporal(const string &nombre_archivo)
 bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 {
 	// A criterio si conviene levantar una excepcion si rename != 0
-	return remove( nombre_archivo.c_str() );
+	string tmp(directorio);
+	tmp+=nombre_archivo;
+	int exito=remove( tmp.c_str() );
+	cout<<"remove nombre: "<<tmp<<endl;
+	cout<<"remove: "<<exito<<endl;
+	if(exito == -1){
+		throw std::runtime_error(strerror(errno));
+	}
+
+	return exito;
 }
 
 bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, fstream &ifstream)

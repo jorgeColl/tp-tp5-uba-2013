@@ -1,3 +1,5 @@
+//#define saco_para_prueba
+#ifndef saco_para_prueba
 #include <iostream>
 #include "cliente_controlador.h"
 #include "clientInterface.h"
@@ -29,3 +31,4 @@ int main (int argc, char** argv)
 	}
 	return 0;
 }
+#endif

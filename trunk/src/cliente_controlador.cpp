@@ -13,7 +13,7 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 {
 	bool exito;
 	//Estos tiran excepciones dependiendo que falle
-	sock1.conectar(server.c_str(),puerto1.c_str());
+	sock1.conectar(server.c_str(), puerto1.c_str());
 
 	string mensaje;
 	sock1.enviar_flag(LOGIN);

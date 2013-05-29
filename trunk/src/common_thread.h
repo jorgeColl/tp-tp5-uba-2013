@@ -6,7 +6,7 @@
 #include <iostream>
 
 /**
- * @class Thread commonThread.h "commonThread.h"
+ * @class Thread common_thread.h
  * @brief clase abstracta para implementar objetos que corren en threads
  */
 class Thread{
@@ -32,9 +32,10 @@ class Thread{
 	  virtual bool sleep(unsigned int segundos);
 	  virtual ~Thread(){};
 	  /**
-	   * @var Indica si al thread se le ha pedido que se detenga
+	   * @var bool corriendo
+	   * @brief Indica si al thread se le ha pedido que se detenga
 	   */
-	  bool corriendo ;
+	  bool corriendo;
 	private:
 	  /**
 	   * @brief Metodo virtual a modificar para cada objeto que herede

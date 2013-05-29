@@ -3,6 +3,9 @@
 
 #define TAM_BUFFER 4096
 
+SocketProt::SocketProt(){}
+SocketProt::SocketProt (int socketfd):Socket(socketfd) {
+}
 bool SocketProt::enviar_flag(const PacketID flag)
 {
 	if (enviar((void*) &flag, 1) <= 0) return false;
@@ -91,4 +94,12 @@ bool SocketProt::recibir_archivo(ostream &arch)
 		tam -= aRecibir;
 	}
 	return true;
+}
+void codificar(std::string& mensaje)
+{
+	// por ahora no hace nada
+}
+void decodificar(std::string& mensaje)
+{
+	// por ahora no hace nada
 }

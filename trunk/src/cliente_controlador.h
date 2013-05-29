@@ -19,20 +19,21 @@ private:
 	SocketProt sock1;
 	SocketProt sock2;
 	string dir;
-	BaseDeDatos base_de_datos;
+
 	bool terminar;
 	size_t delay_polling;
 
 	vector<Modificacion> pedir_y_comparar_indices();
 public:
+	BaseDeDatos base_de_datos;
 	ClienteControlador();
 	/**
 	 * @brief IntentarÃ¡ iniciar sesion con el usuario y contraseÃ±a ingresados, en el servidor y los puertos indicados
 	 * @details Se comunicarÃ  con el servidor y este le responderÃ¡ si el usuario y contraseÃ±a son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
-	void login(string server, string puerto1, string puerto2, string usuario,
-			string contrasenia, string polling);
+	void login(string server, string puerto1, string puerto2,
+			string usuario, string contrasenia, string polling);
 
 	void logout();
 

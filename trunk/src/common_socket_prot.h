@@ -17,6 +17,8 @@ enum PacketID {OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PA
 class SocketProt : public Socket
 {
 public:
+	SocketProt();
+	SocketProt(int socketfd);
 	/**
 	 * @brief Envia un byte con flags seteados que indica un mensaje, o el tipo de mensaje que vendra
 	 * @param flag Byte que contiene los flags
@@ -78,11 +80,14 @@ public:
 	/**
 	 * @brief Recibe un archivo entero
 	 * @param arch Archivo a recibir
-	 * @param tam Tamaño en bytes del archivo
 	 * @return True en caso de exito, false si falla
 	 * @pre El archivo esta abierto en modo escritura binaria
 	 */
 	bool recibir_archivo(std::ostream &arch);
+	/**@brief firma un mensaje  */
+	bool firmar_mensaje(std::string& mensaje, std::string contrasenia);
+	/**@brief verifica si el mensaje está correctamente firmado */
+	bool comprobar_firma(std::string& mensaje,std::string contrasenia);
 };
 
 #endif /* COMMON_SOCKET_PROT_H_ */

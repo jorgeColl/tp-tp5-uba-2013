@@ -5,7 +5,7 @@
 #include <iostream>
 
 /**
- * @class Mutex commonMutex.h "commonMutex.h"
+ * @class Mutex common_mutex.h
  * @brief Encapsulamiento al mutex normal de C
  */
 class Mutex
@@ -26,7 +26,7 @@ class Mutex
 };
 
 /**
- * @class Lock commonMutex.h "commonMutex.h"
+ * @class Lock common_mutex.h
  * @brief Permite utilizar el mutex de forma mas abstracta
  */
 class Lock

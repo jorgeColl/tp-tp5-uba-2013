@@ -4,6 +4,7 @@ Leyenda:
 [.] - En proceso
 [ ] - Sin empezar
 [?] - indeciso si implementar o no
+[!] - Cambiar antes de entrega final
 
 Cliente:
 	[.] Interface grafica
@@ -51,7 +52,10 @@ Base de datos:
 	[ ] Recorrer y obtener lista dearchivos con fecha modif
 	[ ] Comparar con indice y generar lista de modif
 	
-
+Base de datos de usuarios:
+	[!] En vez de usar nombre de usuario y contraseña usar 
+		nombre de usuario y hash para corroborar que el usuario 
+		pertenece a la base de datos
 General:
 	[ ] Encriptacion de passwords
 	[ ] Protocolo de comunicacion

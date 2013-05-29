@@ -61,7 +61,8 @@ class Socket
 		 */
 		bool recibirLen(char *msg, size_t len);
 		/**
-		 * @var Socket file descriptor asociado
+		 * @var int sockfd
+		 * @brief socket file descriptor asociado
 		 */
 		int sockfd;
 };

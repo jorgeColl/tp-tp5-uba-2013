@@ -17,3 +17,4 @@ sem6)
 	optimizacion de las modificaciones
 	syslog
 	
+sem7) graficador

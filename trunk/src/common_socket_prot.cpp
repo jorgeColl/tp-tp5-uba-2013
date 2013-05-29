@@ -23,14 +23,15 @@ bool SocketProt::enviar_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 bool SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 {
 	bool exito;
-	char* buffer1 = new char[bytes_para_prefijo];
+	char* buffer1 = new char[bytes_para_prefijo]; // Pido el prefijo como char[]
 	exito = recibirLen(buffer1, bytes_para_prefijo);
-	if (exito) msg.append(buffer1, bytes_para_prefijo);
+	size_t tam;
+	memcpy(&tam, buffer1, bytes_para_prefijo); // Copio bytes del char[] al size_t
 	delete buffer1;
 	if (!exito) return false;
-	char* buffer2 = new char[msg.length()];
-	exito = recibirLen(buffer2, msg.length());
-	if (exito) msg.append(buffer2, msg.length());
+	char* buffer2 = new char[tam];
+	exito = recibirLen(buffer2, tam); // Recibo los bytes
+	if (exito) msg.append(buffer2, tam);  // Append de los bytes
 	delete buffer2;
 	return exito;
 }

@@ -9,7 +9,7 @@
 #define MODIFICACION_H_
 
 #include <string>
-
+#include <iostream>
 enum tipo_accion{ SUBIR_NUEVO_ARCHIVO, BAJAR_NUEVO_ARCHIVO, BORRAR_ARCHIVO_LOCAL, MANDAR_A_BORRAR_ARCHIVO, SUBIR_MOD_ARCHIVO, BAJAR_MOD_ARCHIVO };
 
 class Modificacion {
@@ -30,5 +30,7 @@ public:
 	 */
 	void desserializar(std::string);
 };
+
+std::ostream& operator<<(std::ostream& os, Modificacion& mod);
 
 #endif /* MODIFICACION_H_ */

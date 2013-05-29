@@ -39,7 +39,7 @@ ostream& operator<<(ostream& os, Modificacion& mod) {
 		accion = "BAJAR_MOD_ARCHIVO";
 		break;
 	}
-	os << "Accion: "<<mod.accion <<" Nombre de archivo: "<<mod.nombre_archivo<<endl;
+	os << "Accion: "<<accion <<" Nombre de archivo: "<<mod.nombre_archivo<<endl;
 	os <<"Bloque inicial: "<<mod.bloque_ini<<" Bloque final: "<<mod.bloque_fin;
 	return os ;
 }

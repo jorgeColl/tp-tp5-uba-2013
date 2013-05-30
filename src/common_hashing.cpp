@@ -1,12 +1,12 @@
 #include "common_hashing.h"
 #include "hashlib/hl_md5wrapper.h"
 
-bool MD5_arch(string &nombre_arch, string &hash)
+bool MD5_arch(const string &path_arch, const string &password, string &hash)
 {
 	md5wrapper wrapper;
 	try
 	{
-		hash = wrapper.getHashFromFile(nombre_arch);
+		hash = wrapper.getHashFromFile(path_arch);
 	}
 	catch(hlException &e)
 	{

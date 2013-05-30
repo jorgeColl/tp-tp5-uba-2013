@@ -34,12 +34,14 @@ public:
 	/**
 	 * @brief Envia un mensaje, pero le encaja un prefijo de longitud adelante
 	 * @param msg Mensaje a enviar
+	 * @param bytes_para_prefijo cant de bytes a enviar en el mensaje como prefijo
 	 * @return True en caso de exito, false si falla
 	 */
 	bool enviar_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo);
 	/**
 	 * @brief Recibe un mensaje, esperando que tenga un prefijo de longitud adelante
 	 * @param msg Mensaje a enviar
+	 * @param bytes_para_prefijo cantidad de bytes a leer del mensaje que se interpretarán como prefijo
 	 * @return True en caso de exito, false si falla
 	 */
 	bool recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo);

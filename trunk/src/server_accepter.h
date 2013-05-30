@@ -10,10 +10,12 @@
 #include "server_base_de_datos_usuario.h"
 #include "server_thread_communicator.h"
 #include "common_socket_prot.h"
+#include "common_threadM.h"
+#include "common_mutex.h"
 
 #define MAX_COLA 1000
 // usa puerto 1
-class Accepter {
+class Accepter: public ThreadM {
 	bool finish;
 	BaseDeDatosUsuario base_datos_usu;
 	const char* dir;
@@ -22,19 +24,29 @@ class Accepter {
 	const char* puerto2;
 	SocketProt sock_prot1;
 	SocketProt sock_prot2;
+	Mutex mutex;
 public:
 	Accepter(const char* dir, const char* puerto1, const char* puerto2) :
 			finish(false), base_datos_usu(dir), dir(dir) {
 		this->puerto1 = puerto1;
 		this->puerto2 = puerto2;
 	}
-	void start() {
+	void ejecutar() {
 		sock_prot1.escuchar(puerto1, MAX_COLA);
-		sock_prot2.escuchar(puerto2,MAX_COLA);
+		sock_prot2.escuchar(puerto2, MAX_COLA);
 		bool exito = true;
 		while (exito && finish) {
 			exito = aceptar_conexion();
 		}
+	}
+	void stop() {
+		Lock lock_temp (mutex);
+		finish = false;
+		for (size_t i = 0; i < comunicadores.size(); ++i) {
+			comunicadores[i]->stop();
+		}
+		sock_prot1.cerrar();
+		sock_prot2.cerrar();
 	}
 	/**@brief acepta una conexion y crea threads de acuerdo al mensaje
 	 * @details utiliza al socket para aceptar/rechazar conexiones entrantes

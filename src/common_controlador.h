@@ -14,7 +14,6 @@ protected:
 	bool terminar;
 public:
 
-	virtual void start() = 0;
 	/** @brief Setea el directorio en donde se guardan los archivos del usuario
 	 * OJO: usar antes del start()  */
 	void set_directorio(std::string dir);
@@ -67,8 +66,7 @@ public:
 	 */
 	bool pedir_modificacion(std::string& nombre_archivo);
 
-	virtual ~Controlador() {
-	}
+	//virtual ~Controlador() {}
 };
 
 #endif /* COMMON_CONTROLADOR_H_ */

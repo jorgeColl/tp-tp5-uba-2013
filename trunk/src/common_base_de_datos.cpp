@@ -4,13 +4,13 @@
 #include <cstring> 			// memcpy
 #include <sstream>
 #include <stdexcept>
-#include "common_hashing.h"
 #include <iostream>
 
 #include <stdexcept> 	// Excepciones genericas
 #include <cstring>		// Para manejar los buffers
 #include <cerrno> 		// Errores de C
 
+#include "common_hashing.h"
 
 bool BaseDeDatos::abrir(const string directorio)
 {
@@ -98,7 +98,22 @@ bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, fstream &ifstrea
 std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 {
 	std::vector<Modificacion> modifs;
-
+	// Me fijo si los archivos que tenia indexado siguen en la carpeta
+	list<string> archIndexados = indice.devolverNombres();
+	{
+		for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
+		{
+			// Vemos si el archivo aun existe y sino lo marcamos como eliminado
+			// Nota: Más abajo nos fijamos si fue renombrado
+			struct stat buf;
+			int existe = stat(it->c_str(), &buf);
+			if (existe < 0)
+			{
+				Modificacion modif(MANDAR_A_BORRAR_ARCHIVO, *it);
+				modifs.push_back(modif);
+			}
+		}
+	}
 	DIR* dir = opendir(directorio.c_str());
 	if (dir == NULL) return modifs;
 	struct dirent* dirEnt = readdir(dir);
@@ -113,8 +128,33 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 			dirEnt = readdir(dir); //Error, seguimos
 			continue;
 		}
-		//Todo: hacer algo con esto
-		RegistroIndice reg(string(dirEnt->d_name), buf.st_mtim.tv_sec, buf.st_size, string());
+		//Todo: Terminar
+		string nombre(dirEnt->d_name);
+		RegistroIndice* esta = indice.buscarNombre(nombre);
+		if (esta) // Ya estaba indexado, vemos si fue modificado
+		{
+			if (buf.st_mtim.tv_sec != esta->modif) // Se encontro archivo de mismo nombre y distinta fecha modif
+			{
+				Modificacion modif(SUBIR_MOD_ARCHIVO, esta->nombre);
+				modifs.push_back(modif);
+			}
+		}
+		if (!esta) // No estaba indexado
+		{
+			list<RegistroIndice*> matches = indice.buscarTam(buf.st_size); // Busco cambio de nombre
+			string path(directorio);
+			path += "/";
+			path += nombre;
+			string hash;
+			if (!MD5_arch(path, password, hash)) throw "error";
+			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end(); ++it)
+			{
+				//if (it->hash) == ); //El hash es el mismo entonces el archivo es el mismo
+			}
+			// No hubo matches de archivo de tam en bytes y hash identicos
+			Modificacion modif(SUBIR_NUEVO_ARCHIVO, nombre);
+			modifs.push_back(modif);
+		}
 		dirEnt = readdir(dir);
 	}
 	closedir(dir);
@@ -136,7 +176,7 @@ bool BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 	{
 		//Armo el registro con el archivo, y lo agrego al indice en ram y fisico
 		RegistroIndice reg(nombre_archivo, directorio); //Puede fallar si el archivo no es bueno
-		if (!reg.calcularHash()) return false;
+		if (!reg.calcularHash(directorio,password,reg.hash)) return false;
 		indice.agregar(reg);
 		return registrar_nuevo_fis(reg);
 	}
@@ -155,8 +195,8 @@ bool BaseDeDatos::registrar_modificado(const string &nombre_archivo)
 {
 	//Busco el registro y le recalculo el hash, y luego lo pongo en ram y el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_archivo);
-	if (!reg->calcularHash()) return false;
-	indice.modificar(*reg);
+	if (!reg->calcularHash(directorio,password,reg->hash)) return false;
+	indice.modificar(*reg, password, directorio);
 	return registrar_modificado_fis(*reg);
 }
 
@@ -203,142 +243,4 @@ bool BaseDeDatos::registrar_renombrado_fis(const RegistroIndice &reg, const stri
 	//archivo.seekp(reg.archOffset, ios::beg);
 	//archivo << reg.serializar();
 	return true;
-}
-
-
-//----- Registro Indice
-
-BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif,
-		off_t tam, const string &hash)	: nombre(nombre), modif(modif),
-		tam(tam), hash(hash), archOffset(-1) {}
-
-BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre,
-		uint32_t archOffset)	: modif(), tam(), archOffset(archOffset)
-{
-	nombre.append(bytes, tamNombre);
-	memcpy((void*) &modif,(void*) (bytes+tamNombre), sizeof(time_t));
-	memcpy((void*) &tam,(void*)(bytes+tamNombre+sizeof(time_t)), sizeof(off_t));
-	hash.append(bytes+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
-}
-
-BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre_archivo,
-		const string &dir) : archOffset(-1)
-
-{
-	string path(dir);
-	path.append(nombre_archivo);
-	struct stat buf;
-	int val = stat(path.c_str(), &buf);
-	if (val == -1 || !S_ISREG(buf.st_mode)) throw invalid_argument("Archivo malo");
-	nombre = string(nombre_archivo);
-	modif = buf.st_mtim.tv_sec;
-	tam = buf.st_size;
-}
-
-string BaseDeDatos::RegistroIndice::serializar() const
-{
-	stringstream result;
-	uint8_t tamString = nombre.size();
-	result.write((char*)&tamString, BYTES_PREF_NOMBRE);
-	result.write(nombre.c_str(), nombre.size());
-	result.write((char*)&modif, sizeof(time_t));
-	result.write((char*)&tam, sizeof(off_t));
-	result.write(hash.c_str(), BYTES_HASH);
-	string ret(result.str());
-	return ret;
-}
-
-size_t BaseDeDatos::RegistroIndice::tamMax()
-{
-	return NAME_MAX+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
-}
-
-size_t BaseDeDatos::RegistroIndice::tamReg(size_t prefijo)
-{
-	return prefijo+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
-}
-
-bool BaseDeDatos::RegistroIndice::calcularHash()
-{
-	return MD5_arch(nombre, hash);
-}
-
-bool BaseDeDatos::RegistroIndice::operator==(const RegistroIndice &r2)
-{
-	return (nombre == r2.nombre && modif == r2.modif && tam == r2.tam
-			&& hash == r2.hash && archOffset == r2.archOffset);
-}
-
-//----- Indice en ram
-
-void BaseDeDatos::IndiceRam::cargar(fstream &arch)
-{
-	arch.seekg(0);
-	char* buffer = new char[RegistroIndice::tamMax()];
-	while(arch.good())
-	{
-		uint8_t prefijo;
-		arch.read((char*)&prefijo,1);
-		size_t tamReg = RegistroIndice::tamReg(prefijo);
-		RegistroIndice reg(buffer, tamReg, arch.tellg());
-		almacenamiento.push_back(reg);
-	}
-	delete[] buffer;
-}
-
-void BaseDeDatos::IndiceRam::agregar(RegistroIndice &reg)
-{
-	almacenamiento.push_back(reg);
-}
-
-void BaseDeDatos::IndiceRam::eliminar(RegistroIndice &reg)
-{
-	almacenamiento.remove(reg);
-}
-
-void BaseDeDatos::IndiceRam::modificar(RegistroIndice &reg)
-{
-	reg.calcularHash();
-}
-
-void BaseDeDatos::IndiceRam::renombrar(RegistroIndice &reg, const string &nombre_nuevo)
-{
-	reg.nombre = nombre_nuevo;
-}
-
-BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(const string &nombre)
-{
-	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
-	{
-		if (it->nombre == nombre) return &(*it);
-	}
-	return NULL;
-}
-
-BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarFecha(const time_t fecha)
-{
-	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
-	{
-		if (it->modif == fecha) return &(*it);
-	}
-	return NULL;
-}
-
-list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarTam(const off_t tam)
-{
-	list<BaseDeDatos::RegistroIndice*> lista;
-	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
-	{
-		if (it->tam == tam) lista.push_back(&(*it));
-	}
-	return lista;
-}
-
-BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarHash(const string &hash)
-{
-	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
-	{
-		if (it->hash == hash) return &(*it);
-	}
-	return NULL;
 }

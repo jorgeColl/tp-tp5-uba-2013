@@ -9,15 +9,12 @@
 
 using namespace std;
 
-Modificacion::Modificacion(tipo_accion accion,string nombre_archivo,size_t bloque_ini, size_t bloque_fin)
-	: accion(accion),nombre_archivo(nombre_archivo) {
-	this->bloque_ini = bloque_ini;
-	this->bloque_fin = bloque_fin;
-}
+Modificacion::Modificacion(tipo_accion accion, const string &nombre_archivo, const string &nombre_archivo_alt)
+	: accion(accion), nombre_archivo(nombre_archivo), nombre_archivo_alt(nombre_archivo_alt) {}
 
-/**@brief muestra el estado interno del string */
+/**@brief Imprime una modificacion como si fuera solo texto */
 ostream& operator<<(ostream& os, Modificacion& mod) {
-	// coso asqueroso para que imprima en palabras y no en numeros
+	// Coso asqueroso para que imprima en palabras y no en numeros
 	string accion;
 	switch (mod.accion) {
 	case (SUBIR_NUEVO_ARCHIVO):
@@ -38,8 +35,22 @@ ostream& operator<<(ostream& os, Modificacion& mod) {
 	case (BAJAR_MOD_ARCHIVO):
 		accion = "BAJAR_MOD_ARCHIVO";
 		break;
+	case (MANDAR_RENOMBRE_ARCHIVO):
+		accion = "MANDAR_RENOMBRE_ARCHIVO";
+		break;
+	case (RENOMBRAR_ARCHIVO_LOCAL):
+		accion = "RENOMBRAR_ARCHIVO_LOCAL";
+		break;
+	case (MANDAR_COPIA_ARCHIVO):
+		accion = "MANDAR_COPIA_ARCHIVO";
+		break;
+	case (COPIAR_ARCHIVO_LOCAL):
+		accion = "COPIAR_ARCHIVO_LOCAL";
+		break;
 	}
-	os << "Accion: "<<accion <<" Nombre de archivo: "<<mod.nombre_archivo<<endl;
-	os <<"Bloque inicial: "<<mod.bloque_ini<<" Bloque final: "<<mod.bloque_fin;
+	os << "Accion: "<< accion << endl;
+	os << "Nombre de archivo: "<< mod.nombre_archivo << endl;
+	if (mod.nombre_archivo_alt != "")
+		os << "Nombre de archivo alternativo: "<< mod.nombre_archivo_alt << endl;
 	return os ;
 }

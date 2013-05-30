@@ -135,7 +135,7 @@ private:
 			string serializar() const;
 			/** @brief Calcula el hash del archivo y lo agrega al reg en el campo corresp
 			 * @return True si fue exitoso */
-			bool calcularHash();
+			bool calcularHash(const string &dir, const string &password, string &hash);
 			/** @brief Devuelve el tam maximo que puede ocupar un registro */
 			static size_t tamMax();
 			/** @brief Devuelve el tam que ocupa un registro dado su prefijo de longitud */
@@ -163,17 +163,23 @@ private:
 			/** @brief Eliminar un registro al indice en ram */
 			void eliminar(RegistroIndice &reg);
 			/** @brief Modifica un registro del indice en ram */
-			void modificar(RegistroIndice &reg);
+			void modificar(RegistroIndice &reg, const string &password, const string &dir);
 			/** @brief Renombra un registro al indice en ram */
 			void renombrar(RegistroIndice &reg, const string &nombre_nuevo);
-			/** Devuelve un puntero al registro de un dado nombre */
+			/** @brief Devuelve un puntero al registro de un dado nombre
+			 * @return Puntero al registro, o null si no se encontro */
 			RegistroIndice* buscarNombre(const string &nombre);
-			/** Devuelve un puntero al registro de una dada fecha de modificado */
-			RegistroIndice* buscarFecha(const time_t fecha);
-			/** Devuelve un puntero a registros de un dado tamanio */
+			/** @brief Devuelve un puntero al registro de una dada fecha de modificado
+			 * @return Puntero a lista de punteros a registros. Puede estar vacia si no se encontraron */
+			list<RegistroIndice*> buscarFecha(const time_t fecha);
+			/** @brief Devuelve un puntero a registros de un dado tamanio
+			 * @return Puntero a lista de punteros a registros. Puede estar vacia si no se encontraron */
 			list<RegistroIndice*> buscarTam(const off_t tam);
-			/** Devuelve un puntero a registros dado un hash */
+			/** @brief Devuelve un puntero a registros dado un hash
+			 * @return Puntero al registro, o null si no se encontro */
 			RegistroIndice* buscarHash(const string &hash);
+			/** @brief Devuelve el nombre de todos los registros */
+			list<string> devolverNombres();
 		private:
 			list<RegistroIndice> almacenamiento;
 	};
@@ -209,6 +215,7 @@ private:
 	 */
 	void cargarARam();
 
+	string password;
 	string directorio;
 	string pathArchivo;
 	fstream archivo;

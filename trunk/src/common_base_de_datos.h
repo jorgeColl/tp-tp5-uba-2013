@@ -24,12 +24,14 @@ using namespace std;
 class BaseDeDatos
 {
 public:
+	virtual ~BaseDeDatos();
+
 	/**
 	 * @brief Abre el archivo asociado si existe, y sino lo crea y luego lo abre.
-	 * @param directorio Directorio donde se ubicara el archivo
+	 * @param dir Directorio donde se ubicara el archivo
 	 * @return true si pudo accederse al archivo, false en otro caso
 	 */
-	bool abrir(const std::string directorio);
+	bool abrir(const string &dir);
 
 	//----- Modificacion de archivos en el directorio
 

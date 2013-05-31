@@ -15,6 +15,12 @@ bool MD5_arch(const string &path_arch, const string &password, string &hash)
 	return true;
 }
 
+string MD5_arch(const string &path_arch, const string &password)
+{
+	md5wrapper wrapper;
+	return wrapper.getHashFromFile(path_arch);
+}
+
 bool MD5_bloques_arch(ifstream &arch, string &hash, size_t tamBloq)
 {
 	return false;

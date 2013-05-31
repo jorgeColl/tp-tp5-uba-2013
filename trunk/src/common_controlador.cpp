@@ -11,7 +11,8 @@ using namespace std;
 void Controlador::set_directorio(std::string dir){
         this->dir = dir;
 }
-bool Controlador::armar_indice_local() {
+
+void Controlador::armar_indice_local() {
         base_de_datos.abrir(dir);
 }
 

@@ -82,30 +82,37 @@ public:
 	/**
 	 * @brief Registra un nuevo archivo en la indexacion
 	 * @pre El archivo existe y esta en el directorio correcto y no fue previamente indexado
-	 * @return True si la operacion tiene exito
+	 * @throws Excepcion si falla
 	 */
-	bool registrar_nuevo(const string &nombre_archivo);
+	void registrar_nuevo(const string &nombre_archivo);
 
 	/**
 	 * @brief Registra que se elimino un archivo de la indexacion
 	 * @pre El archivo no exista y habia sido previamente indexado
-	 * @return True si la operacion tiene exito
+	 * @throws Excepcion si falla
 	 */
-	bool registrar_eliminado(const string &nombre_archivo);
+	void registrar_eliminado(const string &nombre_archivo);
 
 	/**
 	 * @brief Registra que se cambiaron los contenidos de un archivo
 	 * @pre El archivo existe y habia sido previamente indexado
-	 * @return True si la operacion tiene exito
+	 * @throws Excepcion si falla
 	 */
-	bool registrar_modificado(const string &nombre_archivo);
+	void registrar_modificado(const string &nombre_archivo);
 
 	/**
 	 * @brief Registra que se cambio el nombre de un archivo ya indexado
 	 * @pre El archivo de nombre_viejo habia sido previamente indexado
-	 * @return True si la operacion tiene exito
+	 * @throws Excepcion si falla
 	 */
-	bool registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo);
+	void registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo);
+
+	/**
+	 * @brief Registra que se copio un archivo ya indexado
+	 * @pre El archivo de nombre_viejo habia sido previamente indexado
+	 * @throws Excepcion si falla
+	 */
+	void registrar_copiado(const string &nombre_viejo, const string &nombre_nuevo);
 
 	//----- Operaciones pertinentes al indice y registro de cambios
 
@@ -169,6 +176,8 @@ private:
 			void modificar(RegistroIndice &reg, const string &password, const string &dir);
 			/** @brief Renombra un registro al indice en ram */
 			void renombrar(RegistroIndice &reg, const string &nombre_nuevo);
+			/** @brief Copia un registro del indice en ram bajo otro nombre */
+			void copiar(RegistroIndice &reg, const string &nombre_nuevo);
 			/** @brief Devuelve un puntero al registro de un dado nombre
 			 * @return Puntero al registro, o null si no se encontro */
 			RegistroIndice* buscarNombre(const string &nombre);
@@ -193,25 +202,31 @@ private:
 	 * @brief Persiste un nuevo archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	bool registrar_nuevo_fis(RegistroIndice &reg);
+	void registrar_nuevo_fis(RegistroIndice &reg);
 
 	/**
 	 * @brief Persiste una eliminacion de archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	bool registrar_eliminado_fis(const RegistroIndice &reg);
+	void registrar_eliminado_fis(const RegistroIndice &reg);
 
 	/**
 	 * @brief Persiste una modificacion de archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	bool registrar_modificado_fis(const RegistroIndice &reg);
+	void registrar_modificado_fis(const RegistroIndice &reg);
 
 	/**
 	 * @brief Persiste un renombramiento de archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	bool registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo);
+	void registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo);
+
+	/**
+	 * @brief Persiste una copia de archivo en la indexacion fisica
+	 * @return True si la operacion tiene exito
+	 */
+	void registrar_copiado_fis(const RegistroIndice &reg, const string &nombre_nuevo);
 
 	/**
 	 * @brief Carga los contenidos del archivo indice a una estructura en ram

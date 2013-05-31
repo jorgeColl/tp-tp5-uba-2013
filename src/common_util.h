@@ -4,6 +4,12 @@
 #include <string>
 using namespace std;
 
+
+/**
+ * @file common_util.h
+ * @brief Funciones utilitarias varias que no merecen un archivo particular
+ */
+
 /**
  * @brief Se fija si un archivo existe o no
  * @param path Path al archivo

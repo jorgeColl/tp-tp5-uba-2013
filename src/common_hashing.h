@@ -19,6 +19,15 @@ using namespace std;
 bool MD5_arch(const string &path_arch, const string &password, string &hash);
 
 /**
+ * @brief Devuelve el hash MD5 de un archivo entero
+ * @param nombre_arch Archivo que se leera
+ * @param password String a usar para generar un hasheo unico. Usar "" para obtener hash default.
+ * @return String donde se guardara el hash
+ * @throws hlException en caso de fallar
+ */
+string MD5_arch(const string &path_arch, const string &password);
+
+/**
  * @brief Devuelve el hash MD5 aplicado a cada bloque del archivo
  * @param arch Archivo que se leera
  * @param password String a usar para generar un hasheo unico. Usar "" para obtener hash default.

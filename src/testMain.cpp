@@ -11,11 +11,15 @@ int main(int argc, char** argv)
 	{
 		umask(0077); // Se hace &~umask al calcular permisos en el programa
 		// Test de solo la base de datos, hace falta poner y borrar archivos a mano
-		cout << "Borrar dir: " << system("rm -R ./testDir") << endl;
-		cout << "Crear dir: " << mkdir("./testDir",0777) << endl; //Permisos depende de umask
+		//cout << "Borrar dir: " << system("rm -R ./testDir") << endl;
+		//cout << "Crear dir: " << mkdir("./testDir",0777) << endl; //Permisos depende de umask
 		BaseDeDatos db;
 		db.abrir("./testDir");
-
+		vector<Modificacion> modifs = db.comprobar_cambios_locales();
+		for (vector<Modificacion>::iterator it = modifs.begin(); it != modifs.end(); ++it)
+		{
+			cout << *it << endl;
+		}
 
 		//cout << "Borrar dir: " << system("rm -R ./testDir/")  << endl;
 		return 0;

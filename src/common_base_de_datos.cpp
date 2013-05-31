@@ -11,6 +11,7 @@
 #include <cerrno> 		// Errores de C
 
 #include "common_hashing.h"
+#include "common_util.h"
 
 bool BaseDeDatos::abrir(const string directorio)
 {
@@ -100,60 +101,77 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 	std::vector<Modificacion> modifs;
 	// Me fijo si los archivos que tenia indexado siguen en la carpeta
 	list<string> archIndexados = indice.devolverNombres();
+	for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
 	{
-		for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
+		// Vemos si el archivo aun existe y sino lo marcamos como eliminado
+		// Nota: Más abajo nos fijamos si fue renombrado en vez de borrado
+		if (!esArchivo(directorio,*it)) // No existe
 		{
-			// Vemos si el archivo aun existe y sino lo marcamos como eliminado
-			// Nota: Más abajo nos fijamos si fue renombrado
-			struct stat buf;
-			int existe = stat(it->c_str(), &buf);
-			if (existe < 0)
-			{
-				Modificacion modif(MANDAR_A_BORRAR_ARCHIVO, *it);
-				modifs.push_back(modif);
-			}
+			Modificacion modif(MANDAR_A_BORRAR_ARCHIVO, *it);
+			modifs.push_back(modif);
 		}
 	}
+	// Reviso que tal los archivos que ya existen
 	DIR* dir = opendir(directorio.c_str());
 	if (dir == NULL) return modifs;
 	struct dirent* dirEnt = readdir(dir);
-	while(dirEnt != NULL)
+	while(dirEnt != NULL) // Mientras tenga archivos
 	{
-		string path(directorio);
-		path.append(dirEnt->d_name);
-		struct stat buf;
-		int val = stat(path.c_str(), &buf);
-		if (val == -1 || !S_ISREG(buf.st_mode)) //Veo que efectivamente fuera un archivo
+		string nombre(dirEnt->d_name);
+		if (nombre == "" || nombre[0] == '.') //Archivos a ignorar
 		{
-			dirEnt = readdir(dir); //Error, seguimos
+			dirEnt = readdir(dir);
 			continue;
 		}
-		//Todo: Terminar
-		string nombre(dirEnt->d_name);
+		string path(directorio);
+		path += "/";
+		path += nombre;
+		struct stat buf;
+		int val = stat(path.c_str(), &buf);
+		if (val == -1 || !S_ISREG(buf.st_mode)) //Veo que efectivamente es un archivo
+		{
+			dirEnt = readdir(dir); //No era archivo o hubo un error, seguimos
+			continue;
+		}
 		RegistroIndice* esta = indice.buscarNombre(nombre);
 		if (esta) // Ya estaba indexado, vemos si fue modificado
 		{
-			if (buf.st_mtim.tv_sec != esta->modif) // Se encontro archivo de mismo nombre y distinta fecha modif
+			// Se encontro archivo de mismo nombre y distinta fecha modif y distinto hash, entonces es una modif
+			if (buf.st_mtim.tv_sec != esta->modif && esta->hash != MD5_arch(path,password))
 			{
+				MD5_arch(path, password); // Me fijo que el hash sea distinto
 				Modificacion modif(SUBIR_MOD_ARCHIVO, esta->nombre);
 				modifs.push_back(modif);
 			}
 		}
 		if (!esta) // No estaba indexado
 		{
-			list<RegistroIndice*> matches = indice.buscarTam(buf.st_size); // Busco cambio de nombre
-			string path(directorio);
-			path += "/";
-			path += nombre;
-			string hash;
-			if (!MD5_arch(path, password, hash)) throw "error";
+			bool match = false;
+			list<RegistroIndice*> matches = indice.buscarTam(buf.st_size); // Busco cambio de nombre por tam
+			string hash = MD5_arch(path, password);
 			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end(); ++it)
 			{
-				//if (it->hash) == ); //El hash es el mismo entonces el archivo es el mismo
+				if ((*it)->hash == hash); //El hash es el mismo entonces el archivo es el mismo con otro nombre
+				{
+					// Primero me fijo si aun existe el archivo de viejo nombre, si es el caso es copia
+					if (esArchivo(path))
+					{
+						Modificacion modif(MANDAR_COPIA_ARCHIVO, nombre, (*it)->nombre);
+						modifs.push_back(modif);
+					}
+					else // Como no existe, en vez de copia es renombre
+					{
+						Modificacion modif(MANDAR_RENOMBRE_ARCHIVO, nombre, (*it)->nombre);
+						modifs.push_back(modif);
+					}
+					match = true;
+				}
 			}
-			// No hubo matches de archivo de tam en bytes y hash identicos
-			Modificacion modif(SUBIR_NUEVO_ARCHIVO, nombre);
-			modifs.push_back(modif);
+			if (!match) // No hubo matches, entonces el archivo es nuevo
+			{
+				Modificacion modif(SUBIR_NUEVO_ARCHIVO, nombre);
+				modifs.push_back(modif);
+			}
 		}
 		dirEnt = readdir(dir);
 	}

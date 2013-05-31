@@ -19,14 +19,14 @@ void BaseDeDatos::abrir(const string &dir)
 	pathArchivo += dir;
 	pathArchivo += "/";
 	pathArchivo += NOMBRE_ARCH_DEF;
-	archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
+	archivo.open(pathArchivo.c_str(), ios::in | ios::out | ios::binary);
 	if (!archivo.is_open())
 	{
-		archivo.open(pathArchivo.c_str(),std::ios::out);
+		archivo.open(pathArchivo.c_str(),ios::out);
 		archivo.close();
-		archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
-		if (!archivo.is_open()) throw runtime_error("No pudo abrirse el archivod e indice.");
+		archivo.open(pathArchivo.c_str(), ios::in | ios::out | ios::binary);
 	}
+	if (!archivo.good()) throw runtime_error("No pudo abrirse el archivo de indice.");
 	cargarARam();
 }
 
@@ -187,42 +187,46 @@ vector<Modificacion> comparar_indices(fstream &otro)
 
 //----- Registracion en el indice de eventos
 
-bool BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
+void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 {
-	try
-	{
-		//Armo el registro con el archivo, y lo agrego al indice en ram y fisico
-		RegistroIndice reg(nombre_archivo, directorio); //Puede fallar si el archivo no es bueno
-		if (!reg.calcularHash(directorio,password,reg.hash)) return false;
-		indice.agregar(reg);
-		return registrar_nuevo_fis(reg);
-	}
-	catch (exception &e) { return false; }
+	//Armo el registro con el archivo, y lo agrego al indice en ram y fisico
+	RegistroIndice reg(nombre_archivo, directorio); //Puede fallar si el archivo no es bueno
+	reg.calcularHash(directorio,password,reg.hash);
+	indice.agregar(reg);
+	registrar_nuevo_fis(reg);
 }
 
-bool BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
+void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 {
 	//Busco el registro y lo elimino de ram y del fisico
 	RegistroIndice *reg = indice.buscarNombre(nombre_archivo);
 	indice.eliminar(*reg);
-	return registrar_eliminado_fis(*reg);
+	registrar_eliminado_fis(*reg);
 }
 
-bool BaseDeDatos::registrar_modificado(const string &nombre_archivo)
+void BaseDeDatos::registrar_modificado(const string &nombre_archivo)
 {
 	//Busco el registro y le recalculo el hash, y luego lo pongo en ram y el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_archivo);
-	if (!reg->calcularHash(directorio,password,reg->hash)) return false;
+	reg->calcularHash(directorio,password,reg->hash);
 	indice.modificar(*reg, password, directorio);
-	return registrar_modificado_fis(*reg);
+	registrar_modificado_fis(*reg);
 }
 
-bool BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo)
+void BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo)
 {
 	//Busco el reg y lo edito en ram y luego en el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
 	indice.renombrar(*reg, nombre_nuevo);
-	return registrar_renombrado_fis(*reg, nombre_nuevo);
+	registrar_renombrado_fis(*reg, nombre_nuevo);
+}
+
+void BaseDeDatos::registrar_copiado(const string &nombre_viejo, const string &nombre_nuevo)
+{
+	//Busco el reg y lo edito en ram y luego en el fisico
+	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
+	indice.copiar(*reg, nombre_nuevo);
+	registrar_copiado_fis(*reg, nombre_nuevo);
 }
 
 //----- Metodos privados
@@ -230,36 +234,45 @@ bool BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string 
 void BaseDeDatos::cargarARam()
 {
 	indice.cargar(archivo);
+	if (!archivo.good()) throw runtime_error("Fallo la carga del archivo indice.");
 }
 
-bool BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
+void BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
 {
 	archivo.seekp(0, ios::end);
 	reg.archOffset = archivo.tellp();
 	archivo << reg.serializar();
-	return true;
+	if (!archivo.good()) throw runtime_error("Fallo el registro de un nuevo en el indice fisico.");
 }
 
-bool BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
+void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 {
 	//TODO: Eliminado logico y etc
-	return true;
+	if (!archivo.good()) throw runtime_error("Fallo el borrado en el indice fisico.");
 }
 
-bool BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
+void BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
 {
 	archivo.seekp(reg.archOffset, ios::beg);
 	archivo << reg.serializar();
-	return true;
+	if (!archivo.good()) throw runtime_error("Fallo el modificado en el indice fisico.");
 }
 
-bool BaseDeDatos::registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo)
+void BaseDeDatos::registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo)
 {
 	//Ojala fuera tan sencillo, el nombre nuevo puede ser más grande,
 	//mejor borrar y volver a agregar
 	//archivo.seekp(reg.archOffset, ios::beg);
 	//archivo << reg.serializar();
-	return true;
+	if (!archivo.good()) throw runtime_error("Fallo el renombrado en el indice fisico.");
+}
+
+void BaseDeDatos::registrar_copiado_fis(const RegistroIndice &reg, const string &nombre_nuevo)
+{
+	RegistroIndice copia(reg);
+	copia.nombre = nombre_nuevo;
+	registrar_nuevo_fis(copia);
+	if (!archivo.good()) throw runtime_error("Fallo el copiado en el indice fisico.");
 }
 
 BaseDeDatos::~BaseDeDatos()

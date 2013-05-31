@@ -19,8 +19,9 @@ public:
 	void set_directorio(std::string dir);
 
 	/**@brief le pide a la base de datos que arme el indice local podria estar por defecto
-	 * en el constructor de la base de datos pero es mas legible si lo llamo explicitamente*/
-	bool armar_indice_local();
+	 * en el constructor de la base de datos pero es mas legible si lo llamo explicitamente
+	 * @throws Excepcion si no logra armarse el indice local */
+	void armar_indice_local();
 
 	/**@brief pide lista de modificaciones al servidor
 	 */

@@ -14,6 +14,8 @@ void BaseDeDatos::IndiceRam::cargar(fstream &arch)
 		almacenamiento.push_back(reg);
 	}
 	delete[] buffer;
+	arch.clear(); // Ponemos el archivo en estado bueno
+	arch.seekg(0);
 }
 
 void BaseDeDatos::IndiceRam::agregar(RegistroIndice &reg)
@@ -35,6 +37,13 @@ void BaseDeDatos::IndiceRam::modificar(RegistroIndice &reg, const string &passwo
 void BaseDeDatos::IndiceRam::renombrar(RegistroIndice &reg, const string &nombre_nuevo)
 {
 	reg.nombre = nombre_nuevo;
+}
+
+void BaseDeDatos::IndiceRam::copiar(RegistroIndice &reg, const string &nombre_nuevo)
+{
+	RegistroIndice copia(reg);
+	copia.nombre = nombre_nuevo;
+	almacenamiento.push_back(copia);
 }
 
 BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(const string &nombre)

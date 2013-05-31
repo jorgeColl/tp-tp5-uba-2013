@@ -13,16 +13,16 @@
 #include "common_hashing.h"
 #include "common_util.h"
 
-bool BaseDeDatos::abrir(const string directorio)
+bool BaseDeDatos::abrir(const string &dir)
 {
-	this->directorio.append(directorio);
-	pathArchivo.append(directorio);
+	directorio += dir;
+	pathArchivo += dir;
 	pathArchivo += "/";
 	pathArchivo += NOMBRE_ARCH_DEF;
 	archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
 	if (!archivo.is_open())
 	{
-		archivo.open(pathArchivo.c_str(),std::ios::out | std::ios::binary);
+		archivo.open(pathArchivo.c_str(),std::ios::out);
 		archivo.close();
 		archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
 		return false;
@@ -77,8 +77,6 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 	string tmp(directorio);
 	tmp+=nombre_archivo;
 	int exito=remove( tmp.c_str() );
-	cout<<"remove nombre: "<<tmp<<endl;
-	cout<<"remove: "<<exito<<endl;
 	if(exito == -1){
 		throw std::runtime_error(strerror(errno));
 	}
@@ -151,6 +149,8 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 			string hash = MD5_arch(path, password);
 			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end(); ++it)
 			{
+				cout << "h1: " << (*it)->hash << endl;
+				cout << "h2: " << hash << endl;
 				if ((*it)->hash == hash) //El hash es el mismo entonces el archivo es el mismo con otro nombre
 				{
 					// Primero me fijo si aun existe el archivo de viejo nombre, si es el caso es copia
@@ -261,4 +261,9 @@ bool BaseDeDatos::registrar_renombrado_fis(const RegistroIndice &reg, const stri
 	//archivo.seekp(reg.archOffset, ios::beg);
 	//archivo << reg.serializar();
 	return true;
+}
+
+BaseDeDatos::~BaseDeDatos()
+{
+	archivo.close();
 }

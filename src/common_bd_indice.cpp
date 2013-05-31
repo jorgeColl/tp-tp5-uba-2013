@@ -7,10 +7,10 @@ void BaseDeDatos::IndiceRam::cargar(fstream &arch)
 	while(arch.good())
 	{
 		uint8_t prefijo;
-		arch.read((char*)&prefijo,1);
+		arch.read((char*)&prefijo,BYTES_PREF_NOMBRE);
 		if (!arch.good()) break;
-		size_t tamReg = RegistroIndice::tamReg(prefijo);
-		RegistroIndice reg(buffer, tamReg, arch.tellg());
+		arch.read(buffer,RegistroIndice::tamReg(prefijo));
+		RegistroIndice reg(buffer, prefijo, arch.tellg());
 		almacenamiento.push_back(reg);
 	}
 	delete[] buffer;

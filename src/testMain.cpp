@@ -14,7 +14,6 @@ int main(int argc, char** argv)
 		//cout << "Borrar dir: " << system("rm -R ./testDir") << endl;
 		//cout << "Crear dir: " << mkdir("./testDir",0777) << endl; //Permisos depende de umask
 		BaseDeDatos db;
-		cout << "Abierto: " << db.abrir("./testDir") << endl;
 		vector<Modificacion> modifs = db.comprobar_cambios_locales();
 		for (vector<Modificacion>::iterator it = modifs.begin(); it != modifs.end(); ++it)
 		{
@@ -22,7 +21,7 @@ int main(int argc, char** argv)
 			switch(it->accion)
 			{
 				case SUBIR_NUEVO_ARCHIVO:
-					cout << "intento registrar: " << db.registrar_nuevo(it->nombre_archivo) << endl;
+					db.registrar_nuevo(it->nombre_archivo);
 					break;
 				case MANDAR_A_BORRAR_ARCHIVO:
 					break;

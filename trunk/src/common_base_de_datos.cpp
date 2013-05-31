@@ -151,7 +151,7 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 			string hash = MD5_arch(path, password);
 			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end(); ++it)
 			{
-				if ((*it)->hash == hash); //El hash es el mismo entonces el archivo es el mismo con otro nombre
+				if ((*it)->hash == hash) //El hash es el mismo entonces el archivo es el mismo con otro nombre
 				{
 					// Primero me fijo si aun existe el archivo de viejo nombre, si es el caso es copia
 					if (esArchivo(path))

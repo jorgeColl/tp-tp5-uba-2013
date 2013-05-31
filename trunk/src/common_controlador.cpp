@@ -12,7 +12,7 @@ void Controlador::set_directorio(std::string dir){
         this->dir = dir;
 }
 bool Controlador::armar_indice_local() {
-        return base_de_datos.abrir(dir);
+        base_de_datos.abrir(dir);
 }
 
 vector<Modificacion> Controlador::recibir_modificaciones() {

@@ -30,8 +30,9 @@ public:
 	 * @brief Abre el archivo asociado si existe, y sino lo crea y luego lo abre.
 	 * @param dir Directorio donde se ubicara el archivo
 	 * @return true si pudo accederse al archivo, false en otro caso
+	 * @throws Excepcion si no pudo abrirse el documento
 	 */
-	bool abrir(const string &dir);
+	void abrir(const string &dir);
 
 	//----- Modificacion de archivos en el directorio
 

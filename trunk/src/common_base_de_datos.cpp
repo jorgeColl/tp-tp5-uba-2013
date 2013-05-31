@@ -13,7 +13,7 @@
 #include "common_hashing.h"
 #include "common_util.h"
 
-bool BaseDeDatos::abrir(const string &dir)
+void BaseDeDatos::abrir(const string &dir)
 {
 	directorio += dir;
 	pathArchivo += dir;
@@ -25,10 +25,9 @@ bool BaseDeDatos::abrir(const string &dir)
 		archivo.open(pathArchivo.c_str(),std::ios::out);
 		archivo.close();
 		archivo.open(pathArchivo.c_str(),std::ios::in | std::ios::out | std::ios::binary);
-		return false;
+		if (!archivo.is_open()) throw runtime_error("No pudo abrirse el archivod e indice.");
 	}
 	cargarARam();
-	return true;
 }
 
 vector<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)

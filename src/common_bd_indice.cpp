@@ -6,11 +6,13 @@ void BaseDeDatos::IndiceRam::cargar(fstream &arch)
 	char* buffer = new char[RegistroIndice::tamMax()];
 	while(arch.good())
 	{
-		uint8_t prefijo;
-		arch.read((char*)&prefijo,BYTES_PREF_NOMBRE);
-		if (!arch.good()) break;
+		uint8_t prefijo = 0;
+		while (arch.good() && prefijo == 0) // Si hay 0s de prefijo sigo leyendo
+			arch.read((char*)&prefijo,BYTES_PREF_NOMBRE);
+		if (!arch.good() || prefijo == 0) break;
+		streampos offset = arch.tellg();
 		arch.read(buffer,RegistroIndice::tamReg(prefijo));
-		RegistroIndice reg(buffer, prefijo, arch.tellg());
+		RegistroIndice reg(buffer, prefijo, offset);
 		almacenamiento.push_back(reg);
 	}
 	delete[] buffer;
@@ -37,13 +39,6 @@ void BaseDeDatos::IndiceRam::modificar(RegistroIndice &reg, const string &passwo
 void BaseDeDatos::IndiceRam::renombrar(RegistroIndice &reg, const string &nombre_nuevo)
 {
 	reg.nombre = nombre_nuevo;
-}
-
-void BaseDeDatos::IndiceRam::copiar(RegistroIndice &reg, const string &nombre_nuevo)
-{
-	RegistroIndice copia(reg);
-	copia.nombre = nombre_nuevo;
-	almacenamiento.push_back(copia);
 }
 
 BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(const string &nombre)

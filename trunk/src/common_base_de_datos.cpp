@@ -205,8 +205,8 @@ void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 {
 	//Busco el registro y lo elimino de ram y del fisico
 	RegistroIndice *reg = indice.buscarNombre(nombre_archivo);
+	registrar_eliminado_fis(*reg); // Primero borro del fisico porque sino hay problemas de mem
 	indice.eliminar(*reg);
-	registrar_eliminado_fis(*reg);
 }
 
 void BaseDeDatos::registrar_modificado(const string &nombre_archivo)
@@ -214,7 +214,7 @@ void BaseDeDatos::registrar_modificado(const string &nombre_archivo)
 	//Busco el registro y le recalculo el hash, y luego lo pongo en ram y el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_archivo);
 	reg->calcularHash(directorio,password,reg->hash);
-	indice.modificar(*reg, password, directorio);
+	indice.modificar(*reg, password, directorio); // Primero modifico para luego guardar
 	registrar_modificado_fis(*reg);
 }
 
@@ -223,13 +223,13 @@ void BaseDeDatos::registrar_renombrado(const string &nombre_nuevo, const string 
 	//Busco el reg y lo edito en ram y luego en el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
 	registrar_eliminado_fis(*reg); //Lo borro del archivo
-	indice.renombrar(*reg, nombre_nuevo);
+	indice.renombrar(*reg, nombre_nuevo); // Cambio el nombre en ram
 	registrar_nuevo_fis(*reg); //Lo agrego como archivo nuevo tras cambiarle el nombre
 }
 
 void BaseDeDatos::registrar_copiado(const string &nombre_nuevo, const string &nombre_viejo)
 {
-	//Busco el reg, cambio el nombre, y lo agrego en ram y luego en el fisico
+	//Busco el reg, hago una copia, le cambio el nombre, lo agrego en ram y luego en el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
 	RegistroIndice copia(*reg);
 	copia.nombre = nombre_nuevo;

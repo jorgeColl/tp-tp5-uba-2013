@@ -23,7 +23,7 @@ private:
 	bool terminar;
 	size_t delay_polling;
 
-	vector<Modificacion> pedir_y_comparar_indices();
+	list<Modificacion> pedir_y_comparar_indices();
 public:
 	BaseDeDatos base_de_datos;
 	ClienteControlador();
@@ -40,7 +40,7 @@ public:
 	void start();
 	/**@brief pide lista de modificaciones al servidor
 	 */
-	std::vector<Modificacion> recibir_modificaciones();
+	std::list<Modificacion> recibir_modificaciones();
 };
 
 #endif /* CLIENTE_H_ */

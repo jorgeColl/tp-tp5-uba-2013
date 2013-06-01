@@ -31,6 +31,8 @@ public:
 	/**@brief Serializa el objeto y devuelve una tira de bytes */
 	string serializar();
 
+	bool operator==(const Modificacion &otra);
+
 	tipo_accion accion;
 	string nombre_archivo;
 	string nombre_archivo_alt;

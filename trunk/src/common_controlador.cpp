@@ -16,8 +16,8 @@ void Controlador::armar_indice_local() {
         base_de_datos.abrir(dir);
 }
 
-vector<Modificacion> Controlador::recibir_modificaciones() {
-        vector<Modificacion> aux;
+list<Modificacion> Controlador::recibir_modificaciones() {
+		list<Modificacion> aux;
         return aux;
 }
 
@@ -109,7 +109,7 @@ bool Controlador::aplicar_modificacion(Modificacion& mod) {
 	return false;
 }
 
-std::vector<Modificacion> Controlador::comprobar_cambios_locales(){
+list<Modificacion> Controlador::comprobar_cambios_locales(){
         return base_de_datos.comprobar_cambios_locales();
 }
 

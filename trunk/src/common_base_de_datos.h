@@ -119,13 +119,13 @@ public:
 	/**@brief se encarga de encontrar los archivos modificados y
 	 *  generar un vector de modificaciones
 	 */
-	vector<Modificacion> comprobar_cambios_locales();
+	list<Modificacion> comprobar_cambios_locales();
 
 	/**
 	 * @brief Compara el indice local con otro devuelve las discrepancias
 	 *
 	 */
-	vector<Modificacion> comparar_indices(fstream &otro);
+	list<Modificacion> comparar_indices(fstream &otro);
 
 private:
 	/**

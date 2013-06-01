@@ -15,8 +15,8 @@ int main(int argc, char** argv)
 		//cout << "Crear dir: " << mkdir("./testDir",0777) << endl; //Permisos depende de umask
 		BaseDeDatos db;
 		db.abrir("./testDir");
-		vector<Modificacion> modifs = db.comprobar_cambios_locales();
-		for (vector<Modificacion>::iterator it = modifs.begin(); it != modifs.end(); ++it)
+		list<Modificacion> modifs = db.comprobar_cambios_locales();
+		for (list<Modificacion>::iterator it = modifs.begin(); it != modifs.end(); ++it)
 		{
 			cout << *it << endl;
 			switch(it->accion)

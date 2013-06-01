@@ -30,20 +30,20 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 	sock2.conectar(server.c_str(),puerto2.c_str());
 }
 
-vector<Modificacion> ClienteControlador::pedir_y_comparar_indices()
+list<Modificacion> ClienteControlador::pedir_y_comparar_indices()
 {
 	sock1.enviar_flag(PEDIDO_INDICE);
 	fstream idxServ;
 	base_de_datos.abrir_para_escribir(NOM_IDX_SERV, idxServ);
 	sock1.recibir_archivo(idxServ);
 	base_de_datos.abrir_para_leer(NOM_IDX_SERV, idxServ);
-	vector<Modificacion> modifs = base_de_datos.comparar_indices(idxServ);
+	list<Modificacion> modifs = base_de_datos.comparar_indices(idxServ);
 	idxServ.close();
 	return modifs;
 }
 
-vector<Modificacion> ClienteControlador::recibir_modificaciones() {
-	vector<Modificacion> aux;
+list<Modificacion> ClienteControlador::recibir_modificaciones() {
+	list<Modificacion> aux;
 	return aux;
 }
 
@@ -51,27 +51,27 @@ void ClienteControlador::start()
 {
 	//Aplicacion inicial
 	bool exito;
-	vector<Modificacion> mod1 = pedir_y_comparar_indices();
-	for(size_t i=0; i<mod1.size(); ++i)
+	list<Modificacion> mod1 = pedir_y_comparar_indices();
+	for (list<Modificacion>::iterator it = mod1.begin(); it != mod1.end(); ++it)
 	{
 		//mod1[i].efectuar_cambios(*this);
-		exito = aplicar_modificacion(mod1[i]);
+		exito = aplicar_modificacion(*it);
 	}
 
 	while(terminar != true)
 	{
-		vector<Modificacion> mod2 = comprobar_cambios_locales();
-		for(size_t i=0;i<mod2.size();++i)
+		list<Modificacion> mod2 = comprobar_cambios_locales();
+		for (list<Modificacion>::iterator it = mod2.begin(); it != mod2.end(); ++it)
 		{
 			//mod2[i].efectuar_cambios(*this);
-			exito = aplicar_modificacion(mod2[i]);
+			exito = aplicar_modificacion(*it);
 			if(!exito) return;
 		}
-		vector<Modificacion> mod3 = recibir_modificaciones();
-		for(size_t i=0;i<mod3.size();++i)
+		list<Modificacion> mod3 = recibir_modificaciones();
+		for (list<Modificacion>::iterator it = mod3.begin(); it != mod3.end(); ++it)
 		{
 			//mod3[i].efectuar_cambios(*this);
-			exito = aplicar_modificacion(mod3[i]);
+			exito = aplicar_modificacion(*it);
 			if(!exito) return;
 		}
 		sleep(delay_polling);

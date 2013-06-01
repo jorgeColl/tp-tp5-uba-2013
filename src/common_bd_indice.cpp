@@ -10,9 +10,9 @@ void BaseDeDatos::IndiceRam::cargar(fstream &arch)
 		while (arch.good() && prefijo == 0) // Si hay 0s de prefijo sigo leyendo
 			arch.read((char*)&prefijo,BYTES_PREF_NOMBRE);
 		if (!arch.good() || prefijo == 0) break;
-		streampos offset = arch.tellg();
+		uint32_t offset = arch.tellg();
 		arch.read(buffer,RegistroIndice::tamReg(prefijo));
-		RegistroIndice reg(buffer, prefijo, offset);
+		RegistroIndice reg(buffer, prefijo, offset - BYTES_PREF_NOMBRE);
 		almacenamiento.push_back(reg);
 	}
 	delete[] buffer;

@@ -30,9 +30,9 @@ void BaseDeDatos::abrir(const string &dir)
 	cargarARam();
 }
 
-vector<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)
+list<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)
 {
-	return vector<Modificacion>();
+	return list<Modificacion>();
 }
 
 //----- Modificacion de archivos en el directorio
@@ -93,9 +93,9 @@ bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, fstream &ifstrea
 
 //----- Registracion en el indice de eventos
 
-std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
+list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 {
-	std::vector<Modificacion> modifs;
+	list<Modificacion> modifs;
 	// Me fijo si los archivos que tenia indexado siguen en la carpeta
 	list<string> archIndexados = indice.devolverNombres();
 	for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
@@ -144,14 +144,19 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 		if (!esta) // No estaba indexado
 		{
 			bool match = false;
-			list<RegistroIndice*> matches = indice.buscarTam(buf.st_size); // Busco cambio de nombre por tam
-			string hash = MD5_arch(path, password);
+			list<RegistroIndice*> matches = indice.buscarTam(buf.st_size); // Busco cambio de nombre/copia por tam
+			string hash;
+			if (!matches.empty()) hash = MD5_arch(path, password); // Si hubo matches, calculo el hash
 			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end(); ++it)
 			{
 				if ((*it)->hash == hash) //El hash es el mismo entonces el archivo es el mismo con otro nombre
 				{
 					// Primero me fijo si aun existe el archivo de viejo nombre, si es el caso es copia
-					if (esArchivo(path))
+					string pathViejo(directorio);
+					pathViejo += "/";
+					pathViejo += (*it)->nombre;
+					// TODO: Optimizar para que en caso de renombre de copia mande renombre y no borrar+copia
+					if (esArchivo(pathViejo))
 					{
 						Modificacion modif(MANDAR_COPIA_ARCHIVO, nombre, (*it)->nombre);
 						modifs.push_back(modif);
@@ -162,6 +167,8 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 						modifs.push_back(modif);
 					}
 					match = true;
+					modifs.remove(Modificacion(MANDAR_A_BORRAR_ARCHIVO, (*it)->nombre));
+					break;
 				}
 			}
 			if (!match) // No hubo matches, entonces el archivo es nuevo
@@ -249,7 +256,7 @@ void BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
 void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 {
 	// Eliminado logico. Resto 1 y sumo 1 debido a los prefijos.
-	archivo.seekp(reg.archOffset-BYTES_PREF_NOMBRE);
+	archivo.seekp(reg.archOffset);
 	size_t tam = RegistroIndice::tamReg(reg.nombre.size()) + BYTES_PREF_NOMBRE;
 	char *zeros = new char[tam]();
 	archivo.write(zeros, tam);
@@ -266,5 +273,6 @@ void BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
 
 BaseDeDatos::~BaseDeDatos()
 {
+	// TODO: Ver si hace falta reestructurar el archivo
 	archivo.close();
 }

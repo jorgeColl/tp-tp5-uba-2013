@@ -25,12 +25,12 @@ public:
 
 	/**@brief pide lista de modificaciones al servidor
 	 */
-	std::vector<Modificacion> recibir_modificaciones();
+	std::list<Modificacion> recibir_modificaciones();
 	/**@brief Recorre los archivos en busca de modificaciones a cada modificacion
 	 * encontrada se genera una nueva instancia de la clase Modificacion y se agrega
 	 * al vector
 	 */
-	std::vector<Modificacion> comprobar_cambios_locales();
+	std::list<Modificacion> comprobar_cambios_locales();
 	/**@brief efectua una modificacion, segun los parametros de modificacion, la accion a realizar variarÃ¡
 	 */
 	bool aplicar_modificacion(Modificacion& mod);

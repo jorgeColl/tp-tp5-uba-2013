@@ -54,3 +54,9 @@ ostream& operator<<(ostream& os, Modificacion& mod) {
 		os << "Nombre de archivo alternativo: "<< mod.nombre_archivo_alt << endl;
 	return os ;
 }
+
+bool Modificacion::Modificacion::operator==(const Modificacion &otra)
+{
+	return (accion == otra.accion && nombre_archivo == otra.nombre_archivo
+			&& nombre_archivo_alt == otra.nombre_archivo_alt);
+}

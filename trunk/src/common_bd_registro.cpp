@@ -21,7 +21,6 @@ BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre
 
 BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre_archivo,
 		const string &dir) : archOffset(-1)
-
 {
 	string path(dir);
 	path += "/";

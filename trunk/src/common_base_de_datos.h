@@ -105,14 +105,14 @@ public:
 	 * @pre El archivo de nombre_viejo habia sido previamente indexado
 	 * @throws Excepcion si falla
 	 */
-	void registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo);
+	void registrar_renombrado(const string &nombre_nuevo, const string &nombre_viejo);
 
 	/**
 	 * @brief Registra que se copio un archivo ya indexado
 	 * @pre El archivo de nombre_viejo habia sido previamente indexado
 	 * @throws Excepcion si falla
 	 */
-	void registrar_copiado(const string &nombre_viejo, const string &nombre_nuevo);
+	void registrar_copiado(const string &nombre_nuevo, const string &nombre_viejo);
 
 	//----- Operaciones pertinentes al indice y registro de cambios
 
@@ -176,8 +176,6 @@ private:
 			void modificar(RegistroIndice &reg, const string &password, const string &dir);
 			/** @brief Renombra un registro al indice en ram */
 			void renombrar(RegistroIndice &reg, const string &nombre_nuevo);
-			/** @brief Copia un registro del indice en ram bajo otro nombre */
-			void copiar(RegistroIndice &reg, const string &nombre_nuevo);
 			/** @brief Devuelve un puntero al registro de un dado nombre
 			 * @return Puntero al registro, o null si no se encontro */
 			RegistroIndice* buscarNombre(const string &nombre);
@@ -215,18 +213,6 @@ private:
 	 * @return True si la operacion tiene exito
 	 */
 	void registrar_modificado_fis(const RegistroIndice &reg);
-
-	/**
-	 * @brief Persiste un renombramiento de archivo en la indexacion fisica
-	 * @return True si la operacion tiene exito
-	 */
-	void registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo);
-
-	/**
-	 * @brief Persiste una copia de archivo en la indexacion fisica
-	 * @return True si la operacion tiene exito
-	 */
-	void registrar_copiado_fis(const RegistroIndice &reg, const string &nombre_nuevo);
 
 	/**
 	 * @brief Carga los contenidos del archivo indice a una estructura en ram

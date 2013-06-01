@@ -148,8 +148,6 @@ std::vector<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 			string hash = MD5_arch(path, password);
 			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end(); ++it)
 			{
-				cout << "h1: " << (*it)->hash << endl;
-				cout << "h2: " << hash << endl;
 				if ((*it)->hash == hash) //El hash es el mismo entonces el archivo es el mismo con otro nombre
 				{
 					// Primero me fijo si aun existe el archivo de viejo nombre, si es el caso es copia
@@ -192,8 +190,8 @@ void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 	//Armo el registro con el archivo, y lo agrego al indice en ram y fisico
 	RegistroIndice reg(nombre_archivo, directorio); //Puede fallar si el archivo no es bueno
 	reg.calcularHash(directorio,password,reg.hash);
+	registrar_nuevo_fis(reg); // Primero lo agrego para obtener el offset correcto
 	indice.agregar(reg);
-	registrar_nuevo_fis(reg);
 }
 
 void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
@@ -213,20 +211,23 @@ void BaseDeDatos::registrar_modificado(const string &nombre_archivo)
 	registrar_modificado_fis(*reg);
 }
 
-void BaseDeDatos::registrar_renombrado(const string &nombre_viejo, const string &nombre_nuevo)
+void BaseDeDatos::registrar_renombrado(const string &nombre_nuevo, const string &nombre_viejo)
 {
 	//Busco el reg y lo edito en ram y luego en el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
+	registrar_eliminado_fis(*reg); //Lo borro del archivo
 	indice.renombrar(*reg, nombre_nuevo);
-	registrar_renombrado_fis(*reg, nombre_nuevo);
+	registrar_nuevo_fis(*reg); //Lo agrego como archivo nuevo tras cambiarle el nombre
 }
 
-void BaseDeDatos::registrar_copiado(const string &nombre_viejo, const string &nombre_nuevo)
+void BaseDeDatos::registrar_copiado(const string &nombre_nuevo, const string &nombre_viejo)
 {
-	//Busco el reg y lo edito en ram y luego en el fisico
+	//Busco el reg, cambio el nombre, y lo agrego en ram y luego en el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
-	indice.copiar(*reg, nombre_nuevo);
-	registrar_copiado_fis(*reg, nombre_nuevo);
+	RegistroIndice copia(*reg);
+	copia.nombre = nombre_nuevo;
+	indice.agregar(copia);
+	registrar_nuevo_fis(copia);
 }
 
 //----- Metodos privados
@@ -247,32 +248,20 @@ void BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
 
 void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 {
-	//TODO: Eliminado logico y etc
+	// Eliminado logico. Resto 1 y sumo 1 debido a los prefijos.
+	archivo.seekp(reg.archOffset-BYTES_PREF_NOMBRE);
+	size_t tam = RegistroIndice::tamReg(reg.nombre.size()) + BYTES_PREF_NOMBRE;
+	char *zeros = new char[tam]();
+	archivo.write(zeros, tam);
+	delete[] zeros;
 	if (!archivo.good()) throw runtime_error("Fallo el borrado en el indice fisico.");
 }
 
 void BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
 {
-	archivo.seekp(reg.archOffset, ios::beg);
+	archivo.seekp(reg.archOffset);
 	archivo << reg.serializar();
 	if (!archivo.good()) throw runtime_error("Fallo el modificado en el indice fisico.");
-}
-
-void BaseDeDatos::registrar_renombrado_fis(const RegistroIndice &reg, const string &nombre_nuevo)
-{
-	//Ojala fuera tan sencillo, el nombre nuevo puede ser más grande,
-	//mejor borrar y volver a agregar
-	//archivo.seekp(reg.archOffset, ios::beg);
-	//archivo << reg.serializar();
-	if (!archivo.good()) throw runtime_error("Fallo el renombrado en el indice fisico.");
-}
-
-void BaseDeDatos::registrar_copiado_fis(const RegistroIndice &reg, const string &nombre_nuevo)
-{
-	RegistroIndice copia(reg);
-	copia.nombre = nombre_nuevo;
-	registrar_nuevo_fis(copia);
-	if (!archivo.good()) throw runtime_error("Fallo el copiado en el indice fisico.");
 }
 
 BaseDeDatos::~BaseDeDatos()

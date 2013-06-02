@@ -13,6 +13,7 @@ public:
 	/**
 	 * @brief Constructor por parametros explicitos
 	 * @param accion Tipo de accion representado por esta modificacion
+	 * @param es_local Si la modificacion fue o no generada en base al indice local
 	 * @param nombre_archivo Nombre del archivo relacionado
 	 * @param nombre_archivo_alt Nombre extra en caso de ser necesario, parametro opcional
 	 */
@@ -20,14 +21,19 @@ public:
 
 	/**
 	 * @brief Constructor por deserializacion
+	 * @param es_local Si la modificacion fue o no generada en base al indice local
 	 * @param tiraBytes String que contiene la modificacion en formato serializado
 	 */
 	Modificacion(string tiraBytes, bool es_local);
 
-	/**@brief Serializa el objeto y devuelve una tira de bytes */
+	/**@brief Serializa el objeto y devuelve una tira de bytes*/
 	string serializar();
 
+	/**@brief Devuelve igualdad comparando accion, y ambos nombres de archivo*/
 	bool operator==(const Modificacion &otra);
+
+	/**@brief Devuelve desigualdad comparando solo el nombre de archivo*/
+	bool operator<(const Modificacion &otra);
 
 	tipo_accion accion;
 	bool es_local;

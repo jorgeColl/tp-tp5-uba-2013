@@ -118,15 +118,33 @@ public:
 
 	/**
 	 * @brief Compara la informacion en el indice con los archivos fisicos y devuelve una lista de modificaciones
-	 * @return Lista con las modificaciones a realizar
+	 * @return Lista con las modificaciones a realizar para el cliente
 	 */
 	list<Modificacion> comprobar_cambios_locales();
 
 	/**
-	 * @brief Compara el indice local con otro devuelve las discrepancias
-	 *
+	 * @brief Compara el indice local con otro y devuelve las discrepancias
+	 * @return Lista con las modificaciones a realizar tras resolver los conflictos
 	 */
 	list<Modificacion> comparar_indices(fstream &otro);
+
+	/**
+	 * @brief Fusiona 2 listas de modificaciones de forma que queden resueltos los conflictos
+	 * @pre La lista externa tiene modificaciones no locales, y la local modificaciones locales
+	 * @param lista_externa Lista con los modificaciones recibidas de otro ladi
+	 * @param lista_local Lista con las modificaciones halladas localmente con el indice local
+	 * @return Lista con las modificaciones tras resolver los conflictos
+	 * @post La lista_externa y la lista_local fueron ordenadas
+	 */
+	list<Modificacion> merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local);
+
+	/**
+	 * @param modif_externa Modificacion no local
+	 * @param modif_local Modificacion local
+	 * @return Modificaciones resultantes de resolver el conflicto
+	 */
+	list<Modificacion> resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local);
+
 
 private:
 	/**

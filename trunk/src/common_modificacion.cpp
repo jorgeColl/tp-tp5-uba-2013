@@ -9,45 +9,33 @@
 
 using namespace std;
 
-Modificacion::Modificacion(tipo_accion accion, const string &nombre_archivo, const string &nombre_archivo_alt)
-	: accion(accion), nombre_archivo(nombre_archivo), nombre_archivo_alt(nombre_archivo_alt) {}
+Modificacion::Modificacion(tipo_accion accion, bool es_local, const string &nombre_archivo, const string &nombre_archivo_alt)
+	: accion(accion), es_local(es_local), nombre_archivo(nombre_archivo), nombre_archivo_alt(nombre_archivo_alt) {}
 
 /**@brief Imprime una modificacion como si fuera solo texto */
 ostream& operator<<(ostream& os, Modificacion& mod) {
 	// Coso asqueroso para que imprima en palabras y no en numeros
 	string accion;
-	switch (mod.accion) {
-	case (SUBIR_NUEVO_ARCHIVO):
-		accion = "SUBIR_NUEVO_ARCHIVO";
+	switch (mod.accion)
+	{
+	case (NUEVO):
+		accion = "NUEVO";
 		break;
-	case (BAJAR_NUEVO_ARCHIVO):
-		accion = "BAJAR_NUEVO_ARCHIVO";
+	case (BORRADO):
+		accion = "BORRADO";
 		break;
-	case (BORRAR_ARCHIVO_LOCAL):
-		accion = "BORRAR_ARCHIVO_LOCAL";
+	case (MODIFICADO):
+		accion = "MODIFICADO";
 		break;
-	case (MANDAR_A_BORRAR_ARCHIVO):
-		accion = "MANDAR_A_BORRAR_ARCHIVO";
+	case (COPIADO):
+		accion = "COPIADO";
 		break;
-	case (SUBIR_MOD_ARCHIVO):
-		accion = "SUBIR_MOD_ARCHIVO";
-		break;
-	case (BAJAR_MOD_ARCHIVO):
-		accion = "BAJAR_MOD_ARCHIVO";
-		break;
-	case (MANDAR_RENOMBRE_ARCHIVO):
-		accion = "MANDAR_RENOMBRE_ARCHIVO";
-		break;
-	case (RENOMBRAR_ARCHIVO_LOCAL):
-		accion = "RENOMBRAR_ARCHIVO_LOCAL";
-		break;
-	case (MANDAR_COPIA_ARCHIVO):
-		accion = "MANDAR_COPIA_ARCHIVO";
-		break;
-	case (COPIAR_ARCHIVO_LOCAL):
-		accion = "COPIAR_ARCHIVO_LOCAL";
+	case (RENOMBRADO):
+		accion = "RENOMBRADO";
 		break;
 	}
+	if (mod.es_local) os << "LOCAL" << endl;
+	else os << "NO LOCAL" << endl;
 	os << "Accion: "<< accion << endl;
 	os << "Nombre de archivo: "<< mod.nombre_archivo << endl;
 	if (mod.nombre_archivo_alt != "")

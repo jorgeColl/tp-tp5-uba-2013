@@ -32,6 +32,9 @@ void BaseDeDatos::abrir(const string &dir)
 
 list<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)
 {
+	IndiceRam indiceServer;
+	indiceServer.cargar(otro);
+
 	return list<Modificacion>();
 }
 
@@ -39,9 +42,10 @@ list<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)
 
 bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, fstream &ofstream)
 {
-	string dir(directorio);
-	dir.append(nombre_archivo);
-	ofstream.open(dir.c_str(), ios::out | ios::binary);
+	string path(directorio);
+	path += "/";
+	path += (nombre_archivo);
+	ofstream.open(path.c_str(), ios::out | ios::binary);
 	return (ofstream.is_open());
 }
 
@@ -74,7 +78,8 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 {
 	// A criterio si conviene levantar una excepcion si rename != 0
 	string tmp(directorio);
-	tmp+=nombre_archivo;
+	tmp += "/";
+	tmp += nombre_archivo;
 	int exito=remove( tmp.c_str() );
 	if(exito == -1){
 		throw std::runtime_error(strerror(errno));
@@ -86,7 +91,8 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, fstream &ifstream)
 {
 	string path(directorio);
-	path.append(nombre_archivo);
+	path += "/";
+	path += nombre_archivo;
 	ifstream.open(path.c_str(), ios::in | ios::binary);
 	return ifstream.is_open();
 }
@@ -94,6 +100,11 @@ bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, fstream &ifstrea
 //----- Registracion en el indice de eventos
 
 list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
+{
+	return comprobar_cambios(indice, true);
+}
+
+list<Modificacion> BaseDeDatos::comprobar_cambios(IndiceRam &indice, bool es_local)
 {
 	list<Modificacion> modifs;
 	// Me fijo si los archivos que tenia indexado siguen en la carpeta
@@ -104,7 +115,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 		// Nota: Más abajo nos fijamos si fue renombrado en vez de borrado
 		if (!esArchivo(directorio,*it)) // No existe
 		{
-			Modificacion modif(MANDAR_A_BORRAR_ARCHIVO, *it);
+			Modificacion modif(BORRADO, es_local, *it);
 			modifs.push_back(modif);
 		}
 	}
@@ -137,7 +148,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 			if (buf.st_mtim.tv_sec != esta->modif && esta->hash != MD5_arch(path,password))
 			{
 				MD5_arch(path, password); // Me fijo que el hash sea distinto
-				Modificacion modif(SUBIR_MOD_ARCHIVO, esta->nombre);
+				Modificacion modif(MODIFICADO, es_local, esta->nombre);
 				modifs.push_back(modif);
 			}
 		}
@@ -158,22 +169,22 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 					// TODO: Optimizar para que en caso de renombre de copia mande renombre y no borrar+copia
 					if (esArchivo(pathViejo))
 					{
-						Modificacion modif(MANDAR_COPIA_ARCHIVO, nombre, (*it)->nombre);
+						Modificacion modif(COPIADO, es_local, nombre, (*it)->nombre);
 						modifs.push_back(modif);
 					}
 					else // Como no existe, en vez de copia es renombre
 					{
-						Modificacion modif(MANDAR_RENOMBRE_ARCHIVO, nombre, (*it)->nombre);
+						Modificacion modif(RENOMBRADO, es_local, nombre, (*it)->nombre);
 						modifs.push_back(modif);
 					}
 					match = true;
-					modifs.remove(Modificacion(MANDAR_A_BORRAR_ARCHIVO, (*it)->nombre));
+					modifs.remove(Modificacion(BORRADO, es_local, (*it)->nombre));
 					break;
 				}
 			}
 			if (!match) // No hubo matches, entonces el archivo es nuevo
 			{
-				Modificacion modif(SUBIR_NUEVO_ARCHIVO, nombre);
+				Modificacion modif(NUEVO, es_local, nombre);
 				modifs.push_back(modif);
 			}
 		}
@@ -182,12 +193,6 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 	closedir(dir);
 	//Nota: No liberar dirent
 	return modifs;
-}
-
-vector<Modificacion> comparar_indices(fstream &otro)
-{
-	//TODO: Terminar
-	return vector<Modificacion>();
 }
 
 //----- Registracion en el indice de eventos

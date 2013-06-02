@@ -116,8 +116,9 @@ public:
 
 	//----- Operaciones pertinentes al indice y registro de cambios
 
-	/**@brief se encarga de encontrar los archivos modificados y
-	 *  generar un vector de modificaciones
+	/**
+	 * @brief Compara la informacion en el indice con los archivos fisicos y devuelve una lista de modificaciones
+	 * @return Lista con las modificaciones a realizar
 	 */
 	list<Modificacion> comprobar_cambios_locales();
 
@@ -218,6 +219,14 @@ private:
 	 * @brief Carga los contenidos del archivo indice a una estructura en ram
 	 */
 	void cargarARam();
+
+	/**
+	 * @brief Compara la informacion en el indice con los archivos fisicos y devuelve una lista de modificaciones
+	 * @param indice Indice en ram a usar
+	 * @param es_local Dice si las modificaciones a devolver seran locales o no
+	 * @return Lista con las modificaciones a realizar
+	 */
+	list<Modificacion> comprobar_cambios(IndiceRam &indice, bool es_local);
 
 	string password;
 	string directorio;

@@ -105,6 +105,18 @@ bool Controlador::aplicar_modificacion(Modificacion& mod) {
 		return enviar_modificacion(mod);
 	case BAJAR_MOD_ARCHIVO:
 		return pedir_modificacion(mod.nombre_archivo);
+	case COPIAR_ARCHIVO_LOCAL:
+		// nose que hace
+		return true;
+	case MANDAR_RENOMBRE_ARCHIVO:
+		// forma de mandar??
+		return true;
+	case MANDAR_COPIA_ARCHIVO:
+		// que hace??
+		return true;
+	case RENOMBRAR_ARCHIVO_LOCAL:
+		// rename
+		return true;
 	}
 	return false;
 }

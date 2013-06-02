@@ -15,3 +15,11 @@ bool esArchivo(const string &dir, const string &nombre)
 	struct stat buf;
 	return (stat(path.c_str(), &buf) >= 0 && S_ISREG(buf.st_mode));
 }
+
+string unirPath(const string &dir, const string &nombre)
+{
+	string path(dir);
+	path += "/";
+	path += nombre;
+	return path;
+}

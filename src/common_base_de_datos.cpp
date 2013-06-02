@@ -16,9 +16,7 @@
 void BaseDeDatos::abrir(const string &dir)
 {
 	directorio += dir;
-	pathArchivo += dir;
-	pathArchivo += "/";
-	pathArchivo += NOMBRE_ARCH_DEF;
+	pathArchivo = unirPath(dir, NOMBRE_ARCH_DEF);
 	archivo.open(pathArchivo.c_str(), ios::in | ios::out | ios::binary);
 	if (!archivo.is_open())
 	{
@@ -34,17 +32,34 @@ list<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)
 {
 	IndiceRam indiceServer;
 	indiceServer.cargar(otro);
+	list<Modificacion> mod_serv = comprobar_cambios(indiceServer, false);
+	list<Modificacion> mod_cli = comprobar_cambios_locales();
 
 	return list<Modificacion>();
+}
+
+list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local)
+{
+	lista_externa.sort();
+	lista_local.sort();
+
+
+	return list<Modificacion>();
+}
+
+list<Modificacion> resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local)
+{
+	// TODO: Mejor resolucion de conflictos generando/renombrando archivos conflictuados
+	list<Modificacion> resultado;
+	resultado.push_back(modif_externa);
+	return resultado;
 }
 
 //----- Modificacion de archivos en el directorio
 
 bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, fstream &ofstream)
 {
-	string path(directorio);
-	path += "/";
-	path += (nombre_archivo);
+	string path = unirPath(directorio, nombre_archivo);
 	ofstream.open(path.c_str(), ios::out | ios::binary);
 	return (ofstream.is_open());
 }
@@ -57,12 +72,8 @@ bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, fst
 }
 
 bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombre) {
-	string path1(directorio);
-	string path2(directorio);
-	path1+="/";
-	path2+="/";
-	path1.append(viejo_nombre);
-	path2.append(nuevo_nombre);
+	string path1 = unirPath(directorio, viejo_nombre);
+	string path2 = unirPath(directorio, nuevo_nombre);
 	// A criterio si conviene levantar una excepcion si rename != 0
 	return rename(path1.c_str(), path2.c_str());
 }
@@ -77,9 +88,7 @@ bool BaseDeDatos::renombrar_temporal(const string &nombre_archivo)
 bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 {
 	// A criterio si conviene levantar una excepcion si rename != 0
-	string tmp(directorio);
-	tmp += "/";
-	tmp += nombre_archivo;
+	string tmp = unirPath(directorio, nombre_archivo);
 	int exito=remove( tmp.c_str() );
 	if(exito == -1){
 		throw std::runtime_error(strerror(errno));
@@ -90,9 +99,7 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 
 bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, fstream &ifstream)
 {
-	string path(directorio);
-	path += "/";
-	path += nombre_archivo;
+	string path = unirPath(directorio, nombre_archivo);
 	ifstream.open(path.c_str(), ios::in | ios::binary);
 	return ifstream.is_open();
 }
@@ -131,9 +138,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios(IndiceRam &indice, bool es_loc
 			dirEnt = readdir(dir);
 			continue;
 		}
-		string path(directorio);
-		path += "/";
-		path += nombre;
+		string path = unirPath(directorio, nombre);
 		struct stat buf;
 		int val = stat(path.c_str(), &buf);
 		if (val == -1 || !S_ISREG(buf.st_mode)) //Veo que efectivamente es un archivo

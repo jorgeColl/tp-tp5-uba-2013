@@ -43,8 +43,13 @@ ostream& operator<<(ostream& os, Modificacion& mod) {
 	return os ;
 }
 
-bool Modificacion::Modificacion::operator==(const Modificacion &otra)
+bool Modificacion::operator==(const Modificacion &otra)
 {
 	return (accion == otra.accion && nombre_archivo == otra.nombre_archivo
 			&& nombre_archivo_alt == otra.nombre_archivo_alt);
+}
+
+bool Modificacion::operator<(const Modificacion &otra)
+{
+	return (nombre_archivo < otra.nombre_archivo);
 }

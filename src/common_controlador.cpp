@@ -28,9 +28,10 @@ bool Controlador::borrar_archivo(std::string& nombre_archivo)
 
 bool Controlador::mandar_a_borrar (Modificacion& mod)
 {
+	//Este metodo como que no hace mucho
 	/* cambio el "punto de vista" de la modificacion para que cuando el
 	server lea esto directamente borre el archivo que tiene en su directorio*/
-	mod.accion=BORRAR_ARCHIVO_LOCAL;
+	//mod.accion=BORRAR_ARCHIVO_LOCAL;
 
 	return sock1.enviar_modif(mod);
 }
@@ -46,7 +47,7 @@ bool Controlador::pedir_nuevo_archivo(Modificacion& mod){
 	// le dice a base de datos que guarde al nuevo archivo
 
 	// cambia el "punto de vista"
-	mod.accion =  SUBIR_NUEVO_ARCHIVO;
+	//mod.accion =  SUBIR_NUEVO_ARCHIVO;
 	sock1.enviar_modif(mod);
 	// parte prototipo
 	fstream ofstream;
@@ -90,32 +91,22 @@ bool Controlador::pedir_modificacion(std::string& nombre_archivo){
 	// falta definir
 	return true;
 }
-bool Controlador::aplicar_modificacion(Modificacion& mod) {
+bool Controlador::aplicar_modificacion(Modificacion& mod)
+{
 	switch (mod.accion)
 	{
-	case SUBIR_NUEVO_ARCHIVO:
-		return enviar_nuevo_archivo(mod.nombre_archivo);
-	case BAJAR_NUEVO_ARCHIVO:
-		return pedir_nuevo_archivo(mod);
-	case BORRAR_ARCHIVO_LOCAL:
-		return borrar_archivo(mod.nombre_archivo);
-	case MANDAR_A_BORRAR_ARCHIVO:
-		return mandar_a_borrar(mod);
-	case SUBIR_MOD_ARCHIVO:
-		return enviar_modificacion(mod);
-	case BAJAR_MOD_ARCHIVO:
-		return pedir_modificacion(mod.nombre_archivo);
-	case COPIAR_ARCHIVO_LOCAL:
-		// nose que hace
+	case NUEVO:
+		if (mod.es_local) return enviar_nuevo_archivo(mod.nombre_archivo);
+		else return pedir_nuevo_archivo(mod);
+	case BORRADO:
+		if (mod.es_local) return borrar_archivo(mod.nombre_archivo);
+		else return mandar_a_borrar(mod);
+	case MODIFICADO:
+		if (mod.es_local) return enviar_modificacion(mod);
+		else return pedir_modificacion(mod.nombre_archivo);
+	case RENOMBRADO:
 		return true;
-	case MANDAR_RENOMBRE_ARCHIVO:
-		// forma de mandar??
-		return true;
-	case MANDAR_COPIA_ARCHIVO:
-		// que hace??
-		return true;
-	case RENOMBRAR_ARCHIVO_LOCAL:
-		// rename
+	case COPIADO:
 		return true;
 	}
 	return false;

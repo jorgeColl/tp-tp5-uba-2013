@@ -21,19 +21,19 @@ int main(int argc, char** argv)
 			cout << *it << endl;
 			switch(it->accion)
 			{
-				case SUBIR_NUEVO_ARCHIVO:
+				case NUEVO:
 					db.registrar_nuevo(it->nombre_archivo);
 					break;
-				case MANDAR_A_BORRAR_ARCHIVO:
+				case BORRADO:
 					db.registrar_eliminado(it->nombre_archivo);
 					break;
-				case SUBIR_MOD_ARCHIVO:
+				case MODIFICADO:
 					db.registrar_modificado(it->nombre_archivo);
 					break;
-				case MANDAR_COPIA_ARCHIVO:
+				case COPIADO:
 					db.registrar_copiado(it->nombre_archivo, it->nombre_archivo_alt);
 					break;
-				case MANDAR_RENOMBRE_ARCHIVO:
+				case RENOMBRADO:
 					db.registrar_renombrado(it->nombre_archivo, it->nombre_archivo_alt);
 					break;
 				default:

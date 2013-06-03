@@ -10,38 +10,46 @@
 #include "server_base_de_datos_usuario.h"
 #include "server_thread_communicator.h"
 #include "common_socket_prot.h"
-#include "common_threadM.h"
+#include "common_thread.h"
 #include "common_mutex.h"
 
-#define MAX_COLA 1000
+#define MAX_COLA 100
 // usa puerto 1
-class Accepter: public ThreadM {
-	bool finish;
+class Accepter: public Thread {
+	bool correr;
 	BaseDeDatosUsuario base_datos_usu;
 	const char* dir;
 	vector<ServerCommunicator*> comunicadores;
-	const char* puerto1;
-	const char* puerto2;
+	string puerto1;
+	string puerto2;
 	SocketProt sock_prot1;
 	SocketProt sock_prot2;
 	Mutex mutex;
 public:
 	Accepter(const char* dir, const char* puerto1, const char* puerto2) :
-			finish(false), base_datos_usu(dir), dir(dir) {
-		this->puerto1 = puerto1;
-		this->puerto2 = puerto2;
+		correr(false), base_datos_usu(dir), dir(dir), puerto1(puerto1), puerto2(puerto2) {}
+
+	~Accepter()
+	{
+		sock_prot1.cerrar();
+		sock_prot2.cerrar();
 	}
-	void ejecutar() {
-		sock_prot1.escuchar(puerto1, MAX_COLA);
-		sock_prot2.escuchar(puerto2, MAX_COLA);
-		bool exito = true;
-		while (exito && finish) {
-			exito = aceptar_conexion();
+
+	void ejecutar()
+	{
+		correr = true;
+		sock_prot1.escuchar(puerto1.c_str(), MAX_COLA);
+		sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
+		while (correr)
+		{
+			bool exito = aceptar_conexion();
+			if (exito) cout << "Conexion exitosa desde un cliente" << endl;
+			else cout << "Conexion fallida desde un cliente" << endl;
 		}
 	}
 	void stop() {
 		Lock lock_temp (mutex);
-		finish = false;
+		correr = false;
 		for (size_t i = 0; i < comunicadores.size(); ++i) {
 			comunicadores[i]->stop();
 		}
@@ -52,42 +60,44 @@ public:
 	 * @details utiliza al socket para aceptar/rechazar conexiones entrantes
 	 * y si es valido el usuario genera una instancia de la clase ServerComunicator
 	 *  y lo ejecuta en otro thread*/
-	bool aceptar_conexion() {
-
+	bool aceptar_conexion()
+	{
+		cout << "Aguardando conexion." << endl;
 		int fd_nuevo_1 = sock_prot1.aceptar();
-		if (fd_nuevo_1 < 0) {
-			return false;
-		}
-		// recibo mensaje
-		SocketProt temp;
-		//si mensaje malo -> rechazo y cierro conexion
-		string mensaje;
-		temp.recibir_msg_c_prefijo(mensaje, 2); //FALTA TERMINAR
+		if (fd_nuevo_1 < 0) return false;
+		cout << "Conexion recibida, esperando login." << endl;
+		// Recibo mensaje
+		SocketProt sock1(fd_nuevo_1);
+		PacketID login = FAIL;
+		sock1.recibir_flag(login);
+		if (login != LOGIN) return false; // Veo que sea el paquete correcto
 		string usuario;
 		string contrasenia;
-		size_t lugar = mensaje.find(' ');
-		usuario = mensaje.substr(0, lugar);
-		contrasenia = mensaje.substr(lugar + 1);
-		bool login_correcto = base_datos_usu.usuario_contrasenia_correcto(
-				usuario.c_str(), contrasenia.c_str());
-		if (!login_correcto) {
-			temp.enviar_flag(FAIL);
-			temp.cerrar();
-
-		} else {
-			//si mensaje bueno
-			// creo el otro socket
+		sock1.recibir_msg_c_prefijo(usuario, BYTES_USER_PASS);
+		cout << usuario.length() << usuario << endl;
+		sock1.recibir_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
+		bool login_correcto = base_datos_usu.usuario_contrasenia_correcto
+				(usuario.c_str(), contrasenia.c_str());
+		if (!login_correcto)
+		{
+			sock1.enviar_flag(FAIL);
+			sock1.cerrar();
+		}
+		else
+		{
+			// Si mensaje bueno creo el otro socket
+			sock1.enviar_flag(OK);
 			int fd_nuevo_2 = sock_prot2.aceptar();
-			if(fd_nuevo_2<0){
-				SocketProt temp2(fd_nuevo_2);
-				temp2.cerrar();
-				temp.cerrar();
+			if(fd_nuevo_2 < 0)
+			{
+				sock1.cerrar();
 				return false;
 			}
 			ServerCommunicator* comu = new ServerCommunicator(dir, fd_nuevo_1, fd_nuevo_2);
 			comunicadores.push_back(comu);
 			comu->start();
 		}
+		// Nota: El delete de sock1 no llama a close, asi que con pasar su file descriptor esta todo en orden
 		return true;
 	}
 };

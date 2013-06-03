@@ -1,23 +1,12 @@
 #include "server_thread_communicator.h"
 
-ServerCommunicator::ServerCommunicator(const char* dir, int fd1, int fd2)  {
-	// QUERIA PONER ESTO EN EL CONSTRUCTOR PERO NO PUDE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// : sock1(fd1), sock2(fd2)
-	this->dir = dir;
-	finish = false;
-	// ESTO VIOLA OBJETOS
-	sock1.sockfd = fd1;
-	sock2.sockfd = fd2;
-}
+ServerCommunicator::ServerCommunicator(const char* dir, int fd1, int fd2)
+	: Controlador(dir, fd1, fd2), Thread() {}
 
-void ServerCommunicator::stop() {
-	Lock temp (mutex);
-	finish = true;
-}
 void procesar_flag(PacketID& flag){
 	switch(flag){
 	case(LOGIN):
-			// este no deberia llegar nunca
+			// Este no deberia llegar nunca, se ignora
 			break;
 	case(FAIL):
 			// nose
@@ -47,12 +36,13 @@ void procesar_flag(PacketID& flag){
 	}
 }
 void ServerCommunicator::ejecutar() {
-	// se comunica con el cliente
+	// Se comunica con el cliente
 	bool coneccion = true;
-	while(coneccion && finish==false) {
+	while(coneccion && correr)
+	{
 		PacketID flag;
 		coneccion = sock1.recibir_flag(flag);
 		procesar_flag(flag);
 	}
-	Lock temp (mutex);
+	Lock temp (mutex); // Que hace esto aca?
 }

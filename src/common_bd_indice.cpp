@@ -1,6 +1,6 @@
 #include "common_base_de_datos.h"
 
-void BaseDeDatos::IndiceRam::cargar(fstream &arch)
+void BaseDeDatos::IndiceRam::cargar(istream &arch)
 {
 	arch.seekg(0);
 	char* buffer = new char[RegistroIndice::tamMax()];

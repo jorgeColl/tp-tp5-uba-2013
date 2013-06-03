@@ -126,7 +126,7 @@ public:
 	 * @brief Compara el indice local con otro y devuelve las discrepancias
 	 * @return Lista con las modificaciones a realizar tras resolver los conflictos
 	 */
-	list<Modificacion> comparar_indices(fstream &otro);
+	list<Modificacion> comparar_indices(iostream &otro);
 
 	/**
 	 * @brief Fusiona 2 listas de modificaciones de forma que queden resueltos los conflictos
@@ -186,7 +186,7 @@ private:
 	{
 		public:
 			/** @brief Carga el indice desde un archivo abiert */
-			void cargar(fstream &arch);
+			void cargar(istream &arch);
 			/** @brief Agrega un registro al indice en ram */
 			void agregar(RegistroIndice &reg);
 			/** @brief Eliminar un registro al indice en ram */

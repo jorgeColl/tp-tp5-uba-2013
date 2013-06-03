@@ -6,8 +6,7 @@
 using namespace std;
 
 #define NOM_IDX_SERV ".auserver"
-#define POLLING_DEFAULT 30
-#define BYTES_CLI_CONT 1
+#define POLLING_DEFAULT 10
 
 /**
  * @class Cliente cliente_controlador.h
@@ -16,16 +15,9 @@ using namespace std;
 class ClienteControlador : public Controlador
 {
 private:
-	SocketProt sock1;
-	SocketProt sock2;
-	string dir;
-
-	bool terminar;
 	size_t delay_polling;
-
 	list<Modificacion> pedir_y_comparar_indices();
 public:
-	BaseDeDatos base_de_datos;
 	ClienteControlador();
 	/**
 	 * @brief IntentarÃ¡ iniciar sesion con el usuario y contraseÃ±a ingresados, en el servidor y los puertos indicados

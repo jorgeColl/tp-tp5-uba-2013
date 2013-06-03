@@ -43,6 +43,11 @@ ostream& operator<<(ostream& os, Modificacion& mod) {
 	return os ;
 }
 
+string Modificacion::serializar()
+{
+	return string("No implementado aun");
+}
+
 bool Modificacion::operator==(const Modificacion &otra)
 {
 	return (accion == otra.accion && nombre_archivo == otra.nombre_archivo

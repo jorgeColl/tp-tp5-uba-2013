@@ -28,7 +28,7 @@ void BaseDeDatos::abrir(const string &dir)
 	cargarARam();
 }
 
-list<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)
+list<Modificacion> BaseDeDatos::comparar_indices(iostream &otro)
 {
 	IndiceRam indiceServer;
 	indiceServer.cargar(otro);
@@ -40,14 +40,41 @@ list<Modificacion> BaseDeDatos::comparar_indices(fstream &otro)
 
 list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local)
 {
+	list<Modificacion> result;
 	lista_externa.sort();
 	lista_local.sort();
-
-
+	list<Modificacion>::iterator it_ext = lista_externa.begin();
+	list<Modificacion>::iterator it_loc = lista_local.begin();
+	vector<string> renombrados;
+	vector<string> renombres;
+	// TODO: Menejar el gran problema que presentan los renombres
+	while(it_ext != lista_externa.end() && it_loc != lista_local.end())
+	{
+		if (*it_ext < *it_loc)
+		{
+			result.push_back(*it_ext);
+			++it_ext;
+		}
+		else if (*it_loc < *it_ext)
+		{
+			result.push_back(*it_loc);
+			++it_loc;
+		}
+		else // Conflicto
+		{
+			list<Modificacion> solConflic = resolver_conflicto(*it_ext, *it_loc);
+			for (list<Modificacion>::iterator it = solConflic.begin(); it != solConflic.end(); ++it)
+			{
+				result.push_back(*it);
+			}
+			++it_ext;
+			++it_loc;
+		}
+	}
 	return list<Modificacion>();
 }
 
-list<Modificacion> resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local)
+list<Modificacion> BaseDeDatos::resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local)
 {
 	// TODO: Mejor resolucion de conflictos generando/renombrando archivos conflictuados
 	list<Modificacion> resultado;
@@ -130,6 +157,8 @@ list<Modificacion> BaseDeDatos::comprobar_cambios(IndiceRam &indice, bool es_loc
 	DIR* dir = opendir(directorio.c_str());
 	if (dir == NULL) return modifs;
 	struct dirent* dirEnt = readdir(dir);
+	vector<string> renombrados;
+	vector<string> renombre;
 	while(dirEnt != NULL) // Mientras tenga archivos
 	{
 		string nombre(dirEnt->d_name);
@@ -168,19 +197,25 @@ list<Modificacion> BaseDeDatos::comprobar_cambios(IndiceRam &indice, bool es_loc
 				if ((*it)->hash == hash) //El hash es el mismo entonces el archivo es el mismo con otro nombre
 				{
 					// Primero me fijo si aun existe el archivo de viejo nombre, si es el caso es copia
-					string pathViejo(directorio);
-					pathViejo += "/";
-					pathViejo += (*it)->nombre;
+					string nomb = (*it)->nombre;
+					for (size_t i = 0; i < renombrados.size(); ++i)
+					{
+						if (renombrados[i] == (*it)->nombre) nomb = renombre[i];
+					}
+					string pathViejo = unirPath(directorio, nomb);
 					// TODO: Optimizar para que en caso de renombre de copia mande renombre y no borrar+copia
+					// Primero me fijo si existe el archivo viejo o como renombre para ver si es una copia
 					if (esArchivo(pathViejo))
 					{
-						Modificacion modif(COPIADO, es_local, nombre, (*it)->nombre);
+						Modificacion modif(COPIADO, es_local, nombre, nomb);
 						modifs.push_back(modif);
 					}
 					else // Como no existe, en vez de copia es renombre
 					{
 						Modificacion modif(RENOMBRADO, es_local, nombre, (*it)->nombre);
 						modifs.push_back(modif);
+						renombrados.push_back((*it)->nombre);
+						renombre.push_back(nombre);
 					}
 					match = true;
 					modifs.remove(Modificacion(BORRADO, es_local, (*it)->nombre));
@@ -232,7 +267,7 @@ void BaseDeDatos::registrar_renombrado(const string &nombre_nuevo, const string 
 {
 	//Busco el reg y lo edito en ram y luego en el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
-	registrar_eliminado_fis(*reg); //Lo borro del archivo
+	registrar_eliminado_fis(*reg); //Lo borro del archivo si existe
 	indice.renombrar(*reg, nombre_nuevo); // Cambio el nombre en ram
 	registrar_nuevo_fis(*reg); //Lo agrego como archivo nuevo tras cambiarle el nombre
 }
@@ -265,7 +300,7 @@ void BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
 
 void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 {
-	// Eliminado logico. Resto 1 y sumo 1 debido a los prefijos.
+	// Eliminado logico. Sumo 1 debido a los prefijos.
 	archivo.seekp(reg.archOffset);
 	size_t tam = RegistroIndice::tamReg(reg.nombre.size()) + BYTES_PREF_NOMBRE;
 	char *zeros = new char[tam]();

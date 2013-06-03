@@ -8,6 +8,11 @@
 
 using namespace std;
 
+Controlador::Controlador() : dir(), sock1(), sock2(), terminar(false) {}
+
+Controlador::Controlador(const string &dir, int sockfd1, int sockfd2)
+	: dir(dir), sock1(sockfd1), sock2(sockfd2), terminar(false) {}
+
 void Controlador::set_directorio(std::string dir){
         this->dir = dir;
 }
@@ -46,8 +51,6 @@ bool Controlador::pedir_nuevo_archivo(Modificacion& mod){
 	// lo guarda en un archivo temporal
 	// le dice a base de datos que guarde al nuevo archivo
 
-	// cambia el "punto de vista"
-	//mod.accion =  SUBIR_NUEVO_ARCHIVO;
 	sock1.enviar_modif(mod);
 	// parte prototipo
 	fstream ofstream;
@@ -61,15 +64,12 @@ bool Controlador::pedir_nuevo_archivo(Modificacion& mod){
 	return true;
 }
 
-bool Controlador::enviar_nuevo_archivo(std::string& nombre_archivo){
-	// No asumo que el archivo entra en ram (en un string)
-	// pide a base de datos el archivo como fstream
-	// pasa el archivo al server
+bool Controlador::enviar_nuevo_archivo(std::string& nombre_archivo)
+{
 	sock1.enviar_flag(ARCHIVO_ENTERO);
-	// ACA LE TENDRIA QUE PEDIR A LA BASE DE DATOS POR METODO QUE ABRA EL ARCHIVO
-	//ifstream fd(nombre_archivo.c_str(),ifstream::binary);
 	fstream fd;
-	base_de_datos.abrir_para_leer(nombre_archivo, fd);
+	bool exito = base_de_datos.abrir_para_leer(nombre_archivo, fd);
+	if (!exito) return false;
 	sock1.enviar_archivo(fd);
 	fd.close();
 	return true;
@@ -80,17 +80,19 @@ bool Controlador::modificar_archivo(std::string& nombre_archivo){
 	// falta definir parametros de modificacion
 	return true;
 }
+
 bool Controlador::enviar_modificacion(Modificacion& mod){
-	// le manda un mensaje al server indicando que un archivo se modificó y le pasa los datos
-	// FALTA DEFINIR QUE DATOS PASA:
-	// OP1: PASA NUMERO INI, NUMERO FIN  Y PASA BLOQUE DE ARCHIVO  MODIFICADO
-	// OP2: PASA NUMERO INI, NUMERO FIN Y DESP ESPERA A QUE LE PIDAN CIERTO BOLQUE/S
+	string modSerializada(mod.serializar());
+	sock1.enviar_flag(MODIFICACION);
+	//TODO : Terminar
 	return true;
 }
+
 bool Controlador::pedir_modificacion(std::string& nombre_archivo){
 	// falta definir
 	return true;
 }
+
 bool Controlador::aplicar_modificacion(Modificacion& mod)
 {
 	switch (mod.accion)

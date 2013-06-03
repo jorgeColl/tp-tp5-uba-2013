@@ -9,6 +9,8 @@ Socket::Socket() : sockfd(-1) {}
 
 Socket::Socket(int sockfd) : sockfd(sockfd) {}
 
+#include <iostream>
+using namespace std;
 void Socket::conectar(const char* address, const char* puerto)
 {
 	//Todo: Encapsular addrinfo en un objeto para evitar problemas de memoria
@@ -20,13 +22,12 @@ void Socket::conectar(const char* address, const char* puerto)
 	hints.ai_family = AF_UNSPEC;		//IPV4/6
 	hints.ai_socktype = SOCK_STREAM;	//TCP
 	hints.ai_flags = AI_PASSIVE;			//Auto address
-	struct addrinfo *res;
-	status = getaddrinfo(address, puerto, &hints, &res);
+	addrinfoWrap wrap;
+	status = getaddrinfo(address, puerto, &hints, &wrap.res);
 	if (status != 0) throw std::runtime_error(gai_strerror(status));
-	sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	sockfd = socket(wrap.res->ai_family, wrap.res->ai_socktype, wrap.res->ai_protocol);
 	if (sockfd == -1) throw std::runtime_error(strerror(errno));
-	status = connect(sockfd, res->ai_addr, res->ai_addrlen);
-	freeaddrinfo(res);
+	status = connect(sockfd, wrap.res->ai_addr, wrap.res->ai_addrlen);
 	if (status == -1) throw std::runtime_error(strerror(errno));
 }
 
@@ -40,15 +41,14 @@ void Socket::escuchar(const char* port, int maxCola)
 	hints.ai_family = AF_UNSPEC;		//IPV4/6
 	hints.ai_socktype = SOCK_STREAM;	//TCP
 	hints.ai_flags = AI_PASSIVE;		//Auto address
-	struct addrinfo *res;
-	status = getaddrinfo(NULL, port, &hints, &res);
+	addrinfoWrap wrap;
+	status = getaddrinfo(NULL, port, &hints, &wrap.res);
 	if (status != 0) throw std::runtime_error(strerror(errno));
-	sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	sockfd = socket(wrap.res->ai_family, wrap.res->ai_socktype, wrap.res->ai_protocol);
 	if (sockfd == -1) throw std::runtime_error(strerror(errno));
-	status = bind(sockfd, res->ai_addr, res->ai_addrlen);
+	status = bind(sockfd, wrap.res->ai_addr, wrap.res->ai_addrlen);
 	if (status == -1) throw std::runtime_error(strerror(errno));
 	status = listen(sockfd, maxCola);
-	freeaddrinfo(res);
 	if (status == -1) throw std::runtime_error(strerror(errno));
 }
 

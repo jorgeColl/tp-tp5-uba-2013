@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <cstdlib>	// Free
 
 using namespace std;
 
@@ -65,6 +66,17 @@ class Socket
 		 * @brief socket file descriptor asociado
 		 */
 		int sockfd;
+	private:
+		/**
+		 * @class addrinfoWrap
+		 * @brief Clase que solo existe para menajar memoria correcatemente
+		 */
+		class addrinfoWrap
+		{
+			public:
+				struct addrinfo *res;
+				~addrinfoWrap() { free(res); }
+		};
 };
 
 #endif /* COMMON_SOCKET_H_ */

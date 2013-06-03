@@ -1,23 +1,33 @@
 //#define server_main
 #ifndef server_main
-#include "server_accepter.h"
-#define PUERTO1 "4000"
-#define PUERTO2 "4001"
+
 #include <iostream>
+#include "server_accepter.h"
+
+#define PUERTO1_DEF "12700"
+#define PUERTO2_DEF "12701"
+#define ADRESS_DEF "127.0.0.1"
+
 int main (int argc, char** argv)
 {
-
-	// el parametro 1 tiene que ser el directorio
-	Accepter acp(argv[1], PUERTO1, PUERTO2);
-	// aca manda a ejecutar al accepter en otro thread
-	acp.start();
-	char buffer[2];
-	cin>>buffer;
-	while(*buffer != 'q'){
-		cin>>buffer;
+	try
+	{
+		// el parametro 1 tiene que ser el directorio
+		Accepter acp(ADRESS_DEF, PUERTO1_DEF, PUERTO2_DEF);
+		// aca manda a ejecutar al accepter en otro thread
+		acp.start();
+		string buffer;
+		while(buffer != "q")
+		{
+			cin>>buffer;
+		}
+		acp.stop();
 	}
-	acp.stop();
-
+	catch(exception &e)
+	{
+		cout << "Error: " << e.what() << endl;
+	}
 	return 0;
+
 }
 #endif

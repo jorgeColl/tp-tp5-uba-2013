@@ -5,14 +5,20 @@
 #include "common_base_de_datos.h"
 #include "common_modificacion.h"
 #include "common_socket_prot.h"
-class Controlador {
+
+class Controlador
+{
 protected:
+	string dir;
 	SocketProt sock1;
 	SocketProt sock2;
-	string dir;
 	BaseDeDatos base_de_datos;
 	bool terminar;
 public:
+
+	Controlador();
+
+	Controlador(const string &dir, int sockfd1, int sockfd2);
 
 	/** @brief Setea el directorio en donde se guardan los archivos del usuario
 	 * OJO: usar antes del start()  */
@@ -67,7 +73,7 @@ public:
 	 */
 	bool pedir_modificacion(std::string& nombre_archivo);
 
-	//virtual ~Controlador() {}
+	virtual ~Controlador() {}
 };
 
 #endif /* COMMON_CONTROLADOR_H_ */

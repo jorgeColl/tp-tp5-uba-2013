@@ -6,7 +6,7 @@
 #include "cliente_controlador.h"
 using namespace std;
 
-ClienteControlador::ClienteControlador() : Controlador(),delay_polling(POLLING_DEFAULT) {}
+ClienteControlador::ClienteControlador() : Controlador(),delay_polling(POLLING_DEFAULT),notificador() {}
 
 void ClienteControlador::login(string server, string puerto1, string puerto2,
 		string usuario, string contrasenia, string polling)
@@ -14,6 +14,7 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 	if (conectado) throw runtime_error("El cliente ya esta corriendo."); // Nunca deberia darse
 	try
 	{
+		delay_polling = atoi(polling.c_str());
 		bool exito;
 		base_de_datos.abrir(dir);
 		cout << "Intentado conectarse" << endl;
@@ -28,7 +29,8 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 		PacketID login;
 		exito = sock1.recibir_flag(login);
 		if(login != OK) throw runtime_error("Los datos de login son incorrectos.");
-		sock2.conectar(server.c_str(),puerto2.c_str());
+		notificador.conectar(server.c_str(),puerto2.c_str());
+		notificador.start();
 		conectado = true;
 		cout << "Conexion exitosa." << login << endl;
 	}
@@ -78,14 +80,17 @@ void ClienteControlador::ejecutar()
 		{
 			cout << *it << endl;
 			exito = aplicar_modificacion(*it);
-			if(!exito) throw runtime_error("Error al aplicar una modificacion local.");
+			// Si falla, solo logeo, se supone que el indice fisico y demas quedo en condiciones
+			if (!exito) cout << "Error al aplicar una modificacion local." << endl;
 		}
 		// TODO: Poner esto en otro thread como corresponde
-		list<Modificacion> mod3 = recibir_modificaciones();
-		for (list<Modificacion>::iterator it = mod3.begin(); it != mod3.end(); ++it)
+		while (notificador.hay_modificaciones())
 		{
-			exito = aplicar_modificacion(*it);
-			if(!exito) throw runtime_error("Error al aplicar una modificacion recibida.");
+			Modificacion modif = notificador.pedir_modificacion();
+			cout << "Se recibio modificacion" << modif << endl;
+			exito = aplicar_modificacion(modif);
+			// Si falla, solo logeo, se supone que el indice fisico y demas quedo en condiciones
+			if (!exito) cout << "Error al aplicar una modificacion recibida." << endl;
 		}
 	}
 	return;

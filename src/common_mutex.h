@@ -7,6 +7,7 @@
 /**
  * @class Mutex common_mutex.h
  * @brief Encapsulamiento al mutex normal de C
+ * Se pretende que se use mediante el Lock, por eso la mayoria de los metodos son privados.
  */
 class Mutex
 {

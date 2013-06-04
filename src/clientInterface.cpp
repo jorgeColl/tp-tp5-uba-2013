@@ -32,7 +32,7 @@ void ClientInterface::cargarPreferencias()
 	builder->get_widget("ePort2", entry_puerto2);
 	entry_puerto2->set_text("12701");
 	builder->get_widget("ePoll", entry_intrevalo_polling);
-	entry_intrevalo_polling->set_text("10");
+	entry_intrevalo_polling->set_text("5");
 	//Sin archivo esta parte no tiene chiste
 	//builder->get_widget("eDir", chooser);
 	//chooser->set_current_folder(chooser->get_current_folder().append("/user1"));

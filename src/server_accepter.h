@@ -20,9 +20,9 @@ class Accepter: public Thread
 private:
 	BaseDeDatosUsuario base_datos_usu;
 	const char* dir;
-	vector<ServerCommunicator*> comunicadores;
 	string puerto1;
 	string puerto2;
+	map<string, list<ServerCommunicator*> > comunicadores;
 	SocketProt sock_prot1;
 	SocketProt sock_prot2;
 	Mutex mutex;

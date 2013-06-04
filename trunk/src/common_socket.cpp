@@ -93,9 +93,6 @@ bool Socket::recibirLen(char *msg, size_t len)
 	{
 		// Por cada envio vamos corriendo el puntero y reduciendo la cantidad
 		int recibidos = recibir(msg+totalRecibidos, len-totalRecibidos);
-		cout << "Recibido: ";
-		cout.write(msg, recibidos);
-		cout << endl;
 		if (recibidos <= 0) return false; // Recibe da 0 si se cayo la conexion ademas
 		totalRecibidos += recibidos;
 	}

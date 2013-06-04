@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 				case BORRADO:
 					db.registrar_eliminado(it->nombre_archivo);
 					break;
-				case MODIFICADO:
+				case EDITADO:
 					db.registrar_modificado(it->nombre_archivo);
 					break;
 				case COPIADO:

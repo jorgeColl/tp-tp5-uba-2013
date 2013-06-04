@@ -10,7 +10,8 @@ using namespace std;
 
 #define BYTES_USER_PASS 1
 
-enum PacketID {ZERO = 0, OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PARTES, HASHES_BLOQUES, PEDIDO_INDICE};
+enum PacketID {ZERO = 0, OK, YA_APLICADA, FAIL, LOGIN, LOGOUT, MODIFICACION, PEDIDO_ARCHIVO_ENTERO,
+	PEDIDO_ARCHIVO_PARTES, PEDIDO_HASHES_BLOQUES, PEDIDO_INDICE};
 
 /**
  * @class SocketProt common_socket_prot.h "common_socket_prot.h"
@@ -39,7 +40,7 @@ public:
 	 * @param bytes_para_prefijo cant de bytes a enviar en el mensaje como prefijo
 	 * @return True en caso de exito, false si falla
 	 */
-	bool enviar_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo);
+	bool enviar_msg_c_prefijo(const string &msg, uint8_t bytes_para_prefijo);
 	/**
 	 * @brief Recibe un mensaje, esperando que tenga un prefijo de longitud adelante
 	 * @param msg Mensaje a enviar

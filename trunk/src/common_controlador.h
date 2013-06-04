@@ -32,46 +32,63 @@ public:
 	/**@brief pide lista de modificaciones al servidor
 	 */
 	std::list<Modificacion> recibir_modificaciones();
+
 	/**@brief Recorre los archivos en busca de modificaciones a cada modificacion
 	 * encontrada se genera una nueva instancia de la clase Modificacion y se agrega
 	 * al vector
 	 */
 	std::list<Modificacion> comprobar_cambios_locales();
+
 	/**@brief efectua una modificacion, segun los parametros de modificacion, la accion a realizar variarÃ¡
 	 */
 	bool aplicar_modificacion(Modificacion& mod);
 
-	/** @brief pide a la base de datos que borre el archivo
+	/**
+	 * @brief Pide a la base de datos local que borre el archivo y registre el borrado
 	 */
-	bool borrar_archivo(std::string& nombre_archivo);
-	/**@brief envia un mensaje al otro extremo diciendo que se borre el archivo
+	bool borrar_archivo(const string &nombre_archivo);
+
+	/**
+	 * @brief Pide a la base de datos local que copie el archivo y registre el copiado
 	 */
-	bool mandar_a_borrar(Modificacion& mod);
+	bool copiar_archivo(const string &nombre_archivo, const string &nombre_archivo_anterior);
+
+	/**
+	 * @brief pide a la base de datos local que renombre el archivo y registre el renombrado
+	 */
+	bool renombrar_archivo(const string &nombre_archivo, const string &nombre_archivo_anterior);
+
 	/**@brief pide el archivo cuyo nombre es ingresado al otro extremo
 	 * @details pide el archivo al otro extremo y lo guarda en su correspondiente lugar
 	 *  utilizando a la clase BaseDeDatos
 	 * @return devuelve true si toda la operacion fue un exito, caso contrario devuelve false
 	 */
-	bool pedir_nuevo_archivo(Modificacion& mod);
+	bool pedir_nuevo_archivo(string& nombre_archivo);
+
 	/**@brief enviar el archivo cuyo nombre es ingresado
-	 * @details el archivo a enviar serÃ¡ abierto y a medida que se lee se envia
+	 * @details el archivo a enviar sera abierto y a medida que se lee se envia
 	 * @return devuelve true si la operacion fue un exito, caso contrario devuelve false
 	 */
-	bool enviar_nuevo_archivo(std::string& nombre_archivo);
+	bool enviar_nuevo_archivo(string& nombre_archivo);
+	/**
+	 * @brief Recibe un nuevo archivo
+	 * @return True si la operacion fue un exito, caso contrario false
+	 */
+	bool recibir_nuevo_archivo(const string &nombre_archivo);
 
 	/**@brief pide a la base de datos que modifique a un archvio
 	 */
 	bool modificar_archivo(std::string& nombre_archivo);
 
 	/**@brief envia un mensaje al server con los datos necesarios para realizar la
-	 *  modificacion del archivo ingresado
+	 *  edicion del archivo ingresado
 	 */
-	bool enviar_modificacion(Modificacion& mod);
+	bool enviar_edicion(Modificacion& mod);
 
 	/**@brief pide al server la informacion necesaria para poder realizar la
-	 *  modificacion del archivo y lo modifica
+	 *  edicion del archivo y lo edita
 	 */
-	bool pedir_modificacion(std::string& nombre_archivo);
+	bool pedir_edicion(std::string& nombre_archivo);
 
 	virtual ~Controlador() {}
 };

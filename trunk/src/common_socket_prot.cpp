@@ -1,5 +1,6 @@
 #include <cstring>	// Memcpy
 #include "common_socket_prot.h"
+#include "common_base_de_datos.h" // BYTES_PREF_NOMBRE
 
 #define TAM_BUFFER 4096
 
@@ -20,7 +21,7 @@ bool SocketProt::recibir_flag(PacketID &flag)
 	return true;
 }
 
-bool SocketProt::enviar_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
+bool SocketProt::enviar_msg_c_prefijo(const string &msg, uint8_t bytes_para_prefijo)
 {
 	size_t len = msg.length();
 	if (enviarLen((char*)&len, bytes_para_prefijo) == false) return false;
@@ -45,11 +46,25 @@ bool SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 
 bool SocketProt::enviar_modif(const Modificacion &modif)
 {
+	bool exito;
+	exito = enviar((void*)&(modif.accion),1);
+	if (!exito) return false;
+	exito = enviar_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
+	if (!exito) return false;
+	exito = enviar_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
+	if (!exito) return false;
 	return true;
 }
 
 bool SocketProt::recibir_modif(Modificacion &modif)
 {
+	modif.es_local = false;
+	bool exito = recibir(&(modif.accion),1);
+	if (!exito) return false;
+	exito = recibir_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
+	if (!exito) return false;
+	exito = recibir_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
+	if (!exito) return false;
 	return true;
 }
 

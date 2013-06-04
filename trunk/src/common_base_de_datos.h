@@ -20,7 +20,12 @@ using namespace std;
 #define BYTES_PREF_NOMBRE 2
 #endif
 
+// TODO: Separar en mas clases?
 
+/**
+ * @class BaseDeDatos common_base_de_datos.h "common_base_de_datos.h"
+ * @brief Clase que maneja el indexamiento de archivos y parte del manejo de los mismos
+ */
 class BaseDeDatos
 {
 public:
@@ -43,7 +48,7 @@ public:
 	 * @return True si pudo abrirse correctamente el archivo
 	 * @post Si la operacion fue exitosa ifstream esta abierto para lectura en modo binario
 	 */
-	bool abrir_para_leer(const string &nombre_archivo, fstream &ifstream);
+	bool abrir_para_leer(const string &nombre_archivo, ifstream &ifstream);
 
 	/**
 	 * @brief Dado un nombre de archivo, crea y abre un nuevo archivo en el ofstream
@@ -52,16 +57,15 @@ public:
 	 * @return True si pudo crearse y abrirse correctamente el archivo
 	 * @post Si la operacion fue exitosa ofstream esta abierto para escritura en modo binario
 	 */
-	bool abrir_para_escribir(const string& nombre_archivo, fstream &ofstream);
+	bool abrir_para_escribir(const string& nombre_archivo, ofstream &ofstream);
 
 	/**
 	 * @brief Lo mismo que el metodo anterior pero le agrega como extension al archivo un .tmp
 	 */
-	bool abrir_para_escribir_temporal(const string& nombre_archivo, fstream &ofstream);
+	bool abrir_para_escribir_temporal(const string& nombre_archivo, ofstream &ofstream);
 
 	/**
-	 * @brief si la carga de datos al archivo finalizó y se realizó con exito,
-	 *  se guarda con el verdadero nombre y se lo indexa
+	 * @brief Renombra un archivo
 	 */
 	bool renombrar(const string &viejo_nombre, const string &nuevo_nombre);
 
@@ -76,6 +80,11 @@ public:
 	 * @brief Elimina un archivo del directorio. Si se lo quiere eliminar de la indexacion luego llamar a registrar_eliminado
 	 */
 	bool eliminar_archivo(const string &nombre_archivo);
+
+	/**
+	 * @brief Copia un archivo
+	 */
+	bool copiar(const string &viejo_nombre, const string &nuevo_nombre);
 
 	//----- Registracion en el indice de eventos
 

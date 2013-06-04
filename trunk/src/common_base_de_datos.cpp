@@ -84,14 +84,14 @@ list<Modificacion> BaseDeDatos::resolver_conflicto(const Modificacion &modif_ext
 
 //----- Modificacion de archivos en el directorio
 
-bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, fstream &ofstream)
+bool BaseDeDatos::abrir_para_escribir(const string& nombre_archivo, ofstream &ofstream)
 {
 	string path = unirPath(directorio, nombre_archivo);
 	ofstream.open(path.c_str(), ios::out | ios::binary);
 	return (ofstream.is_open());
 }
 
-bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, fstream &ofstream)
+bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, ofstream &ofstream)
 {
 	string nombre(nombre_archivo);
 	nombre.append(EXT_TMP);
@@ -103,6 +103,17 @@ bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombr
 	string path2 = unirPath(directorio, nuevo_nombre);
 	// A criterio si conviene levantar una excepcion si rename != 0
 	return rename(path1.c_str(), path2.c_str());
+}
+
+bool BaseDeDatos::copiar(const string &viejo_nombre,const string &nuevo_nombre) {
+	string pathOrigen = unirPath(directorio, viejo_nombre);
+	string pathDestino = unirPath(directorio, nuevo_nombre);
+	ofstream dest(pathDestino.c_str());
+	ifstream orig(pathOrigen.c_str());
+	while(orig.good()) dest << orig;
+	dest.close();
+	orig.close();
+	return true;
 }
 
 bool BaseDeDatos::renombrar_temporal(const string &nombre_archivo)
@@ -124,7 +135,7 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 	return exito;
 }
 
-bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, fstream &ifstream)
+bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, ifstream &ifstream)
 {
 	string path = unirPath(directorio, nombre_archivo);
 	ifstream.open(path.c_str(), ios::in | ios::binary);
@@ -182,7 +193,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios(IndiceRam &indice, bool es_loc
 			if (buf.st_mtim.tv_sec != esta->modif && esta->hash != MD5_arch(path,password))
 			{
 				MD5_arch(path, password); // Me fijo que el hash sea distinto
-				Modificacion modif(MODIFICADO, es_local, esta->nombre);
+				Modificacion modif(EDITADO, es_local, esta->nombre);
 				modifs.push_back(modif);
 			}
 		}

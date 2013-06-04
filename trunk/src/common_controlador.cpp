@@ -26,19 +26,28 @@ list<Modificacion> Controlador::recibir_modificaciones() {
         return aux;
 }
 
-bool Controlador::borrar_archivo(std::string& nombre_archivo)
+bool Controlador::borrar_archivo(const string &nombre_archivo)
 {
-	return base_de_datos.eliminar_archivo(nombre_archivo);
+	bool exito = base_de_datos.eliminar_archivo(nombre_archivo);
+	if (!exito) return false;
+	base_de_datos.registrar_eliminado(nombre_archivo);
+	return true;
 }
 
-bool Controlador::mandar_a_borrar (Modificacion& mod)
+bool Controlador::copiar_archivo(const string &nombre_archivo, const string &nombre_archivo_anterior)
 {
-	//Este metodo como que no hace mucho
-	/* cambio el "punto de vista" de la modificacion para que cuando el
-	server lea esto directamente borre el archivo que tiene en su directorio*/
-	//mod.accion=BORRAR_ARCHIVO_LOCAL;
+	bool exito = base_de_datos.copiar(nombre_archivo_anterior, nombre_archivo);
+	if (!exito) return false;
+	base_de_datos.registrar_copiado(nombre_archivo, nombre_archivo_anterior);
+	return true;
+}
 
-	return sock1.enviar_modif(mod);
+bool Controlador::renombrar_archivo(const string &nombre_archivo, const string &nombre_archivo_anterior)
+{
+	bool exito = base_de_datos.renombrar(nombre_archivo_anterior, nombre_archivo);
+	if (!exito) return false;
+	base_de_datos.registrar_renombrado(nombre_archivo, nombre_archivo_anterior);
+	return true;
 }
 
 /**
@@ -46,32 +55,41 @@ bool Controlador::mandar_a_borrar (Modificacion& mod)
  * @param mod Moficacion
  * @return
  */
-bool Controlador::pedir_nuevo_archivo(Modificacion& mod){
+bool Controlador::pedir_nuevo_archivo(string& nombre_archivo){
 	// Manda mensaje a server pidiendo que transmita archivo
-	// lo guarda en un archivo temporal
-	// le dice a base de datos que guarde al nuevo archivo
-
-	sock1.enviar_modif(mod);
-	// parte prototipo
-	fstream ofstream;
-	base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, ofstream);
-	streampos largo;
-	sock1.recibirLen((char*)&largo, sizeof(streampos));
-	sock1.recibir_archivo(ofstream);
-	ofstream.close();
-	base_de_datos.renombrar_temporal(mod.nombre_archivo);
-	base_de_datos.registrar_nuevo(mod.nombre_archivo);
+	// Le dice a base de datos que guarde al nuevo archivo
+	sock1.enviar_flag(PEDIDO_ARCHIVO_ENTERO);
+	recibir_nuevo_archivo(nombre_archivo);
+	base_de_datos.registrar_nuevo(nombre_archivo);
 	return true;
 }
 
 bool Controlador::enviar_nuevo_archivo(std::string& nombre_archivo)
 {
-	sock1.enviar_flag(ARCHIVO_ENTERO);
-	fstream fd;
+	ifstream fd;
 	bool exito = base_de_datos.abrir_para_leer(nombre_archivo, fd);
 	if (!exito) return false;
 	sock1.enviar_archivo(fd);
 	fd.close();
+	PacketID flag;
+	sock1.recibir_flag(flag);
+	if (flag == OK)
+	{
+		base_de_datos.registrar_nuevo(nombre_archivo);
+		return true;
+	}
+	return false; // Algo fallo?
+}
+
+bool Controlador::recibir_nuevo_archivo(const string &nombre_archivo)
+{
+	ofstream ofstream;
+	base_de_datos.abrir_para_escribir(nombre_archivo, ofstream);
+	streampos largo;
+	sock1.recibirLen((char*)&largo, sizeof(streampos));
+	sock1.recibir_archivo(ofstream);
+	ofstream.close();
+	base_de_datos.registrar_nuevo(nombre_archivo);
 	return true;
 }
 
@@ -81,35 +99,46 @@ bool Controlador::modificar_archivo(std::string& nombre_archivo){
 	return true;
 }
 
-bool Controlador::enviar_modificacion(Modificacion& mod){
-	string modSerializada(mod.serializar());
-	sock1.enviar_flag(MODIFICACION);
+bool Controlador::enviar_edicion(Modificacion& mod){
 	//TODO : Terminar
 	return true;
 }
 
-bool Controlador::pedir_modificacion(std::string& nombre_archivo){
+bool Controlador::pedir_edicion(std::string& nombre_archivo){
 	// falta definir
 	return true;
 }
 
 bool Controlador::aplicar_modificacion(Modificacion& mod)
 {
+	if (mod.es_local) // Si es local tengo que comunicarle al servidor del cambio
+	{
+		sock1.enviar_flag(MODIFICACION);
+		sock1.enviar_modif(mod);
+		PacketID flag;
+		sock1.recibir_flag(flag);
+		if (flag == YA_APLICADA) return true;
+		if (flag != OK) return false; // Algo fallo?
+	}
 	switch (mod.accion)
 	{
-	case NUEVO:
-		if (mod.es_local) return enviar_nuevo_archivo(mod.nombre_archivo);
-		else return pedir_nuevo_archivo(mod);
-	case BORRADO:
-		if (mod.es_local) return borrar_archivo(mod.nombre_archivo);
-		else return mandar_a_borrar(mod);
-	case MODIFICADO:
-		if (mod.es_local) return enviar_modificacion(mod);
-		else return pedir_modificacion(mod.nombre_archivo);
-	case RENOMBRADO:
-		return true;
-	case COPIADO:
-		return true;
+		case A_ZERO: // Por que alguien mandaria esto?
+			return true;
+		case NUEVO:
+			if (mod.es_local) return enviar_nuevo_archivo(mod.nombre_archivo);
+			else return pedir_nuevo_archivo(mod.nombre_archivo);
+		case EDITADO:
+			if (mod.es_local) return enviar_edicion(mod);
+			else return pedir_edicion(mod.nombre_archivo);
+		case BORRADO:
+			if (mod.es_local) return borrar_archivo(mod.nombre_archivo);
+			return true;
+		case RENOMBRADO:
+			if (mod.es_local) return renombrar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
+			return true;
+		case COPIADO:
+			if (mod.es_local) return copiar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
+			return true;
 	}
 	return false;
 }

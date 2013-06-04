@@ -85,7 +85,7 @@ void ClientInterface::login()
 	catch (exception &e)
 	{
 		//TODO: Popup
-		cout << e.what() << endl;
+		cout << "Error: " << e.what() << endl;
 	}
 
 

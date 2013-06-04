@@ -11,7 +11,7 @@ BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif,
 		tam(tam), hash(hash), archOffset(-1) {}
 
 BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre,
-		uint32_t archOffset)	: modif(), tam(), archOffset(archOffset)
+		uint32_t archOffset)	: modif(0), tam(0), archOffset(archOffset)
 {
 	nombre.append(bytes, tamNombre);
 	memcpy(&modif,(bytes+tamNombre), sizeof(time_t));

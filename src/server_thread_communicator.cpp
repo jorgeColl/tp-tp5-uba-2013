@@ -5,8 +5,9 @@ ServerCommunicator::ServerCommunicator(const char* dir, int fd1, int fd2)
 
 void procesar_flag(PacketID& flag){
 	switch(flag){
+	case(ZERO):
 	case(LOGIN):
-			// Este no deberia llegar nunca, se ignora
+			// Estos no deberian llegar nunca, se ignoran
 			break;
 	case(FAIL):
 			// nose

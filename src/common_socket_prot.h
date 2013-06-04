@@ -10,7 +10,7 @@ using namespace std;
 
 #define BYTES_USER_PASS 1
 
-enum PacketID {OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PARTES, HASHES_BLOQUES, PEDIDO_INDICE};
+enum PacketID {ZERO = 0, OK, FAIL, LOGIN, LOGOUT, MODIFICACION, ARCHIVO_ENTERO, ARCHIVO_PARTES, HASHES_BLOQUES, PEDIDO_INDICE};
 
 /**
  * @class SocketProt common_socket_prot.h "common_socket_prot.h"

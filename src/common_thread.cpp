@@ -14,11 +14,6 @@ void Thread::join()
 		if (ret != 0) throw std::runtime_error("Fallo el join");
 }
 
-bool Thread::sleep(unsigned int segundos)
-{
-	return (sleep(segundos) == 0);
-}
-
 void Thread::stop()
 {
 	correr = false;

@@ -6,14 +6,14 @@
 
 #define PUERTO1_DEF "12700"
 #define PUERTO2_DEF "12701"
-#define ADRESS_DEF "127.0.0.1"
+#define DIR_DEF "./serverDir"
 
 int main (int argc, char** argv)
 {
 	try
 	{
 		// el parametro 1 tiene que ser el directorio
-		Accepter acp(ADRESS_DEF, PUERTO1_DEF, PUERTO2_DEF);
+		Accepter acp(DIR_DEF, PUERTO1_DEF, PUERTO2_DEF);
 		// aca manda a ejecutar al accepter en otro thread
 		acp.start();
 		string buffer;

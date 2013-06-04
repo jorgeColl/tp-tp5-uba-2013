@@ -24,6 +24,7 @@ void Accepter::ejecutar()
 
 void Accepter::stop()
 {
+	Thread::stop();
 	Lock lock_temp (mutex); // Para que esta este mutex aca exactamente?
 	for (size_t i = 0; i < comunicadores.size(); ++i) {
 		comunicadores[i]->stop();
@@ -40,7 +41,6 @@ bool Accepter::aceptar_conexion()
 	cout << "Conexion recibida, esperando login." << endl;
 	// Recibo mensaje
 	SocketProt sock1(fd_nuevo_1);
-	cout << sock1.sockfd << endl;
 	PacketID login = FAIL;
 	sock1.recibir_flag(login);
 	if (login != LOGIN) return false; // Veo que sea el paquete correcto
@@ -48,19 +48,21 @@ bool Accepter::aceptar_conexion()
 	string usuario;
 	string contrasenia;
 	sock1.recibir_msg_c_prefijo(usuario, BYTES_USER_PASS);
-	cout << "Usuario recibido: " << usuario << endl;
 	sock1.recibir_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
 	bool login_correcto = base_datos_usu.usuario_contrasenia_correcto
 			(usuario.c_str(), contrasenia.c_str());
+	// TODO: Eliminar cuando ande bien la base de datos_usu
+	login_correcto = true; // Por ahora acepto todos
 	if (!login_correcto)
 	{
-		cout << "Password incorrecta" << endl;
+		cout << "Password incorrecta." << endl;
 		sock1.enviar_flag(FAIL);
 		sock1.cerrar();
+		return false;
 	}
 	else
 	{
-		cout << "Password correcta" << endl;
+		cout << "Password correcta." << endl;
 		// Si mensaje bueno creo el otro socket
 		sock1.enviar_flag(OK);
 		int fd_nuevo_2 = sock_prot2.aceptar();
@@ -73,6 +75,6 @@ bool Accepter::aceptar_conexion()
 		comunicadores.push_back(comu);
 		comu->start();
 	}
-	// Nota: El delete de sock1 no llama a close, asi que con pasar su file descriptor esta todo en orden
+	// Nota: El delete de sock1 no llama a close, asi que con pasar su file descriptor esta bien
 	return true;
 }

@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 		//cout << "Borrar dir: " << system("rm -R ./testDir") << endl;
 		//cout << "Crear dir: " << mkdir("./testDir",0777) << endl; //Permisos depende de umask
 		BaseDeDatos db;
-		db.abrir("./testDir");
+		db.abrir("./testDir1");
 		list<Modificacion> modifs = db.comprobar_cambios_locales();
 		for (list<Modificacion>::iterator it = modifs.begin(); it != modifs.end(); ++it)
 		{

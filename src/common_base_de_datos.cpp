@@ -110,7 +110,7 @@ bool BaseDeDatos::copiar(const string &viejo_nombre,const string &nuevo_nombre) 
 	string pathDestino = unirPath(directorio, nuevo_nombre);
 	ofstream dest(pathDestino.c_str());
 	ifstream orig(pathOrigen.c_str());
-	while(orig.good()) dest << orig;
+	dest << orig.rdbuf();
 	dest.close();
 	orig.close();
 	return true;
@@ -127,12 +127,9 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 {
 	// A criterio si conviene levantar una excepcion si rename != 0
 	string tmp = unirPath(directorio, nombre_archivo);
-	int exito=remove( tmp.c_str() );
-	if(exito == -1){
-		throw std::runtime_error(strerror(errno));
-	}
-
-	return exito;
+	int exito = remove( tmp.c_str() );
+	if(exito == -1) return false;
+	return true;
 }
 
 bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, ifstream &ifstream)
@@ -307,6 +304,7 @@ void BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
 	reg.archOffset = archivo.tellp();
 	archivo << reg.serializar();
 	if (!archivo.good()) throw runtime_error("Fallo el registro de un nuevo en el indice fisico.");
+	archivo.flush(); // Seguridad
 }
 
 void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
@@ -318,6 +316,7 @@ void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 	archivo.write(zeros, tam);
 	delete[] zeros;
 	if (!archivo.good()) throw runtime_error("Fallo el borrado en el indice fisico.");
+	archivo.flush(); // Seguridad
 }
 
 void BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
@@ -325,6 +324,7 @@ void BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
 	archivo.seekp(reg.archOffset);
 	archivo << reg.serializar();
 	if (!archivo.good()) throw runtime_error("Fallo el modificado en el indice fisico.");
+	archivo.flush(); // Seguridad
 }
 
 BaseDeDatos::~BaseDeDatos()

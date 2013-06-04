@@ -27,10 +27,10 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 		if (!exito) throw runtime_error("Error al enviar la password.");
 		PacketID login;
 		exito = sock1.recibir_flag(login);
-		cout << "Recibio flag: " << login << endl;
 		if(login != OK) throw runtime_error("Los datos de login son incorrectos.");
 		sock2.conectar(server.c_str(),puerto2.c_str());
 		conectado = true;
+		cout << "Conexion exitosa." << login << endl;
 	}
 	catch(runtime_error &e) //Cierro los sockets y propago
 	{

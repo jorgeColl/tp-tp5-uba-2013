@@ -9,6 +9,8 @@
 
 using namespace std;
 
+Modificacion::Modificacion() : accion(A_ZERO), es_local(false), nombre_archivo(), nombre_archivo_alt() {}
+
 Modificacion::Modificacion(tipo_accion accion, bool es_local, const string &nombre_archivo, const string &nombre_archivo_alt)
 	: accion(accion), es_local(es_local), nombre_archivo(nombre_archivo), nombre_archivo_alt(nombre_archivo_alt) {}
 
@@ -18,14 +20,17 @@ ostream& operator<<(ostream& os, Modificacion& mod) {
 	string accion;
 	switch (mod.accion)
 	{
+	case (A_ZERO):
+		accion = "VALOR NO ASIGNADO";
+		break;
 	case (NUEVO):
 		accion = "NUEVO";
 		break;
 	case (BORRADO):
 		accion = "BORRADO";
 		break;
-	case (MODIFICADO):
-		accion = "MODIFICADO";
+	case (EDITADO):
+		accion = "EDITADO";
 		break;
 	case (COPIADO):
 		accion = "COPIADO";
@@ -41,11 +46,6 @@ ostream& operator<<(ostream& os, Modificacion& mod) {
 	if (mod.nombre_archivo_alt != "")
 		os << "Nombre de archivo alternativo: "<< mod.nombre_archivo_alt << endl;
 	return os ;
-}
-
-string Modificacion::serializar()
-{
-	return string("No implementado aun");
 }
 
 bool Modificacion::operator==(const Modificacion &otra)

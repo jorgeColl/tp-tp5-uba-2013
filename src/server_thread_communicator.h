@@ -12,8 +12,11 @@ class ServerCommunicator : public Controlador, public Thread
 private:
 	Mutex mutex;
 	void ejecutar();
+	void procesar_flag(PacketID flag);
 public:
 	ServerCommunicator(const char* dir, int fd1, int fd2);
+
+	void actuar_segun_modif_recibida(Modificacion &mod);
 
 	bool enviar_modificaciones();
 };

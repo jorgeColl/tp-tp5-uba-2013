@@ -7,7 +7,7 @@
 using namespace std;
 
 #define NOM_IDX_SERV ".auserver"
-#define POLLING_DEFAULT 10
+#define POLLING_DEFAULT 5
 
 /**
  * @class Cliente cliente_controlador.h

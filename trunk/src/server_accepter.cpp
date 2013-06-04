@@ -2,7 +2,7 @@
 #include "common_util.h"
 
 Accepter::Accepter(const char* dir, const char* puerto1, const char* puerto2) :
-		base_datos_usu(dir), dir(dir), puerto1(puerto1), puerto2(puerto2) {}
+		base_datos_usu(dir), dir(dir), puerto1(puerto1), puerto2(puerto2), comunicadores() {}
 
 Accepter::~Accepter()
 {
@@ -26,9 +26,13 @@ void Accepter::ejecutar()
 void Accepter::stop()
 {
 	Thread::stop();
-	Lock lock_temp (mutex); // Para que esta este mutex aca exactamente?
-	for (size_t i = 0; i < comunicadores.size(); ++i) {
-		comunicadores[i]->stop();
+	Lock lock_temp (mutex); // Para que esta este mutex aca? Si se llamara a stop desde distintos lugares no pasa nada
+	for (map<string, list<ServerCommunicator*> >::iterator it = comunicadores.begin(); it != comunicadores.end(); ++it)
+	{
+		for (list<ServerCommunicator*>::iterator itL = it->second.begin(); itL != it->second.end(); ++itL)
+		{
+			(*itL)->stop();
+		}
 	}
 	sock_prot1.cerrar();
 	sock_prot2.cerrar();
@@ -74,7 +78,8 @@ bool Accepter::aceptar_conexion()
 		}
 		ServerCommunicator* comu = new ServerCommunicator
 				(unirPath(dir, usuario).c_str(), fd_nuevo_1, fd_nuevo_2);
-		comunicadores.push_back(comu);
+		comunicadores[usuario].push_back(comu);
+		comu->setVinculados(&comunicadores[usuario]);
 		comu->start();
 	}
 	// Nota: El delete de sock1 no llama a close, asi que con pasar su file descriptor esta bien

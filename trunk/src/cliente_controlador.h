@@ -4,6 +4,7 @@
 #include <vector>
 #include "common_controlador.h"
 #include "common_thread.h"
+#include "cliente_notificador.h"
 using namespace std;
 
 #define NOM_IDX_SERV ".auserver"
@@ -18,6 +19,7 @@ class ClienteControlador : public Controlador, public Thread
 private:
 	size_t delay_polling;
 	list<Modificacion> pedir_y_comparar_indices();
+	ClienteNotificador notificador;
 	void ejecutar();
 public:
 	ClienteControlador();

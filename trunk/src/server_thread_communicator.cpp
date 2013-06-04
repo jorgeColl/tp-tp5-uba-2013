@@ -1,7 +1,7 @@
 #include "server_thread_communicator.h"
 
 ServerCommunicator::ServerCommunicator(const char* dir, int fd1, int fd2)
-	: Controlador(dir, fd1, fd2), Thread()
+	: Controlador(dir, fd1, fd2), Thread(), vinculados(NULL)
 {
 	base_de_datos.abrir(dir);
 }
@@ -21,6 +21,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			destino.close();
 			base_de_datos.registrar_nuevo(mod.nombre_archivo);
 			sock1.enviar_flag(OK);
+			exito = true;
 			}
 			break;
 		case BORRADO:
@@ -57,7 +58,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		default: // Ignoro si llega otra cosa
 			break;
 	}
-
+	if (exito) notificar_todos(mod);
 }
 
 void ServerCommunicator::procesar_flag(PacketID flag)
@@ -76,7 +77,14 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				}
 				break;
 		case(PEDIDO_ARCHIVO_ENTERO):
-				// Devuelve un archivo
+				{
+					string nombre;
+					sock1.recibir_msg_c_prefijo(nombre, 1);
+					ifstream arch;
+					base_de_datos.abrir_para_leer(nombre, arch);
+					sock1.enviar_archivo(arch);
+					arch.close();
+				}
 				break;
 		case(PEDIDO_ARCHIVO_PARTES):
 				// Devuelve "partes" de un archivo
@@ -92,6 +100,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				break;
 	}
 }
+
 void ServerCommunicator::ejecutar() {
 	// Se comunica con el cliente
 	bool coneccion = true;
@@ -101,5 +110,24 @@ void ServerCommunicator::ejecutar() {
 		coneccion = sock1.recibir_flag(flag);
 		procesar_flag(flag);
 	}
-	Lock temp (mutex); // Que hace esto aca?
+	Lock temp (mutex); // Que hace esto aca???????
+}
+
+void ServerCommunicator::setVinculados(list<ServerCommunicator*> *vinc)
+{
+	vinculados = vinc;
+}
+
+void ServerCommunicator::notificar_todos(Modificacion &mod)
+{
+	for (list<ServerCommunicator*>::iterator it = vinculados->begin(); it != vinculados->end(); ++it)
+	{
+		if (*it != this) (*it)->propagar_cambio(mod);
+	}
+}
+
+void ServerCommunicator::propagar_cambio(Modificacion &mod)
+{
+	Lock temp (mutex);
+	sock2.enviar_modif(mod);
 }

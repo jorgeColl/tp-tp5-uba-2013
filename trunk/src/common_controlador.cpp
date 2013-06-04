@@ -59,8 +59,12 @@ bool Controlador::pedir_nuevo_archivo(string& nombre_archivo){
 	// Manda mensaje a server pidiendo que transmita archivo
 	// Le dice a base de datos que guarde al nuevo archivo
 	sock1.enviar_flag(PEDIDO_ARCHIVO_ENTERO);
+	sock1.enviar_msg_c_prefijo(nombre_archivo, 1);
+	cout << "bien" << endl;
 	recibir_nuevo_archivo(nombre_archivo);
+	cout << "bien2" << endl;
 	base_de_datos.registrar_nuevo(nombre_archivo);
+	cout << "bien3" << endl;
 	return true;
 }
 
@@ -85,8 +89,6 @@ bool Controlador::recibir_nuevo_archivo(const string &nombre_archivo)
 {
 	ofstream ofstream;
 	base_de_datos.abrir_para_escribir(nombre_archivo, ofstream);
-	streampos largo;
-	sock1.recibirLen((char*)&largo, sizeof(streampos));
 	sock1.recibir_archivo(ofstream);
 	ofstream.close();
 	base_de_datos.registrar_nuevo(nombre_archivo);
@@ -133,6 +135,7 @@ bool Controlador::aplicar_modificacion(Modificacion& mod)
 			{
 				PacketID flag;
 				sock1.recibir_flag(flag);
+				cout << "flag: " << flag << endl;
 				if (flag != OK) return false;
 				base_de_datos.registrar_eliminado(mod.nombre_archivo);
 				return true;

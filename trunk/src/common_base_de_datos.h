@@ -15,7 +15,7 @@ using namespace std;
 #define BYTES_HASH 16
 //Definicion de bytes para prefijo de largo de nombre de archivo
 #define BYTES_PREF_NOMBRE 1
-#if NAME_MAX > 255 //Si el sistema operativo permite nombres mas largos
+#if NAME_MAX > 255 //Si el sistema operativo permite nombres mas largos le doy 2 bytes
 #undef BYTES_PREF_NOMBRE
 #define BYTES_PREF_NOMBRE 2
 #endif

@@ -30,10 +30,12 @@ void BaseDeDatos::abrir(const string &dir)
 
 list<Modificacion> BaseDeDatos::comparar_indices(iostream &otro)
 {
-	IndiceRam indiceServer;
+	// Flashie cualquiera
+	// TODO: Hacerlo bien
+	/*IndiceRam indiceServer;
 	indiceServer.cargar(otro);
 	list<Modificacion> mod_serv = comprobar_cambios(indiceServer, false);
-	list<Modificacion> mod_cli = comprobar_cambios_locales();
+	list<Modificacion> mod_cli = comprobar_cambios_locales();*/
 
 	return list<Modificacion>();
 }
@@ -47,7 +49,7 @@ list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, 
 	list<Modificacion>::iterator it_loc = lista_local.begin();
 	vector<string> renombrados;
 	vector<string> renombres;
-	// TODO: Menejar el gran problema que presentan los renombres
+	// TODO: Menejar el gran problema que presentan los renombres usando solo los hashes como dato?
 	while(it_ext != lista_externa.end() && it_loc != lista_local.end())
 	{
 		if (*it_ext < *it_loc)
@@ -99,10 +101,10 @@ bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, ofs
 }
 
 bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombre) {
-	string path1 = unirPath(directorio, viejo_nombre);
-	string path2 = unirPath(directorio, nuevo_nombre);
+	string pathViejo = unirPath(directorio, viejo_nombre);
+	string pathNuevo = unirPath(directorio, nuevo_nombre);
 	// A criterio si conviene levantar una excepcion si rename != 0
-	return rename(path1.c_str(), path2.c_str());
+	return (rename(pathViejo.c_str(), pathNuevo.c_str()) == 0);
 }
 
 bool BaseDeDatos::copiar(const string &viejo_nombre,const string &nuevo_nombre) {
@@ -110,10 +112,12 @@ bool BaseDeDatos::copiar(const string &viejo_nombre,const string &nuevo_nombre) 
 	string pathDestino = unirPath(directorio, nuevo_nombre);
 	ofstream dest(pathDestino.c_str());
 	ifstream orig(pathOrigen.c_str());
-	dest << orig.rdbuf();
+	bool exito = true;
+	if (!dest.is_open() || !orig.is_open()) exito = false;
+	if (exito) dest << orig.rdbuf(); // Magia
 	dest.close();
 	orig.close();
-	return true;
+	return exito;
 }
 
 bool BaseDeDatos::renombrar_temporal(const string &nombre_archivo)
@@ -126,9 +130,9 @@ bool BaseDeDatos::renombrar_temporal(const string &nombre_archivo)
 bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 {
 	// A criterio si conviene levantar una excepcion si rename != 0
-	string tmp = unirPath(directorio, nombre_archivo);
-	int exito = remove( tmp.c_str() );
-	if(exito == -1) return false;
+	string path = unirPath(directorio, nombre_archivo);
+	int exito = remove( path.c_str() );
+	if(exito != 0) return false;
 	return true;
 }
 

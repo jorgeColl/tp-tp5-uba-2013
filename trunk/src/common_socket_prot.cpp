@@ -100,7 +100,7 @@ bool SocketProt::enviar_archivo(istream &arch)
 bool SocketProt::recibir_archivo(ostream &arch)
 {
 	//TODO: Optimizar viendo como funciona el buffer interno de ofstream
-	streampos tam;
+	streampos tam = 0;
 	if (!recibirLen((char*) &tam, sizeof(streampos))) return false;
 	char buffer[TAM_BUFFER];
 	while (tam > 0)

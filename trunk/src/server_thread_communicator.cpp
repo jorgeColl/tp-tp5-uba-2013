@@ -8,6 +8,9 @@ ServerCommunicator::ServerCommunicator(const char* dir, int fd1, int fd2)
 
 void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 {
+	// TODO: Fijarse si ya esta aplicada y emitir YA_ESTA si es el caso
+	sock1.enviar_flag(OK);
+	bool exito = false;
 	switch(mod.accion)
 	{
 		case NUEVO:
@@ -16,31 +19,51 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
 			sock1.recibir_archivo(destino);
 			destino.close();
+			base_de_datos.registrar_nuevo(mod.nombre_archivo);
+			sock1.enviar_flag(OK);
 			}
 			break;
 		case BORRADO:
+			exito = base_de_datos.eliminar_archivo(mod.nombre_archivo);
+			if (exito)
+			{
+				base_de_datos.registrar_eliminado(mod.nombre_archivo);
+				sock1.enviar_flag(OK);
+			}
+			else sock1.enviar_flag(FAIL);
 			break;
 		case EDITADO:
+			//TODO: Implementar
+			cout << "Esto aun no esta implementado" << endl;
 			break;
 		case RENOMBRADO:
+			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);
+			if (exito)
+			{
+				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				sock1.enviar_flag(OK);
+			}
+			else sock1.enviar_flag(FAIL);
 			break;
 		case COPIADO:
+			exito = base_de_datos.copiar(mod.nombre_archivo_alt, mod.nombre_archivo);
+			if (exito)
+			{
+				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				sock1.enviar_flag(OK);
+			}
+			else sock1.enviar_flag(FAIL);
+			break;
+		default: // Ignoro si llega otra cosa
 			break;
 	}
-	sock1.enviar_flag(OK);
+
 }
 
 void ServerCommunicator::procesar_flag(PacketID flag)
 {
 	switch(flag)
 	{
-		case(ZERO):
-		case(LOGIN):
-		case(FAIL):
-		case(YA_APLICADA):
-		case(OK):
-				// Estos no deberian llegar nunca "sueltos", se ignoran
-				break;
 		case(LOGOUT):
 				// cerrar coneccion y salir
 				break;
@@ -63,6 +86,9 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				break;
 		case(PEDIDO_INDICE):
 				// Devuelve el indice
+				break;
+		default:
+				// Otros casos no deberian llegar nunca "sueltos", se ignoran
 				break;
 	}
 }

@@ -122,8 +122,6 @@ bool Controlador::aplicar_modificacion(Modificacion& mod)
 	}
 	switch (mod.accion)
 	{
-		case A_ZERO: // Por que alguien mandaria esto?
-			return true;
 		case NUEVO:
 			if (mod.es_local) return enviar_nuevo_archivo(mod.nombre_archivo);
 			else return pedir_nuevo_archivo(mod.nombre_archivo);
@@ -131,13 +129,36 @@ bool Controlador::aplicar_modificacion(Modificacion& mod)
 			if (mod.es_local) return enviar_edicion(mod);
 			else return pedir_edicion(mod.nombre_archivo);
 		case BORRADO:
-			if (mod.es_local) return borrar_archivo(mod.nombre_archivo);
-			return true;
+			if (mod.es_local)
+			{
+				PacketID flag;
+				sock1.recibir_flag(flag);
+				if (flag != OK) return false;
+				base_de_datos.registrar_eliminado(mod.nombre_archivo);
+				return true;
+			}
+			else return borrar_archivo(mod.nombre_archivo);
 		case RENOMBRADO:
-			if (mod.es_local) return renombrar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
-			return true;
+			if (mod.es_local)
+			{
+				PacketID flag;
+				sock1.recibir_flag(flag);
+				if (flag != OK) return false;
+				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				return true;
+			}
+			else return renombrar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
 		case COPIADO:
-			if (mod.es_local) return copiar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
+			if (mod.es_local)
+			{
+				PacketID flag;
+				sock1.recibir_flag(flag);
+				if (flag != OK) return false;
+				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				return true;
+			}
+			else return copiar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
+		default: // En realidad no existen otros casos
 			return true;
 	}
 	return false;

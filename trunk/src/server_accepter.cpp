@@ -1,4 +1,5 @@
 #include "server_accepter.h"
+#include "common_util.h"
 
 Accepter::Accepter(const char* dir, const char* puerto1, const char* puerto2) :
 		base_datos_usu(dir), dir(dir), puerto1(puerto1), puerto2(puerto2) {}
@@ -71,7 +72,8 @@ bool Accepter::aceptar_conexion()
 			sock1.cerrar();
 			return false;
 		}
-		ServerCommunicator* comu = new ServerCommunicator(dir, fd_nuevo_1, fd_nuevo_2);
+		ServerCommunicator* comu = new ServerCommunicator
+				(unirPath(dir, usuario).c_str(), fd_nuevo_1, fd_nuevo_2);
 		comunicadores.push_back(comu);
 		comu->start();
 	}

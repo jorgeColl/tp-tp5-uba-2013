@@ -57,7 +57,7 @@ void ClientInterface::login()
 	builder->get_widget("eUser", entry_user);
 	std::cout << "Usuario: " << entry_user->get_text() << std::endl;
 	builder->get_widget("ePass", entry_password);
-	std::cout << "Passoword: " << entry_password->get_text() << std::endl;
+	std::cout << "Password: " << entry_password->get_text() << std::endl;
 	builder->get_widget("eServ", entry_server);
 	std::cout << "Server: " << entry_server->get_text() << std::endl;
 	builder->get_widget("ePort1", entry_puerto1);

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "common_controlador.h"
+#include "common_thread.h"
 using namespace std;
 
 #define NOM_IDX_SERV ".auserver"
@@ -10,13 +11,14 @@ using namespace std;
 
 /**
  * @class Cliente cliente_controlador.h
- * @brief Clase que se encargarÃ¡ de las acciones generales que puede hace un cliente
+ * @brief Clase que se encargara de las acciones generales que puede hace un cliente
  */
-class ClienteControlador : public Controlador
+class ClienteControlador : public Controlador, public Thread
 {
 private:
 	size_t delay_polling;
 	list<Modificacion> pedir_y_comparar_indices();
+	void ejecutar();
 public:
 	ClienteControlador();
 	/**
@@ -29,7 +31,7 @@ public:
 
 	void logout();
 
-	void start();
+
 	/**@brief pide lista de modificaciones al servidor
 	 */
 	std::list<Modificacion> recibir_modificaciones();

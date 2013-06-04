@@ -13,7 +13,7 @@ protected:
 	SocketProt sock1;
 	SocketProt sock2;
 	BaseDeDatos base_de_datos;
-	bool terminar;
+	bool conectado;
 public:
 
 	Controlador();

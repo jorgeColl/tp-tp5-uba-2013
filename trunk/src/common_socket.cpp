@@ -29,6 +29,7 @@ void Socket::conectar(const char* address, const char* puerto)
 	if (sockfd == -1) throw std::runtime_error(strerror(errno));
 	status = connect(sockfd, wrap.res->ai_addr, wrap.res->ai_addrlen);
 	if (status == -1) throw std::runtime_error(strerror(errno));
+
 }
 
 void Socket::escuchar(const char* port, int maxCola)
@@ -76,7 +77,6 @@ bool Socket::enviarLen(const char *msg, size_t len)
 		if (enviados == -1) return false;
 		totalEnviados += enviados;
 	}
-	cout << "Salimos" << endl;
 	return true;
 }
 

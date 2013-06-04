@@ -26,6 +26,11 @@ private:
 	SocketProt sock_prot1;
 	SocketProt sock_prot2;
 	Mutex mutex;
+
+	/**
+	 * @brief Metodo a llamar internamente al correr el thread
+	 */
+	virtual void ejecutar();
 public:
 
 	/**
@@ -38,11 +43,6 @@ public:
 
 	/** @brief Destructor. Cierra los sockets si quedaron abierto. */
 	~Accepter();
-
-	/**
-	 * @brief Metodo a llamar al correr el thread
-	 */
-	virtual void ejecutar();
 
 	/**
 	 * @brief Le pide al thread y asociados gentilmente que se detengan

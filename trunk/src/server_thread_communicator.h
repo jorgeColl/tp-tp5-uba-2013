@@ -9,11 +9,11 @@
  * @brief clase que se encargará de la comunicacion con el cliente */
 class ServerCommunicator : public Controlador, public Thread
 {
+private:
 	Mutex mutex;
-public:
-	ServerCommunicator(const char* dir, int fd1,int fd2);
-
 	void ejecutar();
+public:
+	ServerCommunicator(const char* dir, int fd1, int fd2);
 
 	bool enviar_modificaciones();
 };

@@ -8,10 +8,10 @@
 
 using namespace std;
 
-Controlador::Controlador() : dir(), sock1(), sock2(), terminar(false) {}
+Controlador::Controlador() : dir(), sock1(), sock2(), conectado(false) {}
 
 Controlador::Controlador(const string &dir, int sockfd1, int sockfd2)
-	: dir(dir), sock1(sockfd1), sock2(sockfd2), terminar(false) {}
+	: dir(dir), sock1(sockfd1), sock2(sockfd2), conectado(false) {}
 
 void Controlador::set_directorio(std::string dir){
         this->dir = dir;

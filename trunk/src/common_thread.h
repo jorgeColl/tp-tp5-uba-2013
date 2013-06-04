@@ -19,11 +19,6 @@ public:
 	void join();
 
 	/**
-	 * @brief Pone al thread a dormir
-	 */
-	bool sleep(unsigned int segundos);
-
-	/**
 	 * @brief Le pide gentilmente al thread que se detenga
 	 */
 	virtual void stop();

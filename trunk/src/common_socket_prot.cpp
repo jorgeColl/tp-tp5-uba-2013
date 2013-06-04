@@ -15,13 +15,15 @@ bool SocketProt::enviar_flag(const PacketID flag)
 
 bool SocketProt::recibir_flag(PacketID &flag)
 {
-	if (recibir((void*) &flag, 1) <= 0) return false;
+	flag = ZERO;
+	if (recibir(&flag, 1) <= 0) return false;
 	return true;
 }
 
 bool SocketProt::enviar_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 {
-	if (enviarLen((char*)msg.length(), bytes_para_prefijo) == false) return false;
+	size_t len = msg.length();
+	if (enviarLen((char*)&len, bytes_para_prefijo) == false) return false;
 	return enviarLen(msg.c_str(), msg.length());
 }
 

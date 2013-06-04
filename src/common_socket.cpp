@@ -72,10 +72,11 @@ bool Socket::enviarLen(const char *msg, size_t len)
 	while (totalEnviados < len)
 	{
 		//Por cada envio vamos corriendo el puntero y reduciendo la cantidad
-		int enviados = send(sockfd, msg+totalEnviados, len-totalEnviados, 0);
+		int enviados = enviar((void*)(msg+totalEnviados), len-totalEnviados);
 		if (enviados == -1) return false;
 		totalEnviados += enviados;
 	}
+	cout << "Salimos" << endl;
 	return true;
 }
 
@@ -90,9 +91,12 @@ bool Socket::recibirLen(char *msg, size_t len)
 	size_t totalRecibidos = 0;
 	while (totalRecibidos < len)
 	{
-		//Por cada envio vamos corriendo el puntero y reduciendo la cantidad
-		int recibidos = recv(sockfd, msg+totalRecibidos, len-totalRecibidos, 0);
-		if (recibidos == -1) return false;
+		// Por cada envio vamos corriendo el puntero y reduciendo la cantidad
+		int recibidos = recibir(msg+totalRecibidos, len-totalRecibidos);
+		cout << "Recibido: ";
+		cout.write(msg, recibidos);
+		cout << endl;
+		if (recibidos <= 0) return false; // Recibe da 0 si se cayo la conexion ademas
 		totalRecibidos += recibidos;
 	}
 	return true;

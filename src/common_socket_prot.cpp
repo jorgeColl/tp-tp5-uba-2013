@@ -3,9 +3,10 @@
 
 #define TAM_BUFFER 4096
 
-SocketProt::SocketProt(){}
-SocketProt::SocketProt (int socketfd):Socket(socketfd) {
-}
+SocketProt::SocketProt() : Socket() {}
+
+SocketProt::SocketProt (int socketfd) : Socket(socketfd) {}
+
 bool SocketProt::enviar_flag(const PacketID flag)
 {
 	if (enviar((void*) &flag, 1) <= 0) return false;
@@ -29,8 +30,8 @@ bool SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 	bool exito;
 	char* buffer1 = new char[bytes_para_prefijo]; // Pido el prefijo como char[]
 	exito = recibirLen(buffer1, bytes_para_prefijo);
-	size_t tam;
-	memcpy(&tam, buffer1, bytes_para_prefijo); // Copio bytes del char[] al size_t
+	size_t tam = 0;
+	if (exito) memcpy(&tam, buffer1, bytes_para_prefijo); // Copio bytes del char[] al size_t
 	delete buffer1;
 	if (!exito) return false;
 	char* buffer2 = new char[tam];

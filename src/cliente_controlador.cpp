@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <stdexcept>
+#include <stdexcept>	// Excepciones estandar
 #include "cliente_controlador.h"
 using namespace std;
 
@@ -13,14 +13,18 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 {
 	try
 	{
+		bool exito;
 		cout << "Intentado conectarse" << endl;
 		//Estos tiran excepciones dependiendo que falle
 		sock1.conectar(server.c_str(), puerto1.c_str());
-		sock1.enviar_flag(LOGIN);
-		sock1.enviar_msg_c_prefijo(usuario, BYTES_USER_PASS);
-		sock1.enviar_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
+		exito = sock1.enviar_flag(LOGIN);
+		if (!exito) throw std::runtime_error("Error al enviar el flag.");
+		exito = sock1.enviar_msg_c_prefijo(usuario, BYTES_USER_PASS);
+		if (!exito) throw std::runtime_error("Error al enviar el usuario.");
+		exito = sock1.enviar_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
+		if (!exito) throw std::runtime_error("Error al enviarla contrasenia.");
 		PacketID login;
-		sock1.recibir_flag(login);
+		exito = sock1.recibir_flag(login);
 		if(login != OK) throw runtime_error("Los datos de login son incorrectos.");
 		sock2.conectar(server.c_str(),puerto2.c_str());
 	}

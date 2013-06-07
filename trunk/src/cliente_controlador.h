@@ -5,6 +5,7 @@
 #include "common_controlador.h"
 #include "common_thread.h"
 #include "cliente_notificador.h"
+#include "common_mutex.h"
 using namespace std;
 
 #define NOM_IDX_SERV ".auserver"
@@ -18,8 +19,18 @@ class ClienteControlador : public Controlador, public Thread
 {
 private:
 	size_t delay_polling;
-	list<Modificacion> pedir_y_comparar_indices();
 	ClienteNotificador notificador;
+	Mutex mutexCambios;
+
+	/**
+	 * @brief Pide al servidor su indice y lo compara con los archivos locales y con el indice local
+	 * @return Modificaciones que deberian aplicarse para estar sincronizado con el servidor y ademas pasarle los nuevos cambios
+	 */
+	list<Modificacion> pedir_y_comparar_indices();
+
+	/**
+	 * @brief Metodo a sobrecargar para el uso de threads por herencia
+	 */
 	void ejecutar();
 public:
 	ClienteControlador();
@@ -28,15 +39,15 @@ public:
 	 * @details Se comunicarÃ  con el servidor y este le responderÃ¡ si el usuario y contraseÃ±a son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
-	void login(string server, string puerto1, string puerto2,
-			string usuario, string contrasenia, string polling);
+	void login(string server, string puerto1, string puerto2,string usuario,
+			string contrasenia, string polling);
 
-	void logout();
-
-
-	/**@brief pide lista de modificaciones al servidor
+	/**
+	 * @brief Funcion a utilizar para aplicar una modificacion "externamente"
+	 * @details Es muy similar a "aplicar_modificacion" pero lockea el mutex y loguea errores
+	 * @param modif Modificacion a aplicar
 	 */
-	std::list<Modificacion> recibir_modificaciones();
+	void AplicarNotificacion(Modificacion &modif);
 };
 
 #endif /* CLIENTE_H_ */

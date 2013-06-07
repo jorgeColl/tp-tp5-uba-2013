@@ -1,17 +1,7 @@
 #include "cliente_notificador.h"
+#include "cliente_controlador.h"
 
-bool ClienteNotificador::hay_modificaciones()
-{
-	return !modifs.empty();
-}
-
-Modificacion ClienteNotificador::pedir_modificacion()
-{
-	Lock lock(mutexLista);
-	Modificacion mod = modifs.front();
-	modifs.pop_front();
-	return mod;
-}
+ClienteNotificador::ClienteNotificador(ClienteControlador* aNotificar) : aNotificar(aNotificar) {}
 
 void ClienteNotificador::ejecutar()
 {
@@ -21,8 +11,7 @@ void ClienteNotificador::ejecutar()
 		Modificacion modif;
 		socketConectado = socket.recibir_modif(modif);
 		if (socketConectado) cout << "Recibida notificacion: " << modif << endl;
-		Lock lock(mutexLista);
-		modifs.push_back(modif);
+		aNotificar->AplicarNotificacion(modif);
 	}
 }
 

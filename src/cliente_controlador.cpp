@@ -6,7 +6,7 @@
 #include "cliente_controlador.h"
 using namespace std;
 
-ClienteControlador::ClienteControlador() : Controlador(),delay_polling(POLLING_DEFAULT),notificador() {}
+ClienteControlador::ClienteControlador() : Controlador(),delay_polling(POLLING_DEFAULT),notificador(this) {}
 
 void ClienteControlador::login(string server, string puerto1, string puerto2,
 		string usuario, string contrasenia, string polling)
@@ -30,7 +30,6 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 		exito = sock1.recibir_flag(login);
 		if(login != OK) throw runtime_error("Los datos de login son incorrectos.");
 		notificador.conectar(server.c_str(),puerto2.c_str());
-		notificador.start();
 		conectado = true;
 		cout << "Conexion exitosa." << login << endl;
 	}
@@ -51,9 +50,13 @@ list<Modificacion> ClienteControlador::pedir_y_comparar_indices()
 	return modifs;
 }
 
-list<Modificacion> ClienteControlador::recibir_modificaciones() {
-	list<Modificacion> aux;
-	return aux;
+void ClienteControlador::AplicarNotificacion(Modificacion &modif)
+{
+	Lock aplicandoCambio(mutexCambios);
+	cout << "Se recibio modificacion" << modif << endl;
+	bool exito = aplicar_modificacion(modif);
+	// Si falla, solo logeo, se supone que el indice fisico y demas quedo en condiciones
+	if (!exito) cout << "Error al aplicar una modificacion recibida." << endl;
 }
 
 void ClienteControlador::ejecutar()
@@ -69,11 +72,13 @@ void ClienteControlador::ejecutar()
 		aplicar_modificacion(*it);
 	}
 	*/
+	notificador.start(); // Recien aca pongo a correr el notificador, no se deberian haber "perdido datos"
 	while(correr && conectado)
 	{
 		cout << "Esperando los " << delay_polling << " segundos de polling." << endl;
 		sleep(delay_polling);
 		cout << "Ejecutando polling" << endl;
+		Lock cLocales(mutexCambios);
 		list<Modificacion> mod2 = comprobar_cambios_locales();
 		cout << "Numero de cambios locales encontrados: " << mod2.size() << endl;
 		for (list<Modificacion>::iterator it = mod2.begin(); it != mod2.end(); ++it)
@@ -82,15 +87,6 @@ void ClienteControlador::ejecutar()
 			exito = aplicar_modificacion(*it);
 			// Si falla, solo logeo, se supone que el indice fisico y demas quedo en condiciones
 			if (!exito) cout << "Error al aplicar una modificacion local." << endl;
-		}
-		// TODO: Poner esto en otro thread como corresponde
-		while (notificador.hay_modificaciones())
-		{
-			Modificacion modif = notificador.pedir_modificacion();
-			cout << "Se recibio modificacion" << modif << endl;
-			exito = aplicar_modificacion(modif);
-			// Si falla, solo logeo, se supone que el indice fisico y demas quedo en condiciones
-			if (!exito) cout << "Error al aplicar una modificacion recibida." << endl;
 		}
 	}
 	return;

@@ -28,10 +28,11 @@ public:
 	void agregar_usuario(const char* usuario, const char* contrasenia);
 	/**@brief Elimina un usuari de la base de datos */
 	void eliminar_usuario(const char* usuario);
-	/**@brief guarda los datos que estan en la ram en disco*/
+	/**@brief guarda los datos que estan en la ram en disco, si no se quiere guardar a disco
+	 * simplemente no se hace nada y se elimina comunmente como cualquier instancia*/
 	void guardar_a_disco();
 	/**@brief POSIBLE FUNCION a implementar en el futuro, lee otra vez del archivo y agrega
-	 * los nuevos usuarios que encuentre*/
+	 * los nuevos usuarios que encuentre en el archivo */
 	void actualizar();
 };
 

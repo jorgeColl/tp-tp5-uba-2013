@@ -9,7 +9,7 @@ using namespace std;
  * 3) creacion de dos instancias de la misma clase, peticion de un mismo archivo a la vez
  * Nota: todos los casos se probaron con valgrind(se estan probando)
  */
-int main(){
+int main() {
 	string dir("/home/jorge/workspace2/tp5 tallerg/lugar de pruebas");
 
 	cout<<"PRUEBA 1"<<endl;
@@ -70,13 +70,6 @@ int main(){
 
 	cout<<"fin"<<endl;
 }
-
-
-
-
-
-
-
 
 
 

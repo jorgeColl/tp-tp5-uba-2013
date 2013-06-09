@@ -6,7 +6,7 @@
 #include "common_mutex.h"
 #include <iostream>
 class ArchMutexcer {
-	std::string dir;
+	std::string* dir;
 	std::map <std::string,Mutex*>* mutex_archivos;
 protected:
 	/**@brief resta una "pseudinstancia" */

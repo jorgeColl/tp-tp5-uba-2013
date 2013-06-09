@@ -36,13 +36,24 @@ public:
 	Mutex* get_mutex (const char* dir_archivo);
 	/**@brief si se genera un nuevo archivo, se tiene que ingresarlo al sistema con este metodo */
 	void new_mutex(const char* dir_nuevo_archivo);
+	/**@brief resta 1 al contador de instancias, si quedaba una instancia y se llama a
+	 * borrar, este elimina de la memoria a la instancia
+	 */
+	void borrar();
 
 	~ArchMutexcer();
+
 	friend std::ostream& operator<<(std::ostream& os, ArchMutexcer& archm);
-	static void borrar(ArchMutexcer* archm);
 };
 
 std::ostream& operator<<(std::ostream& os, ArchMutexcer& archm);
 
+class SmartP  {
+	ArchMutexcer* mu;
+public:
+	SmartP(ArchMutexcer* mutx);
+	ArchMutexcer& data ();
+	~SmartP();
+};
 
 #endif /* COMMON_ARCH_MUTEXCER_H_ */

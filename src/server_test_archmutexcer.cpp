@@ -35,22 +35,19 @@ int main() {
 
 	cout<<endl<<"PRUEBA 2"<<endl;
 	cout << "generando 2 instancias del mismo dir" << endl;
-	ArchMutexcer* archm1 = ArchMutexcer::generar_archmutexcer(dir.c_str());
-	ArchMutexcer* archm2 = ArchMutexcer::generar_archmutexcer(dir.c_str());
-	ArchMutexcer* archm3 = ArchMutexcer::generar_archmutexcer(dir.c_str());
-	if(archm1==NULL){
-		cout<<"MAL!! : arch1 es NULL"<<endl;
+	SmartP smpt1 (ArchMutexcer::generar_archmutexcer(dir.c_str()));
+	SmartP smpt2 (ArchMutexcer::generar_archmutexcer(dir.c_str()));
+	SmartP smpt3 (ArchMutexcer::generar_archmutexcer(dir.c_str()));
 
-	}
-	if(archm1==archm2){
+	/*if(smpt1.data()==smpt2.data()){
 		cout<<"BIEN!!: los punteros son iguales"<<endl;
 	}else{
 		cout<<"MAL!! : los punteros son distintos"<<endl;
-	}
+	}*/
 	cout<<"estado intero"<<endl;
-	cout<<(*archm1);
+	cout<<smpt1.data();
 	string doc1 = dir+"doc1.txt";
-	Mutex* mutx = archm1->get_mutex( "doc1.txt" );
+	Mutex* mutx = smpt1.data().get_mutex( "doc1.txt" );
 	if(mutx == NULL){
 		cout <<"FALLA: devolvio mutx NULL"<<endl;
 	}
@@ -62,11 +59,6 @@ int main() {
 	Lock l2 (*mutx);
 	cout<<"si estan lo dos esto no deveria aparecer"<<endl;
 	}
-
-
-	delete archm1;
-	delete archm2;
-	delete archm3;
 
 	cout<<"fin"<<endl;
 }

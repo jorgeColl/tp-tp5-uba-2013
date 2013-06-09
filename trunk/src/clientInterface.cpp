@@ -25,14 +25,36 @@ void ClientInterface::cargarPreferencias()
 	Gtk::Entry* entry_puerto2 = NULL;
 	Gtk::Entry* entry_intrevalo_polling = NULL;
 	Gtk::FileChooserButton* chooser = NULL;
+
+	std::ifstream arch;
+	arch.open(".preferences", arch.in);
+	if (!arch.is_open()) {
+		arch.close();
+		ofstream input;
+		input.open(".preferences");
+		input << "127.0.0.1 12700 12701 5";
+		input.close();
+		arch.open(".preferences");
+	}
+
+	char buffer[50];
+
 	builder->get_widget("eServ", entry_server);
-	entry_server->set_text("127.0.0.1");
+	//"127.0.0.1"
+	arch >> buffer;
+	entry_server->set_text(buffer);
 	builder->get_widget("ePort1", entry_puerto1);
-	entry_puerto1->set_text("12700");
+	//"12700"
+	arch >> buffer;
+	entry_puerto1->set_text(buffer);
 	builder->get_widget("ePort2", entry_puerto2);
-	entry_puerto2->set_text("12701");
+	//"12701"
+	arch >> buffer;
+	entry_puerto2->set_text(buffer);
 	builder->get_widget("ePoll", entry_intrevalo_polling);
-	entry_intrevalo_polling->set_text("5");
+	//"5"
+	arch >> buffer;
+	entry_intrevalo_polling->set_text(buffer);
 	//Sin archivo esta parte no tiene chiste
 	//builder->get_widget("eDir", chooser);
 	//chooser->set_current_folder(chooser->get_current_folder().append("/user1"));
@@ -70,6 +92,18 @@ void ClientInterface::login()
 	builder->get_widget("eDir", chooser);
 	std::cout << "Carpeta: " << chooser->get_current_folder() << std::endl;
 
+	// guarda ultima configuracion
+	ofstream input;
+	input.open(".preferences",input.out);
+	if (!input.is_open()) { throw ios_base::failure("el archivo no se abrio"); }
+	input << entry_server->get_text();
+	input << " ";
+	input << entry_puerto1->get_text();
+	input << " ";
+	input << entry_puerto2->get_text();
+	input << " ";
+	input << entry_int_polling->get_text();
+	input.close();
 	// Intenta loguearse
 	try
 	{

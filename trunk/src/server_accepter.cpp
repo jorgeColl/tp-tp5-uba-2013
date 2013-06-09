@@ -36,6 +36,7 @@ void Accepter::stop()
 	}
 	sock_prot1.cerrar();
 	sock_prot2.cerrar();
+	// JOIN DE los ServerCommunicator
 }
 
 bool Accepter::aceptar_conexion()

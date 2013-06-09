@@ -12,7 +12,7 @@ Mutex::~Mutex()
 	pthread_cond_destroy(&conditionVariable);
 }
 
-Mutex::Mutex (const Mutex &otroMutex) {}
+//Mutex::Mutex (const Mutex &otroMutex) {}
 
 void Mutex::wait()
 {

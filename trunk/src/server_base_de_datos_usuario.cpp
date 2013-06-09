@@ -5,6 +5,7 @@ BaseDeDatosUsuario::BaseDeDatosUsuario(const char* dir) {
 	this->dir = dir;
 }
 void BaseDeDatosUsuario::abrir() {
+	fstream arch;
 	arch.open(dir, arch.in |arch.out);
 	if (!arch.is_open()) {
 		throw std::ios_base::failure("El archivo no existe");
@@ -51,17 +52,6 @@ void BaseDeDatosUsuario::agregar_usuario(const char* usuario,
 	// lo meto en ram
 	usu_contr.insert(pair<string, string>(usu, contr));
 
-	// lo meto en archivo
-	/*arch.open(dir, arch.in | arch.out);
-	if (!arch.is_open()) {
-		throw std::ios_base::failure("El archivo no existe");
-	}
-	arch.write(usu.c_str(), usu.length());
-	arch.put(' ');
-	arch.write(contr.c_str(), contr.length());
-	arch.put('\n');
-	arch.close();*/
-
 }
 /**@brief Elimina un usuari de la base de datos */
 void BaseDeDatosUsuario::eliminar_usuario(const char* usuario) {
@@ -75,7 +65,7 @@ void BaseDeDatosUsuario::eliminar_usuario(const char* usuario) {
 		throw std::ios_base::failure("El archivo no existe");
 	}*/
 }
-void BaseDeDatosUsuario::guardar_y_cerrar() {
+void BaseDeDatosUsuario::guardar_a_disco() {
 	// lo meto en archivo
 	string dir_aux(dir);
 	dir_aux+=".temp";

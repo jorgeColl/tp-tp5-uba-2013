@@ -17,7 +17,6 @@
 /** en principio solo es un hash en ram*/
 class BaseDeDatosUsuario {
 	const char* dir;
-	std::fstream arch;
 	std::map<std::string ,std::string> usu_contr;
 public:
 	BaseDeDatosUsuario(const char* dir);
@@ -29,8 +28,11 @@ public:
 	void agregar_usuario(const char* usuario, const char* contrasenia);
 	/**@brief Elimina un usuari de la base de datos */
 	void eliminar_usuario(const char* usuario);
-
-	void guardar_y_cerrar();
+	/**@brief guarda los datos que estan en la ram en disco*/
+	void guardar_a_disco();
+	/**@brief POSIBLE FUNCION a implementar en el futuro, lee otra vez del archivo y agrega
+	 * los nuevos usuarios que encuentre*/
+	void actualizar();
 };
 
 

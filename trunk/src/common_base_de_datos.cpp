@@ -203,32 +203,44 @@ list<Modificacion> BaseDeDatos::comprobar_cambios(IndiceRam &indice, bool es_loc
 			bool match = false;
 			list<RegistroIndice*> matches = indice.buscarTam(buf.st_size); // Busco cambio de nombre/copia por tam
 			string hash;
-			if (!matches.empty()) hash = MD5_arch(path, password); // Si hubo matches, calculo el hash
-			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end(); ++it)
+			if (!matches.empty()) // Si se encontro el tamanio miro por los hashes
 			{
-				if ((*it)->hash == hash) //El hash es el mismo entonces el archivo es el mismo con otro nombre
+				hash = MD5_arch(path, password); // Si hubo matches, calculo el hash
+				matches = indice.buscarHash(hash); // Cambio los matches por los matches de hash
+			}
+			// Una pasada para renombres antes de la de copias
+			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end() && !match; ++it)
+			{
+				string nomb = (*it)->nombre;
+				string pathViejo = unirPath(directorio, nomb);
+				for (list<Modificacion>::iterator it = modifs.begin(); it != modifs.end(); ++it)
 				{
-					// Primero me fijo si aun existe el archivo de viejo nombre, si es el caso es copia
-					string nomb = (*it)->nombre;
-					for (size_t i = 0; i < renombrados.size(); ++i)
+					if (it->accion == BORRADO) // No existe el archivo, entonces es renombre
 					{
-						if (renombrados[i] == (*it)->nombre) nomb = renombre[i];
-					}
-					string pathViejo = unirPath(directorio, nomb);
-					// TODO: Optimizar para que en caso de renombre de copia mande renombre y no borrar+copia
-					// Primero me fijo si existe el archivo viejo o como renombre para ver si es una copia
-					if (esArchivo(pathViejo))
-					{
-						Modificacion modif(COPIADO, es_local, nombre, nomb);
+						Modificacion modif(RENOMBRADO, es_local, nombre, it->nombre_archivo);
 						modifs.push_back(modif);
-					}
-					else // Como no existe, en vez de copia es renombre
-					{
-						Modificacion modif(RENOMBRADO, es_local, nombre, (*it)->nombre);
-						modifs.push_back(modif);
-						renombrados.push_back((*it)->nombre);
+						renombrados.push_back(it->nombre_archivo);
 						renombre.push_back(nombre);
+						match = true;
+						modifs.remove(*it);
+						break;
 					}
+				}
+			}
+			// Una pasada para copias
+			for (list<RegistroIndice*>::iterator it = matches.begin(); it != matches.end() && !match; ++it)
+			{
+				// Primero me fijo si aun existe el archivo de viejo nombre, si es el caso es copia
+				string nomb = (*it)->nombre;
+				for (size_t i = 0; i < renombrados.size(); ++i)
+				{
+					if (renombrados[i] == (*it)->nombre) nomb = renombre[i];
+				}
+				string pathViejo = unirPath(directorio, nomb);
+				if (esArchivo(pathViejo))
+				{
+					Modificacion modif(COPIADO, es_local, nombre, nomb);
+					modifs.push_back(modif);
 					match = true;
 					modifs.remove(Modificacion(BORRADO, es_local, (*it)->nombre));
 					break;

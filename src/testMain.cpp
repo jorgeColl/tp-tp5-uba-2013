@@ -15,31 +15,37 @@ int main(int argc, char** argv)
 		//cout << "Crear dir: " << mkdir("./testDir",0777) << endl; //Permisos depende de umask
 		BaseDeDatos db;
 		db.abrir("./testDir1");
-		list<Modificacion> modifs = db.comprobar_cambios_locales();
-		for (list<Modificacion>::iterator it = modifs.begin(); it != modifs.end(); ++it)
+		//while (true)
 		{
-			cout << *it << endl;
-			switch(it->accion)
+			cout << "Comprobado" << endl;
+			list<Modificacion> modifs = db.comprobar_cambios_locales();
+			for (list<Modificacion>::iterator it = modifs.begin(); it != modifs.end(); ++it)
 			{
-				case NUEVO:
-					db.registrar_nuevo(it->nombre_archivo);
-					break;
-				case BORRADO:
-					db.registrar_eliminado(it->nombre_archivo);
-					break;
-				case EDITADO:
-					db.registrar_modificado(it->nombre_archivo);
-					break;
-				case COPIADO:
-					db.registrar_copiado(it->nombre_archivo, it->nombre_archivo_alt);
-					break;
-				case RENOMBRADO:
-					db.registrar_renombrado(it->nombre_archivo, it->nombre_archivo_alt);
-					break;
-				default:
-					cout << "Error" << endl;
-					break;
+				cout << *it << endl;
+				switch(it->accion)
+				{
+					case NUEVO:
+						db.registrar_nuevo(it->nombre_archivo);
+						break;
+					case BORRADO:
+						db.registrar_eliminado(it->nombre_archivo);
+						break;
+					case EDITADO:
+						db.registrar_modificado(it->nombre_archivo);
+						break;
+					case COPIADO:
+						db.registrar_copiado(it->nombre_archivo, it->nombre_archivo_alt);
+						break;
+					case RENOMBRADO:
+						db.registrar_renombrado(it->nombre_archivo, it->nombre_archivo_alt);
+						break;
+					default:
+						cout << "Error" << endl;
+						break;
+				}
 			}
+			cout << "Sleep 1" << endl;
+			sleep(1);
 		}
 
 		//cout << "Borrar dir: " << system("rm -R ./testDir/")  << endl;

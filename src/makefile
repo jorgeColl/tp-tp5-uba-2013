@@ -119,6 +119,7 @@ fuentes_client ?= $(wildcard client*.$(extension))
 fuentes_server ?= $(wildcard server*.$(extension))
 fuentes_common ?= $(wildcard common*.$(extension))
 fuentes_common += $(wildcard ./hashlib/*.$(extension))
+fuentes_monitor ?= $(wildcard monitor*.$(extension))
 fuentes_test ?= $(wildcard test*.$(extension))
 
 
@@ -127,11 +128,12 @@ fuentes_test ?= $(wildcard test*.$(extension))
 
 .PHONY: all clean
 
-all: client server test
+all: client server monitor test
 
 o_common_files = $(patsubst %.$(extension),%.o,$(fuentes_common))
 o_client_files = $(patsubst %.$(extension),%.o,$(fuentes_client)) $(o_common_files)
 o_server_files = $(patsubst %.$(extension),%.o,$(fuentes_server)) $(o_common_files)
+o_monitor_files = $(patsubst %.$(extension),%.o,$(fuentes_monitor)) $(o_common_files)
 o_test_files = $(patsubst %.$(extension),%.o,$(fuentes_test)) $(o_common_files)
 
 %.deps: %.$(extension)
@@ -157,6 +159,14 @@ server: $(o_server_files)
 		false; \
 	fi >&2
 	$(LD) $(o_server_files) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) -o server $(LDADD)
+	
+monitor: $(o_monitor_files)
+	@if [ -z "$(o_monitor_files)" ]; \
+	then \
+		echo "No hay archivos de entrada para el servidor (archivos server*.$(extension))."; \
+		false; \
+	fi >&2
+	$(LD) $(o_monitor_files) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) -o monitor $(LDADD)
 	
 test: $(o_test_files)
 	@if [ -z "$(o_test_files)" ]; \

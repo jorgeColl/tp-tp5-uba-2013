@@ -70,13 +70,14 @@ list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarTam(const off_t
 	return lista;
 }
 
-BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarHash(const string &hash)
+list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarHash(const string &hash)
 {
+	list<BaseDeDatos::RegistroIndice*> lista;
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{
-		if (it->hash == hash) return &(*it);
+		if (it->hash == hash) lista.push_back(&(*it));
 	}
-	return NULL;
+	return lista;
 }
 
 list<string> BaseDeDatos::IndiceRam::devolverNombres()

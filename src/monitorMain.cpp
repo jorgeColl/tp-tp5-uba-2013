@@ -1,15 +1,10 @@
-//#define saco_para_prueba
-#ifndef saco_para_prueba
 #include <iostream>
-#include "cliente_controlador.h"
-#include "clientInterface.h"
-#include "common_base_de_datos.h"
 #include <gtkmm.h>
 #include <glibmm.h>
 
 /**
- * @file clientMain.cpp
- * @brief Main de cliente
+ * @file monitorMain.cpp
+ * @brief Main de la aplicacion monitor
  */
 int main (int argc, char** argv)
 {
@@ -17,8 +12,7 @@ int main (int argc, char** argv)
 	{
 		umask(0077); // Permisos
 		Gtk::Main kit(argc,argv);
-		ClientInterface interface(argc, argv);
-		interface.correr();
+
 	}
 	catch (Glib::Exception &e)
 	{
@@ -30,4 +24,3 @@ int main (int argc, char** argv)
 	}
 	return 0;
 }
-#endif

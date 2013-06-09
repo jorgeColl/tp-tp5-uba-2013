@@ -207,15 +207,15 @@ private:
 			/** @brief Devuelve un puntero al registro de un dado nombre
 			 * @return Puntero al registro, o null si no se encontro */
 			RegistroIndice* buscarNombre(const string &nombre);
-			/** @brief Devuelve un puntero al registro de una dada fecha de modificado
-			 * @return Puntero a lista de punteros a registros. Puede estar vacia si no se encontraron */
+			/** @brief Devuelve una lista de puntero a registros de una dada fecha de modificado
+			 * @return Lista de punteros a registros. Puede estar vacia si no se encontraron */
 			list<RegistroIndice*> buscarFecha(const time_t fecha);
-			/** @brief Devuelve un puntero a registros de un dado tamanio
-			 * @return Puntero a lista de punteros a registros. Puede estar vacia si no se encontraron */
+			/** @brief Devuelve una lista de punteros a registros de un dado tamanio
+			 * @return Lista de punteros a registros. Puede estar vacia si no se encontraron */
 			list<RegistroIndice*> buscarTam(const off_t tam);
-			/** @brief Devuelve un puntero a registros dado un hash
-			 * @return Puntero al registro, o null si no se encontro */
-			RegistroIndice* buscarHash(const string &hash);
+			/** @brief Devuelve una lista de punteros a registros dado un hash
+			 * @return Lista de punteros a registros. Puede estar vacia si no se encontraron */
+			list<RegistroIndice*> buscarHash(const string &hash);
 			/** @brief Devuelve el nombre de todos los registros */
 			list<string> devolverNombres();
 		private:

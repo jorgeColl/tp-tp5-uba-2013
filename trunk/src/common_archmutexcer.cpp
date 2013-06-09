@@ -71,27 +71,29 @@ Mutex* ArchMutexcer::get_mutex(const char* dir_archivo) {
 void ArchMutexcer::new_mutex(const char* dir_nuevo_archivo) {
 	(*mutex_archivos)[dir_nuevo_archivo] = new Mutex;
 }
-ArchMutexcer::~ArchMutexcer() {
+void ArchMutexcer::borrar() {
 	// se pone para eliminarse , si solo queda él se elimina de verdad, sino se resta 1
-	cout<<"ArchMutexcer::~ArchMutexcer(): eliminando instancia"<<endl;
-	cout<<"ArchMutexcer::~ArchMutexcer():cant instancias: "<<ArchMutexcer::cant_instacias(this)<<endl;
+	cout << "ArchMutexcer::~ArchMutexcer(): eliminando instancia" << endl;
+	cout << "ArchMutexcer::~ArchMutexcer():cant instancias: "
+			<< ArchMutexcer::cant_instacias(this) << endl;
 	if (1 == ArchMutexcer::cant_instacias(this)) {
+		delete this;
+	} else {
+		cout << "ArchMutexcer::~ArchMutexcer(): solo se resta 1" << endl;
+		ArchMutexcer::restar_instancia(this);
+	}
+}
+ArchMutexcer::~ArchMutexcer() {
 		cout<<"ArchMutexcer::~ArchMutexcer(): se elimina permanentemente"<<endl;
-
 		std::map<std::string, Mutex*>::iterator it;
 		for (it = mutex_archivos->begin(); it != mutex_archivos->end(); it++) {
 			cout<<"eliminando mutex de: "<<it->first<<endl;
 			delete it->second;
 		}
-
 		cout<<"CANT ELIMINADA: "<<ArchMutexcer::cant_hijitos.erase(this)<<endl;
 		cout<<"CANT ELIMINADA: "<<ArchMutexcer::hijitos.erase(*dir)<<endl;
 		delete this->mutex_archivos;
 		delete dir;
-	} else {
-		cout<<"ArchMutexcer::~ArchMutexcer(): solo se resta 1"<<endl;
-		ArchMutexcer::restar_instancia(this);
-	}
 }
 size_t ArchMutexcer::cant_instacias(ArchMutexcer* mutexcer) {
 	return cant_hijitos[mutexcer];
@@ -107,4 +109,14 @@ ostream& operator<<(std::ostream& os, ArchMutexcer& archm) {
 		os<<it->first<<endl;
 	}
 	return os;
+}
+
+SmartP::SmartP(ArchMutexcer* mutx){
+	mu = mutx;
+}
+ArchMutexcer& SmartP::data() {
+	return *mu;
+}
+SmartP::~SmartP(){
+	mu->borrar();
 }

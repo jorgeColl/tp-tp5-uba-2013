@@ -1,4 +1,4 @@
-//#define server_main
+#define server_main
 #ifndef server_main
 
 #include <iostream>

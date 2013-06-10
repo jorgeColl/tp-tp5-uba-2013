@@ -1,4 +1,4 @@
-#include "server_base_de_datos_usuario.h"
+#include "common_base_de_datos_usuario.h"
 #include <iostream>
 using namespace std;
 BaseDeDatosUsuario::BaseDeDatosUsuario(const char* dir) {

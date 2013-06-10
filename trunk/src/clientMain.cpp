@@ -17,7 +17,7 @@ int main (int argc, char** argv)
 	{
 		umask(0077); // Permisos
 		Gtk::Main kit(argc,argv);
-		ClientInterface interface(argc, argv);
+		ClientInterface interface;
 		interface.correr();
 	}
 	catch (Glib::Exception &e)

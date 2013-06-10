@@ -1,4 +1,4 @@
-//#define test_archmutexcer
+#define test_archmutexcer
 #ifndef test_archmutexcer
 using namespace std;
 #include "common_arch_mutexcer.h"

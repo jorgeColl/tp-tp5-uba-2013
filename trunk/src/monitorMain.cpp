@@ -1,6 +1,7 @@
 #include <iostream>
 #include <gtkmm.h>
 #include <glibmm.h>
+#include "monitorInterface.h"
 
 /**
  * @file monitorMain.cpp
@@ -12,6 +13,8 @@ int main (int argc, char** argv)
 	{
 		umask(0077); // Permisos
 		Gtk::Main kit(argc,argv);
+		MonitorInterface interface;
+		interface.correr();
 
 	}
 	catch (Glib::Exception &e)

@@ -15,7 +15,7 @@ class Mutex
 	  Mutex();
 	  ~Mutex();
 	  friend class Lock;
-	private:
+	//private:
 	  pthread_mutex_t mutex;
 	  pthread_cond_t conditionVariable;
 	  Mutex (const Mutex &otroMutex);

@@ -5,8 +5,8 @@
  *      Author: jorge
  */
 
-#ifndef SERVER_BASE_DE_DATOS_USUARIO_H_
-#define SERVER_BASE_DE_DATOS_USUARIO_H_
+#ifndef COMMON_BASE_DE_DATOS_USUARIO_H_
+#define COMMON_BASE_DE_DATOS_USUARIO_H_
 #include <fstream>
 #include <string>
 #include <map>
@@ -38,4 +38,4 @@ public:
 
 
 
-#endif /* SERVER_BASE_DE_DATOS_USUARIO_H_ */
+#endif /* COMMON_BASE_DE_DATOS_USUARIO_H_ */

@@ -7,7 +7,7 @@
 
 #ifndef SERVER_ACCEPTER_H_
 #define SERVER_ACCEPTER_H_
-#include "server_base_de_datos_usuario.h"
+#include "common_base_de_datos_usuario.h"
 #include "server_thread_communicator.h"
 #include "common_socket_prot.h"
 #include "common_thread.h"

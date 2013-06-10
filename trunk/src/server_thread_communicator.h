@@ -4,7 +4,7 @@
 #include "common_thread.h"
 #include "common_mutex.h"
 #include "common_socket_prot.h"
-
+#include "common_base_de_datos_con_mutex.h"
 /**@class ServerCommunicator server_thread_communicator.h
  * @brief clase que se encargará de la comunicacion con el cliente */
 class ServerCommunicator : public Controlador, public Thread
@@ -14,6 +14,7 @@ private:
 	void ejecutar();
 	void procesar_flag(PacketID flag);
 	list<ServerCommunicator*> *vinculados;
+	BaseDeDatosConMutex base_de_datos;
 public:
 	ServerCommunicator(const char* dir, int fd1, int fd2);
 

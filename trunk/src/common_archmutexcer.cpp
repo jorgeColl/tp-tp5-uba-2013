@@ -9,10 +9,11 @@
 //std::vector<ArchMutexcer*> ArchMutexcer::a_eliminar;
 std::map<std::string, ArchMutexcer*> ArchMutexcer::hijitos;
 std::map<ArchMutexcer*, size_t> ArchMutexcer::cant_hijitos;
-
+Mutex ArchMutexcer::mutex_clase;
 using namespace std;
 
 ArchMutexcer* ArchMutexcer::generar_archmutexcer(const char* directorio) {
+	Lock temp (ArchMutexcer::mutex_clase);
 	if (ArchMutexcer::hijitos.count(directorio) == 1) {
 		cout<<"ArchMutexcer::generar_archmutexcer(): instancia ya estaba creada"<<endl;
 		ArchMutexcer::cant_hijitos[hijitos[directorio]]++;
@@ -62,6 +63,8 @@ void ArchMutexcer::construir_mutexs() {
 	closedir(direct);
 }
 Mutex* ArchMutexcer::get_mutex(const char* dir_archivo) {
+	Lock(this->mutex_loc);
+
 	if((*mutex_archivos).count(dir_archivo) == 0) {
 		cout<<"ArchMutexcer: dir no encontrado, no puedo devolver mutex";
 		return NULL;
@@ -69,31 +72,52 @@ Mutex* ArchMutexcer::get_mutex(const char* dir_archivo) {
 	return (*mutex_archivos)[dir_archivo];
 }
 void ArchMutexcer::new_mutex(const char* dir_nuevo_archivo) {
+	Lock(this->mutex_loc);
+	if(mutex_archivos->count(dir_nuevo_archivo) == 1){
+		throw ios_base::failure("Se trata de crear un nuevo mutex para un archivo que ya tiene un mutex asociado");
+	}
 	(*mutex_archivos)[dir_nuevo_archivo] = new Mutex;
 }
+void ArchMutexcer::delete_mutex(const char* dir_archivo_a_eliminar){
+	Lock(this->mutex_loc);
+	if(mutex_archivos->count(dir_archivo_a_eliminar) == 1){
+		throw ios_base::failure("Se trata de eliminar un mutex que no existe");
+	}
+	Mutex* mutx = (*mutex_archivos)[dir_archivo_a_eliminar];
+	delete(mutx);
+	mutex_archivos->erase(dir_archivo_a_eliminar);
+}
+bool ArchMutexcer::is_mutex(const char* dir_archivo){
+	return (this->mutex_archivos->count(dir_archivo)==1);
+}
 void ArchMutexcer::borrar() {
+	Lock* lock = new Lock(this->mutex_loc);
+	Lock(this->mutex_clase);
 	// se pone para eliminarse , si solo queda él se elimina de verdad, sino se resta 1
 	cout << "ArchMutexcer::~ArchMutexcer(): eliminando instancia" << endl;
 	cout << "ArchMutexcer::~ArchMutexcer():cant instancias: "
 			<< ArchMutexcer::cant_instacias(this) << endl;
 	if (1 == ArchMutexcer::cant_instacias(this)) {
+		delete(lock);
 		delete this;
 	} else {
 		cout << "ArchMutexcer::~ArchMutexcer(): solo se resta 1" << endl;
 		ArchMutexcer::restar_instancia(this);
 	}
+	delete(lock);
 }
 ArchMutexcer::~ArchMutexcer() {
-		cout<<"ArchMutexcer::~ArchMutexcer(): se elimina permanentemente"<<endl;
-		std::map<std::string, Mutex*>::iterator it;
-		for (it = mutex_archivos->begin(); it != mutex_archivos->end(); it++) {
-			cout<<"eliminando mutex de: "<<it->first<<endl;
-			delete it->second;
-		}
-		cout<<"CANT ELIMINADA: "<<ArchMutexcer::cant_hijitos.erase(this)<<endl;
-		cout<<"CANT ELIMINADA: "<<ArchMutexcer::hijitos.erase(*dir)<<endl;
-		delete this->mutex_archivos;
-		delete dir;
+	cout << "ArchMutexcer::~ArchMutexcer(): se elimina permanentemente" << endl;
+	std::map<std::string, Mutex*>::iterator it;
+	for (it = mutex_archivos->begin(); it != mutex_archivos->end(); it++) {
+		cout << "eliminando mutex de: " << it->first << endl;
+		delete it->second;
+	}
+	cout << "CANT ELIMINADA: " << ArchMutexcer::cant_hijitos.erase(this)
+			<< endl;
+	cout << "CANT ELIMINADA: " << ArchMutexcer::hijitos.erase(*dir) << endl;
+	delete this->mutex_archivos;
+	delete dir;
 }
 size_t ArchMutexcer::cant_instacias(ArchMutexcer* mutexcer) {
 	return cant_hijitos[mutexcer];

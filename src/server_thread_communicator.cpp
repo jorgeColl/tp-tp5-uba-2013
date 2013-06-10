@@ -1,7 +1,7 @@
 #include "server_thread_communicator.h"
 
 ServerCommunicator::ServerCommunicator(const char* dir, int fd1, int fd2)
-	: Controlador(dir, fd1, fd2), Thread(), vinculados(NULL)
+	: Controlador(dir, fd1, fd2), Thread(), vinculados(NULL), base_de_datos(dir)
 {
 	base_de_datos.abrir(dir);
 }
@@ -16,22 +16,19 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		case NUEVO:
 			{
 			ofstream destino;
-			base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
+			exito = base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
 			sock1.recibir_archivo(destino);
-			destino.close();
+			//destino.close();
+			base_de_datos.cerrar_archivo(mod.nombre_archivo, destino);
 			base_de_datos.registrar_nuevo(mod.nombre_archivo);
 			sock1.enviar_flag(OK);
-			exito = true;
+
 			}
 			break;
 		case BORRADO:
 			exito = base_de_datos.eliminar_archivo(mod.nombre_archivo);
-			if (exito)
-			{
-				base_de_datos.registrar_eliminado(mod.nombre_archivo);
-				sock1.enviar_flag(OK);
-			}
-			else sock1.enviar_flag(FAIL);
+			if (exito) { sock1.enviar_flag(OK); }
+			else { sock1.enviar_flag(FAIL); }
 			break;
 		case EDITADO:
 			//TODO: Implementar
@@ -39,21 +36,13 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			break;
 		case RENOMBRADO:
 			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);
-			if (exito)
-			{
-				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
-				sock1.enviar_flag(OK);
-			}
-			else sock1.enviar_flag(FAIL);
+			if (exito) { sock1.enviar_flag(OK); }
+			else { sock1.enviar_flag(FAIL); }
 			break;
 		case COPIADO:
 			exito = base_de_datos.copiar(mod.nombre_archivo_alt, mod.nombre_archivo);
-			if (exito)
-			{
-				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
-				sock1.enviar_flag(OK);
-			}
-			else sock1.enviar_flag(FAIL);
+			if (exito){ sock1.enviar_flag(OK); }
+			else { sock1.enviar_flag(FAIL); }
 			break;
 		default: // Ignoro si llega otra cosa
 			break;
@@ -83,7 +72,8 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 					ifstream arch;
 					base_de_datos.abrir_para_leer(nombre, arch);
 					sock1.enviar_archivo(arch);
-					arch.close();
+					//arch.close();
+					base_de_datos.cerrar_archivo(nombre,arch);
 				}
 				break;
 		case(PEDIDO_ARCHIVO_PARTES):

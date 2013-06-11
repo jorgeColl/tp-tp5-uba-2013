@@ -8,8 +8,7 @@ void BaseDeDatosUsuario::abrir() {
 	ifstream arch1;
 	arch1.open(dir, arch1.in |arch1.out);
 	if (!arch1.is_open()) {
-		arch1.close();
-		//throw std::ios_base::failure("El archivo no existe");
+		arch1.close();		//throw std::ios_base::failure("El archivo no existe");
 		ofstream temp;
 		temp.open(dir);
 		temp.close();

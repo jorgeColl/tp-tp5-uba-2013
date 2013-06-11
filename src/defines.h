@@ -22,6 +22,6 @@
 #endif
 #define BYTES_USER_PASS 1 // Tam maximo en byes para la longitud de usuario o password
 
-#define TAM_BLOQ 64 // Bloques de 4KB, tamanio razonable para testear.
+#define TAM_BLOQ 512 // Bloques de 4KB, tamanio razonable para testear.
 
 #endif /* DEFINES_H_ */

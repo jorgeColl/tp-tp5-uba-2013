@@ -20,28 +20,26 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 	switch(mod.accion)
 	{
 		case NUEVO:
-		{
-			ofstream destino;
-			exito = base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
-			if(exito){
-				destino.close();
-				//Lock(this->mutex_ind);
-				base_de_datos.registrar_nuevo(mod.nombre_archivo);
-				sock1.enviar_flag(OK);
-				sock1.recibir_archivo(destino);
+			{
+				ofstream destino;
+				exito = base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
+				if(exito)
+				{
+					sock1.recibir_archivo(destino);
+					destino.close();
+					base_de_datos.registrar_nuevo(mod.nombre_archivo);
+					sock1.enviar_flag(OK);
+				}
 			}
-
-		}
 			break;
 		case BORRADO:
 			exito = base_de_datos.eliminar_archivo(mod.nombre_archivo);
 			if (exito)
 			{
-				//Lock(this->mutex_ind);
 				base_de_datos.registrar_eliminado(mod.nombre_archivo);
 				sock1.enviar_flag(OK);
 			}
-			else { sock1.enviar_flag(FAIL); }
+			else sock1.enviar_flag(FAIL);
 			break;
 		case EDITADO:
 		{
@@ -92,15 +90,15 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			// Terminamos
 			original.close();
 			destino.close();
-			//Lock(this->mutex_ind);
 			base_de_datos.renombrar_temporal(mod.nombre_archivo);
 			base_de_datos.registrar_modificado(mod.nombre_archivo);
+			sock1.enviar_flag(OK);
 		}
 			break;
 		case RENOMBRADO:
 			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);
-			if (exito) {
-				//Lock(this->mutex_ind);
+			if (exito)
+			{
 				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
 				sock1.enviar_flag(OK);
 			}
@@ -108,11 +106,12 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			break;
 		case COPIADO:
 			exito = base_de_datos.copiar(mod.nombre_archivo_alt, mod.nombre_archivo);
-			if (exito){
-				//Lock(this->mutex_ind);
+			if (exito)
+			{
 				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
-				sock1.enviar_flag(OK); }
-			else { sock1.enviar_flag(FAIL); }
+				sock1.enviar_flag(OK);
+			}
+			else sock1.enviar_flag(FAIL);
 			break;
 		default: // Igstnoro si llega otra cosa
 			break;

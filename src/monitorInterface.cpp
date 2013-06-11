@@ -1,38 +1,34 @@
 #include "monitorInterface.h"
+#include "common_util.h"
+#include "defines.h"
 
 MonitorInterface::MonitorInterface()
 {
 	builder = Gtk::Builder::create_from_file(MONIT_GLADE);
 	builder->get_widget("winMonitor", window);
 
-	Gtk::Button* pBotNeuvUs = 0;
+	builder->get_widget("eP1", entry_puerto1);
+	builder->get_widget("eP2", entry_puerto2);
+	builder->get_widget("dir", chooser_dir);
+	builder->get_widget("eCreaUsNom", entry_nombre_reg);
+	builder->get_widget("eCreaUsPass", entry_pass_reg);
+	builder->get_widget("eCreaUsNom", entry_nombre_borr);
+	builder->get_widget("dbDir", db_dir);
+
 	builder->get_widget("bNuevoUsr", pBotNeuvUs);
-	if(pBotNeuvUs) pBotNeuvUs->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::registrarUsuario));
-
-	Gtk::Button* pBotElimUS = 0;
 	builder->get_widget("bElimUsr", pBotElimUS);
-	if(pBotElimUS) pBotElimUS->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::borrarUsuario));
-
-	Gtk::Button* pBotGuardCfg = 0;
 	builder->get_widget("bGuardarCfg", pBotGuardCfg);
-	if(pBotGuardCfg) pBotGuardCfg->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::guardarPreferencias));
+	builder->get_widget("bCarga", pCargar);
+	builder->get_widget("bGuardar", pGuardar);
 
+	pBotNeuvUs->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::registrarUsuario));
+	pBotElimUS->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::borrarUsuario));
+	pBotGuardCfg->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::guardarPreferencias));
+	pCargar->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::cargarDB));
+	pGuardar->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::guardarDB));
+
+	bd_usr = new BaseDeDatosUsuario(chooser_dir->get_current_folder());
 	cargarPreferencias();
-
-	Gtk::FileChooserButton* chooser_dir = 0;
-	builder->get_widget("dir", chooser_dir);
-
-	bd_usr = new BaseDeDatosUsuario(chooser_dir->get_current_folder().c_str());
-	mostrarDir();
-}
-
-void MonitorInterface::mostrarDir()
-{
-	Gtk::FileChooserButton* chooser_dir = 0;
-	builder->get_widget("dir", chooser_dir);
-	Gtk::Label* dir_uso = 0;
-	builder->get_widget("lBD", dir_uso);
-	dir_uso->set_text(chooser_dir->get_current_folder().c_str());
 }
 
 void MonitorInterface::correr()
@@ -40,14 +36,39 @@ void MonitorInterface::correr()
 	Gtk::Main::run(*window);
 }
 
+void MonitorInterface::cargarDB()
+{
+	try
+	{
+		bd_usr->setPath(unirPath(chooser_dir->get_current_folder(),DB_USU_ARCH));
+		bd_usr->abrir();
+		Gtk::MessageDialog msg(*window, "Se ha abierto la base de datos.", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
+		msg.run();
+	}
+	catch (exception &e)
+	{
+		Gtk::MessageDialog msg(*window, e.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE );
+		msg.run();
+	}
+}
+
+void MonitorInterface::guardarDB()
+{
+	try
+	{
+		bd_usr->guardar_a_disco();
+		Gtk::MessageDialog msg(*window, "Se han guardado los cambios.", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
+		msg.run();
+	}
+	catch (exception &e)
+	{
+		Gtk::MessageDialog msg(*window, e.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE );
+		msg.run();
+	}
+}
+
 void MonitorInterface::cargarPreferencias()
 {
-	Gtk::Entry* entry_puerto1 = NULL;
-	Gtk::Entry* entry_puerto2 = NULL;
-	Gtk::FileChooserButton* chooser_dir;
-	builder->get_widget("eP1", entry_puerto1);
-	builder->get_widget("eP2", entry_puerto2);
-	builder->get_widget("dir", chooser_dir);
 	// Guarda ultima configuracion
 	ifstream arch;
 	arch.open(ARCH_PREFS_SERV);
@@ -58,24 +79,18 @@ void MonitorInterface::cargarPreferencias()
 		entry_puerto1->set_text(p1);
 		entry_puerto2->set_text(p2);
 		chooser_dir->set_current_folder(dir);
+		db_dir->set_current_folder(dir);
 	}
 	else
 	{
 		entry_puerto1->set_text(PUERTO1_DEF);
 		entry_puerto2->set_text(PUERTO2_DEF);
-		chooser_dir->set_current_folder(DIR_DEF);
 	}
 	arch.close();
 }
 
 void MonitorInterface::guardarPreferencias()
 {
-	Gtk::Entry* entry_puerto1 = NULL;
-	Gtk::Entry* entry_puerto2 = NULL;
-	Gtk::FileChooserButton* chooser_dir;
-	builder->get_widget("eP1", entry_puerto1);
-	builder->get_widget("eP2", entry_puerto2);
-	builder->get_widget("dir", chooser_dir);
 	// Guarda ultima configuracion
 	ofstream output;
 	output.open(ARCH_PREFS_SERV);
@@ -94,42 +109,38 @@ void MonitorInterface::guardarPreferencias()
 		msg.run();
 	}
 	output.close();
-	mostrarDir();
 }
 
 void MonitorInterface::registrarUsuario()
 {
-	Gtk::Entry* entry_nombre = NULL;
-	Gtk::Entry* entry_pass = NULL;
-	builder->get_widget("eCreaUsNom", entry_nombre);
-	builder->get_widget("eCreaUsPass", entry_pass);
 	try
 	{
-		bd_usr->agregar_usuario(entry_nombre->get_text().c_str(), entry_pass->get_text().c_str());
-		bd_usr->guardar_a_disco();
-		Gtk::MessageDialog msg(*window, "Operacion exitosa.", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
+		bd_usr->agregar_usuario(entry_nombre_reg->get_text().c_str(), entry_pass_reg->get_text().c_str());
+		entry_nombre_reg->set_text("");
+		entry_pass_reg->set_text("");
+		Gtk::MessageDialog msg(*window, "Registro exitoso.", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
 		msg.run();
 	}
 	catch (exception &e)
 	{
 		Gtk::MessageDialog msg(*window, e.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE );
+		msg.run();
 	}
 }
 
 void MonitorInterface::borrarUsuario()
 {
-	Gtk::Entry* entry_nombre = NULL;
-	builder->get_widget("eCreaUsNom", entry_nombre);
 	try
 	{
-		bd_usr->eliminar_usuario(entry_nombre->get_text().c_str());
-		bd_usr->guardar_a_disco();
-		Gtk::MessageDialog msg(*window, "Operacion exitosa.", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
+		bd_usr->eliminar_usuario(entry_nombre_borr->get_text().c_str());
+		entry_nombre_borr->set_text("");
+		Gtk::MessageDialog msg(*window, "Borrado exitoso.", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
 		msg.run();
 	}
 	catch (exception &e)
 	{
 		Gtk::MessageDialog msg(*window, e.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE );
+		msg.run();
 	}
 }
 

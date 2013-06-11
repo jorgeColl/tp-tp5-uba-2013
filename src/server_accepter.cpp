@@ -1,8 +1,11 @@
 #include "server_accepter.h"
 #include "common_util.h"
+#include <sys/stat.h>	//mkdir
+#include "defines.h"
 
-Accepter::Accepter(const char* dir, const char* puerto1, const char* puerto2) :
-		base_datos_usu(dir), dir(dir), puerto1(puerto1), puerto2(puerto2), comunicadores() {}
+Accepter::Accepter(const string &dir, const string &puerto1, const string &puerto2) :
+		base_datos_usu(unirPath(dir,db_usu_arch)), dir(dir),
+		puerto1(puerto1), puerto2(puerto2), comunicadores() {}
 
 Accepter::~Accepter()
 {
@@ -13,13 +16,14 @@ Accepter::~Accepter()
 void Accepter::ejecutar()
 {
 	correr = true;
+	base_datos_usu.abrir();
 	sock_prot1.escuchar(puerto1.c_str(), MAX_COLA);
 	sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
 	while (correr)
 	{
 		bool exito = aceptar_conexion();
-		if (exito) cout << "Conexion exitosa desde un cliente" << endl;
-		else cout << "Conexion fallida desde un cliente" << endl;
+		if (exito) cout << "Conexion exitosa desde un cliente." << endl;
+		else cout << "Aceptacion de cliente fallida." << endl;
 	}
 }
 
@@ -57,8 +61,6 @@ bool Accepter::aceptar_conexion()
 	sock1.recibir_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
 	bool login_correcto = base_datos_usu.usuario_contrasenia_correcto
 			(usuario.c_str(), contrasenia.c_str());
-	// TODO: Eliminar cuando ande bien la base de datos_usu
-	login_correcto = true; // Por ahora acepto todos
 	if (!login_correcto)
 	{
 		cout << "Password incorrecta." << endl;
@@ -69,6 +71,8 @@ bool Accepter::aceptar_conexion()
 	else
 	{
 		cout << "Password correcta." << endl;
+		// Si la carpeta del usuario no existe la creo, sino esta llamada no hace nada
+		mkdir(unirPath(dir,usuario).c_str(), 0700);
 		// Si mensaje bueno creo el otro socket
 		sock1.enviar_flag(OK);
 		int fd_nuevo_2 = sock_prot2.aceptar();

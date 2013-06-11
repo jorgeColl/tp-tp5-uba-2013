@@ -1,21 +1,22 @@
 #include "common_base_de_datos_usuario.h"
 #include <iostream>
 using namespace std;
-BaseDeDatosUsuario::BaseDeDatosUsuario(const char* dir) {
-	this->dir = dir;
-}
+
+BaseDeDatosUsuario::BaseDeDatosUsuario(const string &path) : path(path) {}
+
 void BaseDeDatosUsuario::abrir() {
 	ifstream arch1;
-	arch1.open(dir, arch1.in |arch1.out);
-	if (!arch1.is_open()) {
+	arch1.open(path.c_str(), arch1.in |arch1.out);
+	if (!arch1.is_open())
+	{
 		arch1.close();		//throw std::ios_base::failure("El archivo no existe");
 		ofstream temp;
-		temp.open(dir);
+		temp.open(path.c_str());
 		temp.close();
 	}
 	arch1.close();
 	ifstream arch;
-	arch.open(dir, arch.in |arch.out);
+	arch.open(path.c_str(), arch.in |arch.out);
 	if (!arch.is_open()) {
 		throw std::ios_base::failure("El archivo no existe");
 	}
@@ -40,6 +41,12 @@ void BaseDeDatosUsuario::abrir() {
 		cout<<it->first<<" "<<it->second<<endl;
 	}*/
 }
+
+void BaseDeDatosUsuario::setPath(const string &path)
+{
+	this->path = path;
+}
+
 /**@brief Verifica si el usuario y contraseña ingresados pertenecen a un usuario de la base de datos */
 bool BaseDeDatosUsuario::usuario_contrasenia_correcto(const char* usu,
 		const char* contrasenia) {
@@ -76,7 +83,7 @@ void BaseDeDatosUsuario::eliminar_usuario(const char* usuario) {
 }
 void BaseDeDatosUsuario::guardar_a_disco() {
 	// lo meto en archivo
-	string dir_aux(dir);
+	string dir_aux(path.c_str());
 	dir_aux+=".temp";
 	ofstream archivo;
 	archivo.open(dir_aux.c_str());
@@ -96,7 +103,7 @@ void BaseDeDatosUsuario::guardar_a_disco() {
 	}
 
 	archivo.close();
-	int exito = rename(dir_aux.c_str(),dir);
+	int exito = rename(dir_aux.c_str(),path.c_str());
 	if (exito == -1) {
 		throw std::runtime_error(strerror(errno));
 	}

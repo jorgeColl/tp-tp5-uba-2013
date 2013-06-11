@@ -12,7 +12,7 @@ MonitorInterface::MonitorInterface()
 	builder->get_widget("dir", chooser_dir);
 	builder->get_widget("eCreaUsNom", entry_nombre_reg);
 	builder->get_widget("eCreaUsPass", entry_pass_reg);
-	builder->get_widget("eCreaUsNom", entry_nombre_borr);
+	builder->get_widget("eElimUsNom", entry_nombre_borr);
 	builder->get_widget("dbDir", db_dir);
 
 	builder->get_widget("bNuevoUsr", pBotNeuvUs);
@@ -133,6 +133,7 @@ void MonitorInterface::borrarUsuario()
 	try
 	{
 		bd_usr->eliminar_usuario(entry_nombre_borr->get_text().c_str());
+
 		entry_nombre_borr->set_text("");
 		Gtk::MessageDialog msg(*window, "Borrado exitoso.", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
 		msg.run();

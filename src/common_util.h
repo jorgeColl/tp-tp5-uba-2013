@@ -2,6 +2,7 @@
 #define COMMON_UTIL_H_
 
 #include <string>
+#include <stdint.h>	// uint64_t
 using namespace std;
 
 
@@ -24,6 +25,14 @@ bool esArchivo(const string &path);
  * @return True si existe
  */
 bool esArchivo(const string &dir, const string &nombre);
+
+/**
+ * @brief Devuelve el tam de un archivo en bytes
+ * @param dir Directorio del archivo
+ * @param nombre Nombre del archivo
+ * @return True si existe
+ */
+off_t tamArchivo(const string &dir, const string &nombre);
 
 /**
  * @brief Se fija si un nombre de archivo contiene caracteres especiales que lo hacen no apto para indexarse

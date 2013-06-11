@@ -4,14 +4,15 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-
+#include "common_util.h"
+#include "common_hashing.h"
 
 using namespace std;
 
 Controlador::Controlador() : dir(), sock1(), sock2(), conectado(false) {}
 
-Controlador::Controlador(const string &dir, int sockfd1, int sockfd2)
-	: dir(dir), sock1(sockfd1), sock2(sockfd2), conectado(false) {}
+Controlador::Controlador(const string &dir, int sockfd1, int sockfd2, const string &password)
+	: dir(dir), sock1(sockfd1), sock2(sockfd2), password(password), conectado(false) {}
 
 void Controlador::set_directorio(std::string dir){
         this->dir = dir;
@@ -89,15 +90,27 @@ bool Controlador::recibir_nuevo_archivo(const string &nombre_archivo)
 
 bool Controlador::enviar_edicion(Modificacion& mod)
 {
+	ifstream archivo;
+	base_de_datos.abrir_para_leer(mod.nombre_archivo, archivo);
+	off_t tam = tamArchivo(mod.nombre_archivo, dir);
+	off_t bloques = tam / TAM_BLOQ;
+	for (off_t i = 0; i < bloques; ++i)
+	{
+		string hash;
+		MD5_bloque(archivo, password, i*TAM_BLOQ, TAM_BLOQ, hash);
+	}
 	// Mando la cantidad de bloques del archivo
 	// Mando todos los hashes por bloques del archivo
 	// Espero que el servidor me mande la lista de bloques que necesita
 	// Envio esos bloques, en orden
+	archivo.close();
 	return true;
 }
 
 bool Controlador::pedir_edicion(std::string& nombre_archivo)
 {
+
+	sock1.enviar_flag(PEDIDO_HASHES_BLOQUES);
 	// Mando el flag
 	// Recibo la cantida de bloques
 	// Comparo

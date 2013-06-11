@@ -1,7 +1,7 @@
 #include "server_thread_communicator.h"
 
-ServerCommunicator::ServerCommunicator(const char* dir, int fd1, int fd2)
-	: Controlador(dir, fd1, fd2), Thread(), vinculados(NULL), base_de_datos(dir)
+ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, const string &password)
+	: Controlador(dir, fd1, fd2, password), Thread(), vinculados(NULL), base_de_datos(dir)
 {
 	base_de_datos.abrir(dir);
 }

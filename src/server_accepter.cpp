@@ -82,7 +82,7 @@ bool Accepter::aceptar_conexion()
 			return false;
 		}
 		ServerCommunicator* comu = new ServerCommunicator
-				(unirPath(dir, usuario).c_str(), fd_nuevo_1, fd_nuevo_2);
+				(unirPath(dir, usuario), fd_nuevo_1, fd_nuevo_2, contrasenia);
 		comunicadores[usuario].push_back(comu);
 		comu->setVinculados(&comunicadores[usuario]);
 		comu->start();

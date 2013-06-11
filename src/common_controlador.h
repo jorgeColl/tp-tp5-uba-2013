@@ -12,13 +12,14 @@ protected:
 	string dir;
 	SocketProt sock1;
 	SocketProt sock2;
+	string password;
 	BaseDeDatos base_de_datos;
 public:
 	bool conectado;
 
 	Controlador();
 
-	Controlador(const string &dir, int sockfd1, int sockfd2);
+	Controlador(const string &dir, int sockfd1, int sockfd2, const string &password);
 
 	/** @brief Setea el directorio en donde se guardan los archivos del usuario
 	 * OJO: usar antes del start()  */

@@ -1,7 +1,6 @@
 #include "common_hashing.h"
 #include "hashlib/hl_md5wrapper.h"
-
-#define HASH_TAM 16
+#include "defines.h"
 
 class md5wrapperRaw : public md5wrapper
 {
@@ -9,10 +8,10 @@ class md5wrapperRaw : public md5wrapper
 	virtual string hashIt()
 	{
 		// Crear el hash
-		unsigned char buff[HASH_TAM] = "";
+		unsigned char buff[BYTES_HASH] = "";
 		md5->MD5Final((unsigned char*)buff,&ctx);
 		// Devolver el string crudo, no en hex
-		return string((char*)buff, HASH_TAM);
+		return string((char*)buff, BYTES_HASH);
 	}
 };
 
@@ -36,8 +35,24 @@ string MD5_arch(const string &path_arch, const string &password)
 	return wrapper.getHashFromFile(path_arch);
 }
 
-bool MD5_bloques_arch(ifstream &arch, string &hash, size_t tamBloq)
+bool MD5_bloque(ifstream &arch, const string &password, off_t offset, off_t tamBloq, string &hash)
 {
+	arch.clear();
+	arch.seekg(offset);
+	MD5 md5;
+	HL_MD5_CTX ctx;
+	md5.MD5Init(&ctx);
+	unsigned char buffer[1024];
+	off_t leidos = 0;
+	while (leidos < tamBloq && arch.good())
+	{
+		arch.read((char*)buffer, 1024);
+		md5.MD5Update(&ctx, buffer, arch.gcount());
+		leidos += arch.gcount();
+	}
+	unsigned char digest[16];
+	md5.MD5Final(digest,&ctx);
+	hash = string((char*)digest, 16);
 	return false;
 }
 

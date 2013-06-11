@@ -19,7 +19,7 @@ class BaseDeDatosConMutex {
 public:
 	// TODAS estos metodos solo llaman al mutex del archivo antes de llamar a la
 	// verdadera base de datos
-	BaseDeDatosConMutex(const char* dir);
+	BaseDeDatosConMutex(const string &dir);
 
 	void abrir(const string &dir);
 

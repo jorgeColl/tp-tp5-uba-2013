@@ -120,10 +120,16 @@ public:
 	list<Modificacion> comprobar_cambios_locales();
 
 	/**
+	 * @brief Compara un archivo de indice y devuelve una lista de modificaciones
+	 * @return Lista con las modificaciones a realizar para el cliente
+	 */
+	list<Modificacion> comprobar_cambios_externos(istream &indiceFuente);
+
+	/**
 	 * @brief Compara el indice local con otro y devuelve las discrepancias
 	 * @return Lista con las modificaciones a realizar tras resolver los conflictos
 	 */
-	list<Modificacion> comparar_indices(iostream &otro);
+	list<Modificacion> comparar_indices(istream &otro);
 
 	/**
 	 * @brief Fusiona 2 listas de modificaciones de forma que queden resueltos los conflictos

@@ -28,15 +28,20 @@ void BaseDeDatos::abrir(const string &dir)
 	cargarARam();
 }
 
-list<Modificacion> BaseDeDatos::comparar_indices(iostream &otro)
+list<Modificacion> BaseDeDatos::comparar_indices(istream &otro)
 {
 	// Flashie cualquiera
 	// TODO: Hacerlo bien
-	/*IndiceRam indiceServer;
-	indiceServer.cargar(otro);
-	list<Modificacion> mod_serv = comprobar_cambios(indiceServer, false);
-	list<Modificacion> mod_cli = comprobar_cambios_locales();*/
+	list<Modificacion> mod_serv = comprobar_cambios_externos(otro);
+	list<Modificacion> mod_cli = comprobar_cambios_locales();
 
+	return list<Modificacion>();
+}
+
+list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente)
+{
+	IndiceRam indiceServer;
+	indiceServer.cargar(indiceFuente);
 	return list<Modificacion>();
 }
 
@@ -147,11 +152,7 @@ bool BaseDeDatos::abrir_para_leer(const string &nombre_archivo, ifstream &ifstre
 
 list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 {
-	return comprobar_cambios(indice, true);
-}
-
-list<Modificacion> BaseDeDatos::comprobar_cambios(IndiceRam &indice, bool es_local)
-{
+	bool es_local = true;
 	list<Modificacion> modifs;
 	// Me fijo si los archivos que tenia indexado siguen en la carpeta
 	list<string> archIndexados = indice.devolverNombres();

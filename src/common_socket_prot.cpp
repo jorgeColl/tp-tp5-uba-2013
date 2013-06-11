@@ -59,7 +59,7 @@ void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)
 	arch.seekg(offset);
 	char buffer[TAM_BUFFER];
 	off_t fin = len;
-	while (fin > 0)
+	while (fin > 0 && arch.good())
 	{
 		streamsize aEnviar = TAM_BUFFER;
 		if (fin < TAM_BUFFER) aEnviar = fin;
@@ -73,6 +73,7 @@ void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)
 
 void SocketProt::recibir_pedazo_archivo(ostream &arch, off_t offset, off_t len)
 {
+	arch.clear();
 	arch.seekp(offset);
 	streampos tam = len;
 	char buffer[TAM_BUFFER];

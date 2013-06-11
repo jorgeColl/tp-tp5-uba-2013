@@ -16,7 +16,7 @@ private:
 	list<ServerCommunicator*> *vinculados;
 	BaseDeDatosConMutex base_de_datos;
 public:
-	ServerCommunicator(const char* dir, int fd1, int fd2);
+	ServerCommunicator(const string &dir, int fd1, int fd2, const string &password);
 
 	/**
 	 * @brief Le asigna al comunicador una lista de vinculados para comunicar cambios

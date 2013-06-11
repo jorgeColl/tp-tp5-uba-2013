@@ -28,13 +28,14 @@ bool MD5_arch(const string &path_arch, const string &password, string &hash);
 string MD5_arch(const string &path_arch, const string &password);
 
 /**
- * @brief Devuelve el hash MD5 aplicado a cada bloque del archivo
+ * @brief Devuelve el hash MD5 aplicado a un "bloque" particular del archivo
  * @param arch Archivo que se leera
  * @param password String a usar para generar un hasheo unico. Usar "" para obtener hash default.
  * @param hash String donde se guardara el hash
+ * @param tamBloq Offset a utilizar antes de empezar a leer
  * @param tamBloq Longitud de los bloques a utilizar para hacer el calculo
  * @return True si el proceso fue exitoso, false de no serlo
  */
-bool MD5_bloques_arch(ifstream &arch, const string &password, size_t tamBloq, string &hash);
+bool MD5_bloque(ifstream &arch, const string &password, off_t offset, off_t tamBloq, string &hash);
 
 #endif /* COMMON_HASHING_H_ */

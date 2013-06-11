@@ -1,9 +1,7 @@
 #include "common_base_de_datos_con_mutex.h"
 
-BaseDeDatosConMutex::BaseDeDatosConMutex(const char* dir) :
-		smpt(ArchMutexcer::generar_archmutexcer(dir)) {
-	this->dir = dir;
-}
+BaseDeDatosConMutex::BaseDeDatosConMutex(const string &dir) :
+		smpt(ArchMutexcer::generar_archmutexcer(dir.c_str())), dir(dir) {}
 
 void BaseDeDatosConMutex::abrir(const string &dir){
 	Lock(this->mutx_indice);

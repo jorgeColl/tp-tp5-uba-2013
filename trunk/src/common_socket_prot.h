@@ -5,10 +5,9 @@
 #include <stdint.h>
 #include "common_socket.h"
 #include "common_modificacion.h"
+#include "defines.h"
 
 using namespace std;
-
-#define BYTES_USER_PASS 1
 
 enum PacketID {ZERO = 0, OK, YA_APLICADA, FAIL, LOGIN, LOGOUT, MODIFICACION, PEDIDO_ARCHIVO_ENTERO,
 	PEDIDO_ARCHIVO_PARTES, PEDIDO_HASHES_BLOQUES, PEDIDO_INDICE};

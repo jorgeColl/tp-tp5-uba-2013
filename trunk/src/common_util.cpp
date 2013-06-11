@@ -25,6 +25,13 @@ bool esIgnorable(const string &nombre)
 	return false;
 }
 
+off_t tamArchivo(const string &dir, const string &nombre)
+{
+	struct stat buf;
+	stat(unirPath(dir, nombre).c_str(), &buf);
+	return buf.st_size;
+}
+
 string unirPath(const string dir, const string nombre)
 {
 	string path(dir);

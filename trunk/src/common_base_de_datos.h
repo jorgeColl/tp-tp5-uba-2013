@@ -3,15 +3,12 @@
 
 #include <fstream>
 #include <vector>
-#include <stdint.h> 		//uint8_t
-#include <linux/limits.h>	//NAME_MAX
+#include <stdint.h> 		// Tipos de tam definido
 #include <list>
 #include "common_modificacion.h"
 #include "defines.h"
 
 using namespace std;
-
-// TODO: Separar en mas clases?
 
 /**
  * @class BaseDeDatos common_base_de_datos.h "common_base_de_datos.h"
@@ -175,7 +172,7 @@ private:
 			time_t modif;
 			off_t tam;
 			string hash;
-			uint32_t archOffset;
+			off_t archOffset;
 	};
 
 	/**

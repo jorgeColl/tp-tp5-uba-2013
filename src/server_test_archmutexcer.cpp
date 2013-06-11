@@ -1,4 +1,4 @@
-#define test_archmutexcer
+//#define test_archmutexcer
 #ifndef test_archmutexcer
 using namespace std;
 #include "common_arch_mutexcer.h"
@@ -12,7 +12,7 @@ using namespace std;
 int main() {
 	string dir("/home/jorge/workspace2/tp5 tallerg/lugar de pruebas");
 
-	cout<<"PRUEBA 1"<<endl;
+	/*cout<<"PRUEBA 1"<<endl;
 
 	cout<<"generando instancia"<<endl;
 	ArchMutexcer* archm = ArchMutexcer::generar_archmutexcer(dir.c_str());
@@ -32,7 +32,7 @@ int main() {
 	//Lock t2(*m);
 	}
 	delete archm;
-
+	*/
 	cout<<endl<<"PRUEBA 2"<<endl;
 	cout << "generando 2 instancias del mismo dir" << endl;
 	SmartP smpt1 (ArchMutexcer::generar_archmutexcer(dir.c_str()));
@@ -47,7 +47,7 @@ int main() {
 	cout<<"estado intero"<<endl;
 	cout<<smpt1.data();
 	string doc1 = dir+"doc1.txt";
-	Mutex* mutx = smpt1.data().get_mutex( "doc1.txt" );
+	Mutex* mutx = smpt1.data().get_mutex( "docdgdgd" );
 	if(mutx == NULL){
 		cout <<"FALLA: devolvio mutx NULL"<<endl;
 	}
@@ -55,8 +55,8 @@ int main() {
 
 	{
 	cout<<"aca se deberia trabar"<<endl;
-	//Lock l1 (*mutx);
-	Lock l2 (*mutx);
+	Lock l1 (*mutx);
+	//Lock l2 (*mutx);
 	cout<<"si estan lo dos esto no deveria aparecer"<<endl;
 	}
 

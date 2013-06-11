@@ -18,6 +18,8 @@ protected:
 	/**@brief devuelve el mutex correspondiente al nombre de archivo ingresado */
 	/**@brief devuelve la cantidad de "pseudoinstancias" que hay */
 	static size_t cant_instacias(ArchMutexcer* mutexcer);
+	void new_mutex(const char* dir_nuevo_archivo);
+	/**@brief elimina el mutex correspondiente a un archivo */
 public:
 	static Mutex mutex_clase;
 	static std::map <std::string,ArchMutexcer*> hijitos;
@@ -37,8 +39,7 @@ public:
 
 	Mutex* get_mutex (const char* dir_archivo);
 	/**@brief si se genera un nuevo archivo, se tiene que ingresarlo al sistema con este metodo */
-	void new_mutex(const char* dir_nuevo_archivo);
-	/**@brief elimina el mutex correspondiente a un archivo */
+
 	void delete_mutex(const char* dir_archivo_a_eliminar);
 	/**@brief devuelve true o false si el dir ingresado tiene un mutex asociado */
 	bool is_mutex(const char* dir_archivo);

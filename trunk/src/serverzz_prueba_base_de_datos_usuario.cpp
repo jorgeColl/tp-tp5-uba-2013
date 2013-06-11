@@ -1,5 +1,5 @@
 
-//#define prueba_de_base_de_datos_usuario
+#define prueba_de_base_de_datos_usuario
 #ifndef prueba_de_base_de_datos_usuario
 #include "common_base_de_datos_usuario.h"
 #include "common_modificacion.h"

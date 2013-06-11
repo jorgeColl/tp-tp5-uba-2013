@@ -26,11 +26,16 @@ bool esArchivo(const string &path);
 bool esArchivo(const string &dir, const string &nombre);
 
 /**
+ * @brief Se fija si un nombre de archivo contiene caracteres especiales que lo hacen no apto para indexarse
+ */
+bool esIgnorable(const string &nombre);
+
+/**
  * @brief Crea un path completo uniendo un path existente y un nombre de archivo
  * @param dir String con el path al directorio
  * @param nombre Nombre del archivo
  * @return String resultante
  */
-string unirPath(const string &dir, const string &nombre);
+string unirPath(const string dir, const string nombre);
 
 #endif /* COMMON_UTIL_H_ */

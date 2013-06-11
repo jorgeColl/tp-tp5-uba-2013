@@ -1,25 +1,34 @@
-/*
- * server_base_de_datos_usuario.h
- *
- *  Created on: 28/05/2013
- *      Author: jorge
- */
-
 #ifndef COMMON_BASE_DE_DATOS_USUARIO_H_
 #define COMMON_BASE_DE_DATOS_USUARIO_H_
+
 #include <fstream>
 #include <string>
 #include <map>
 #include <stdexcept> 	// Excepciones genericas
 #include <cerrno>
 #include <cstring>
+#include <string>
 
-/** en principio solo es un hash en ram*/
-class BaseDeDatosUsuario {
-	const char* dir;
+using namespace std;
+
+/**
+ * @class BaseDeDatosUsuario common_base_de_datos_usuario.h "common_base_de_datos_usuario.h"
+ * @brief Maneja los pares usuario:password para logearse y demas
+ * @details En principio solo es un hash en ram
+ */
+class BaseDeDatosUsuario
+{
+private:
+	string path;
 	std::map<std::string ,std::string> usu_contr;
 public:
-	BaseDeDatosUsuario(const char* dir);
+	/**
+	 * @brief Constructor
+	 * @param path Path al archivo a usarse
+	 */
+	BaseDeDatosUsuario(const string &path);
+	/**@brief cambia el archivo a abrir*/
+	void setPath(const string &path);
 	/**@brief abre y carga en memoria la base de datos de usuario y su respectiva contraseña */
 	void abrir();
 	/**@brief Verifica si el usuario y contraseña ingresados pertenecen a un usuario de la base de datos */

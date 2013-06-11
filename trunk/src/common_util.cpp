@@ -16,7 +16,16 @@ bool esArchivo(const string &dir, const string &nombre)
 	return (stat(path.c_str(), &buf) >= 0 && S_ISREG(buf.st_mode));
 }
 
-string unirPath(const string &dir, const string &nombre)
+bool esIgnorable(const string &nombre)
+{
+	if (nombre.length() == 0) return true;
+	if (nombre[0] == '.') return true;
+	if (nombre[0] == '~') return true;
+	if (nombre[nombre.length()-1] == '~') return true;
+	return false;
+}
+
+string unirPath(const string dir, const string nombre)
 {
 	string path(dir);
 	path += "/";

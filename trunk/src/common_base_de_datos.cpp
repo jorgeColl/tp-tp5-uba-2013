@@ -174,7 +174,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios(IndiceRam &indice, bool es_loc
 	while(dirEnt != NULL) // Mientras tenga archivos
 	{
 		string nombre(dirEnt->d_name);
-		if (nombre == "" || nombre[0] == '.') //Archivos a ignorar
+		if (esIgnorable(nombre)) //Archivos a ignorar
 		{
 			dirEnt = readdir(dir);
 			continue;

@@ -19,7 +19,7 @@ class Accepter: public Thread
 {
 private:
 	BaseDeDatosUsuario base_datos_usu;
-	const char* dir;
+	string dir;
 	string puerto1;
 	string puerto2;
 	map<string, list<ServerCommunicator*> > comunicadores;
@@ -39,7 +39,7 @@ public:
 	 * @param puerto1 Puerto a usar para conexiones y paso de datos
 	 * @param puerto2 Puerto a usar para notificaciones
 	 */
-	Accepter(const char* dir, const char* puerto1, const char* puerto2);
+	Accepter(const string &dir, const string &puerto1, const string &puerto2);
 
 	/** @brief Destructor. Cierra los sockets si quedaron abierto. */
 	~Accepter();

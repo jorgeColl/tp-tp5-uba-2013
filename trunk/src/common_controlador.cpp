@@ -102,8 +102,20 @@ bool Controlador::enviar_edicion(Modificacion& mod)
 		sock1.enviarLen(hash.c_str(), BYTES_HASH);
 	}
 	// Espero que el servidor me mande la lista de bloques que necesita
-
+	list<off_t> bloqMandar;
+	size_t numBloqMandar = 0;
+	sock1.recibirLen((char*)&numBloqMandar, sizeof(size_t));
+	for (size_t i = 0; i < numBloqMandar; ++i)
+	{
+		off_t numBloq = 0;
+		sock1.recibirLen((char*)&numBloq, sizeof(off_t));
+		bloqMandar.push_back(numBloq);
+	}
 	// Envio esos bloques, en orden
+	for(list<off_t>::iterator it = bloqMandar.begin(); it != bloqMandar.end(); ++it)
+	{
+		sock1.enviar_pedazo_archivo(archivo, *it*TAM_BLOQ, TAM_BLOQ);
+	}
 	archivo.close();
 	return true;
 }

@@ -42,11 +42,10 @@ void ArchMutexcer::construir_mutexs() {
 	}
 	struct dirent* dirEnt = readdir(direct);
 	while (dirEnt != NULL) {
-		string path = *dir;
-		path.append(dirEnt->d_name);
+		string path = unirPath(*dir,dirEnt->d_name);
 		//mutex_archivos[dirEnt->d_name] = new Mutex;
 
-		if (esArchivo(path)) {
+		if (esIgnorable(dirEnt->d_name) || !esArchivo(path)) {
 			dirEnt = readdir(direct); //Error, seguimos
 			continue;
 		}

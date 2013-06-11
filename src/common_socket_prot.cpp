@@ -54,39 +54,27 @@ void SocketProt::recibir_modif(Modificacion &modif)
 	recibir_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
 }
 
-void SocketProt::enviar_pedazo_archivo(istream &arch, size_t offset, size_t len)
+void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)
 {
-	return;
-}
-
-void SocketProt::recibir_pedazo_archivo(ostream &arch, size_t offset, size_t len)
-{
-	return;
-}
-
-void SocketProt::enviar_archivo(istream &arch)
-{
-	//TODO: Optimizar viendo como funciona el buffer interno de ifstream
-	arch.seekg(0,ios::end);
-	streampos fin = arch.tellg();
-	arch.seekg(0);
-	enviarLen((const char*) &fin, sizeof(streampos)); //Envio el prefijo de longitud
+	arch.seekg(offset);
 	char buffer[TAM_BUFFER];
+	off_t fin = len;
 	while (fin > 0)
 	{
 		streamsize aEnviar = TAM_BUFFER;
 		if (fin < TAM_BUFFER) aEnviar = fin;
 		arch.read(buffer, aEnviar);
-		enviarLen(buffer, aEnviar); //Envio el archivo
-		fin -= aEnviar;
+		streamsize leidos =  arch.gcount();
+		enviarLen(buffer, leidos); //Envio el archivo
+		fin -= leidos;
 	}
+	arch.clear();
 }
 
-void SocketProt::recibir_archivo(ostream &arch)
+void SocketProt::recibir_pedazo_archivo(ostream &arch, off_t offset, off_t len)
 {
-	//TODO: Optimizar viendo como funciona el buffer interno de ofstream
-	streampos tam = 0;
-	recibirLen((char*) &tam, sizeof(streampos));
+	arch.seekp(offset);
+	streampos tam = len;
 	char buffer[TAM_BUFFER];
 	while (tam > 0)
 	{
@@ -96,4 +84,22 @@ void SocketProt::recibir_archivo(ostream &arch)
 		arch.write(buffer, aRecibir);
 		tam -= aRecibir;
 	}
+}
+
+void SocketProt::enviar_archivo(istream &arch)
+{
+	//TODO: Optimizar viendo como funciona el buffer interno de ifstream
+	arch.seekg(0,ios::end);
+	streampos fin = arch.tellg();
+	arch.seekg(0);
+	enviarLen((const char*) &fin, sizeof(streampos)); //Envio el prefijo de longitud
+	enviar_pedazo_archivo(arch, 0, fin);
+}
+
+void SocketProt::recibir_archivo(ostream &arch)
+{
+	//TODO: Optimizar viendo como funciona el buffer interno de ofstream
+	streampos tam = 0;
+	recibirLen((char*) &tam, sizeof(streampos));
+	recibir_pedazo_archivo(arch, 0, tam);
 }

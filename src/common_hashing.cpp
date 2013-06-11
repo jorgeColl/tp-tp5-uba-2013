@@ -47,8 +47,9 @@ bool MD5_bloque(ifstream &arch, const string &password, off_t offset, off_t tamB
 	while (leidos < tamBloq && arch.good())
 	{
 		arch.read((char*)buffer, 1024);
-		md5.MD5Update(&ctx, buffer, arch.gcount());
-		leidos += arch.gcount();
+		streamsize recienLeidos = arch.gcount();
+		md5.MD5Update(&ctx, buffer, recienLeidos);
+		leidos += recienLeidos;
 	}
 	unsigned char digest[16];
 	md5.MD5Final(digest,&ctx);

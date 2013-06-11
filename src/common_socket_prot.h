@@ -66,7 +66,7 @@ public:
 	 * @param len Longitud del pedazo a enviar
 	 * @return True en caso de exito, false si falla
 	 */
-	void enviar_pedazo_archivo(istream &arch, size_t offset, size_t len);
+	void enviar_pedazo_archivo(istream &arch, off_t offset, off_t len);
 	/**
 	 * @brief Envia un archivo entero
 	 * @param arch Archivo a enviar
@@ -80,7 +80,7 @@ public:
 	 * @param len Longitud del pedazo a recibir
 	 * @return True en caso de exito, false si falla
 	 */
-	void recibir_pedazo_archivo(ostream &arch, size_t offset, size_t len);
+	void recibir_pedazo_archivo(ostream &arch, off_t offset, off_t len);
 	/**
 	 * @brief Recibe un archivo entero
 	 * @param arch Archivo a recibir

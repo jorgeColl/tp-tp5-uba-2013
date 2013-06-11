@@ -1,7 +1,7 @@
 #include "server_thread_communicator.h"
 
 ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, const string &password)
-	: Controlador(dir, fd1, fd2, password), Thread(), vinculados(NULL), base_de_datos(dir)
+	: Controlador(dir, fd1, fd2, password), Thread(), vinculados(NULL), smpt(dir)
 {
 	base_de_datos.abrir(dir);
 }
@@ -18,14 +18,17 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			ofstream destino;
 			exito = base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
 			sock1.recibir_archivo(destino);
-			base_de_datos.cerrar_archivo(mod.nombre_archivo, destino);
+			destino.close();
 			base_de_datos.registrar_nuevo(mod.nombre_archivo);
 			sock1.enviar_flag(OK);
 		}
 			break;
 		case BORRADO:
 			exito = base_de_datos.eliminar_archivo(mod.nombre_archivo);
-			if (exito) { sock1.enviar_flag(OK); }
+			if (exito) {
+				base_de_datos.registrar_eliminado(mod.nombre_archivo);
+				sock1.enviar_flag(OK);
+			}
 			else { sock1.enviar_flag(FAIL); }
 			break;
 		case EDITADO:
@@ -96,8 +99,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 					ifstream arch;
 					base_de_datos.abrir_para_leer(nombre, arch);
 					sock1.enviar_archivo(arch);
-					//arch.close();
-					base_de_datos.cerrar_archivo(nombre,arch);
+					arch.close();
 				}
 				break;
 		case(PEDIDO_ARCHIVO_PARTES):
@@ -113,7 +115,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 					ifstream archIndice;
 					base_de_datos.abrir_para_leer(nomb,archIndice);
 					sock1.enviar_archivo(archIndice);
-					base_de_datos.cerrar_archivo(nomb,archIndice);
+					archIndice.close();
 				}
 				break;
 		default:

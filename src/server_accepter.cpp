@@ -4,7 +4,7 @@
 #include "defines.h"
 
 Accepter::Accepter(const string &dir, const string &puerto1, const string &puerto2) :
-		base_datos_usu(unirPath(dir,db_usu_arch)), dir(dir),
+		base_datos_usu(unirPath(dir,DB_USU_ARCH)), dir(dir),
 		puerto1(puerto1), puerto2(puerto2), comunicadores() {}
 
 Accepter::~Accepter()

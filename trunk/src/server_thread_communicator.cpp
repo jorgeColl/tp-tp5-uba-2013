@@ -11,21 +11,30 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 	// TODO: Fijarse si ya esta aplicada/es vieja y emitir YA_ESTA si es el caso
 	sock1.enviar_flag(OK);
 	bool exito = false;
+
+	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
+	Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
+
 	switch(mod.accion)
 	{
 		case NUEVO:
 		{
 			ofstream destino;
 			exito = base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
-			sock1.recibir_archivo(destino);
-			destino.close();
-			base_de_datos.registrar_nuevo(mod.nombre_archivo);
-			sock1.enviar_flag(OK);
+			if(exito){
+				destino.close();
+				Lock(this->mutex_ind);
+				base_de_datos.registrar_nuevo(mod.nombre_archivo);
+				sock1.enviar_flag(OK);
+				sock1.recibir_archivo(destino);
+			}
+
 		}
 			break;
 		case BORRADO:
 			exito = base_de_datos.eliminar_archivo(mod.nombre_archivo);
 			if (exito) {
+				Lock(this->mutex_ind);
 				base_de_datos.registrar_eliminado(mod.nombre_archivo);
 				sock1.enviar_flag(OK);
 			}
@@ -58,17 +67,25 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			{
 				//escribo uno o el otro
 			}
+			Lock(this->mutex_ind);
 			base_de_datos.registrar_modificado(mod.nombre_archivo);
 		}
 			break;
 		case RENOMBRADO:
 			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);
-			if (exito) { sock1.enviar_flag(OK); }
+			if (exito) {
+				Lock(this->mutex_ind);
+				base_de_datos.registrar_renombrado(mod.nombre_archivo_alt, mod.nombre_archivo);
+				sock1.enviar_flag(OK);
+			}
 			else { sock1.enviar_flag(FAIL); }
 			break;
 		case COPIADO:
 			exito = base_de_datos.copiar(mod.nombre_archivo_alt, mod.nombre_archivo);
-			if (exito){ sock1.enviar_flag(OK); }
+			if (exito){
+				Lock(this->mutex_ind);
+				base_de_datos.registrar_copiado(mod.nombre_archivo_alt,mod.nombre_archivo);
+				sock1.enviar_flag(OK); }
 			else { sock1.enviar_flag(FAIL); }
 			break;
 		default: // Ignoro si llega otra cosa
@@ -96,6 +113,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				{
 					string nombre;
 					sock1.recibir_msg_c_prefijo(nombre, 1);
+					Lock(*smpt.data().get_mutex(nombre.c_str()));
 					ifstream arch;
 					base_de_datos.abrir_para_leer(nombre, arch);
 					sock1.enviar_archivo(arch);
@@ -113,6 +131,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				{
 					string nomb(NOMBRE_ARCH_IND);
 					ifstream archIndice;
+					Lock(this->mutex_ind);
 					base_de_datos.abrir_para_leer(nomb,archIndice);
 					sock1.enviar_archivo(archIndice);
 					archIndice.close();

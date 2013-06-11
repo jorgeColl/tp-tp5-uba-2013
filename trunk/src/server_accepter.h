@@ -14,6 +14,7 @@
 #include "common_mutex.h"
 
 #define MAX_COLA 100
+#define CONEXCIONES_ACEPTADAS_PARA_BORRAR_MUERTOS 1
 
 class Accepter: public Thread
 {
@@ -27,6 +28,7 @@ private:
 	SocketProt sock_prot2;
 	Mutex mutex;
 
+	void limpiar_procesos_terminados();
 	/**
 	 * @brief Metodo a llamar internamente al correr el thread
 	 */

@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include "common_mutex.h"
+#include <string>
 #include <iostream>
 class ArchMutexcer {
 	std::string* dir;
@@ -56,6 +57,7 @@ std::ostream& operator<<(std::ostream& os, ArchMutexcer& archm);
 class SmartP  {
 	ArchMutexcer* mu;
 public:
+	SmartP(const std::string& dir);
 	SmartP(ArchMutexcer* mutx);
 	ArchMutexcer& data ();
 	~SmartP();

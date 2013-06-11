@@ -15,7 +15,8 @@ private:
 	void procesar_flag(PacketID flag);
 	list<ServerCommunicator*> *vinculados;
 	BaseDeDatos base_de_datos;
-	//SmartP smpt;
+	SmartP smpt;
+	Mutex mutex_ind;
 public:
 	ServerCommunicator(const string &dir, int fd1, int fd2, const string &password);
 

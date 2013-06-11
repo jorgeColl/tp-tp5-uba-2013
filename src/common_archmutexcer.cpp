@@ -62,10 +62,10 @@ void ArchMutexcer::construir_mutexs() {
 Mutex* ArchMutexcer::get_mutex(const char* dir_archivo) {
 	Lock(this->mutex_loc);
 
-	if((*mutex_archivos).count(dir_archivo) == 0) {
+	/*if((*mutex_archivos).count(dir_archivo) == 0) {
 		cout<<"ArchMutexcer: dir no encontrado, no puedo devolver mutex";
 		return NULL;
-	}
+	}*/
 	return (*mutex_archivos)[dir_archivo];
 }
 void ArchMutexcer::new_mutex(const char* dir_nuevo_archivo) {
@@ -130,6 +130,9 @@ ostream& operator<<(std::ostream& os, ArchMutexcer& archm) {
 		os<<it->first<<endl;
 	}
 	return os;
+}
+SmartP::SmartP(const std::string& dir) {
+	mu = ArchMutexcer::generar_archmutexcer(dir.c_str());
 }
 
 SmartP::SmartP(ArchMutexcer* mutx){

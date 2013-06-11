@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <cstring>	// Memcpy
 #include "common_util.h"
 #include "common_hashing.h"
 
@@ -92,8 +93,11 @@ bool Controlador::enviar_edicion(Modificacion& mod)
 {
 	ifstream archivo;
 	base_de_datos.abrir_para_leer(mod.nombre_archivo, archivo);
-	off_t tam = tamArchivo(mod.nombre_archivo, dir);
+	archivo.seekg(0, ios::end);
+	off_t tam = archivo.tellg();
+	archivo.seekg(0);
 	off_t bloques = tam / TAM_BLOQ;
+	if (tam % TAM_BLOQ != 0) ++bloques;
 	sock1.enviarLen((char*)&bloques, sizeof(off_t)); // Mando la cantidad de bloques del archivo
 	for (off_t i = 0; i < bloques; ++i) // Mando todos los hashes por bloques del archivo
 	{
@@ -117,6 +121,11 @@ bool Controlador::enviar_edicion(Modificacion& mod)
 		sock1.enviar_pedazo_archivo(archivo, *it*TAM_BLOQ, TAM_BLOQ);
 	}
 	archivo.close();
+
+	PacketID flag;
+	sock1.recibir_flag(flag);
+	if (flag != OK) return false;
+	base_de_datos.registrar_modificado(mod.nombre_archivo);
 	return true;
 }
 

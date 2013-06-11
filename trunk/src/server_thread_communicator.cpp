@@ -1,5 +1,6 @@
 #include "server_thread_communicator.h"
 #include "common_hashing.h"
+#include <cstring>
 
 ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, const string &password)
 	: Controlador(dir, fd1, fd2, password), Thread(), vinculados(NULL), smpt(dir)
@@ -61,10 +62,11 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 				if (hashLocal != hashRecibido) bloqPedir.push_back(i);
 			}
 			//Envio la lista
-			sock1.enviarLen((char*)bloqPedir.size(), sizeof(size_t)); // Prefijo de longitud
+			size_t tam = bloqPedir.size();
+			sock1.enviarLen((char*)&tam, sizeof(size_t)); // Prefijo de longitud
 			for(list<off_t>::iterator it = bloqPedir.begin(); it != bloqPedir.end(); ++it)
 			{
-				sock1.enviarLen((char*)*it, sizeof(off_t));
+				sock1.enviarLen((char*)&(*it), sizeof(off_t));
 			}
 			// Hacemos el "mechado" entre los dos archivos con lo que vamos recibiendo
 			char buffer[TAM_BLOQ];
@@ -186,7 +188,7 @@ void ServerCommunicator::ejecutar()
 		catch (exception &e)
 		{
 			correr = false;
-			cout << "Se perdio la conexion con el cliente" << endl;
+			cout << "Se perdio la conexion con el cliente:" << e.what() << endl;
 		}
 	}
 }

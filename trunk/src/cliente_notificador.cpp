@@ -9,8 +9,8 @@ void ClienteNotificador::ejecutar()
 	while (correr && socketConectado)
 	{
 		Modificacion modif;
-		socketConectado = socket.recibir_modif(modif);
-		if (socketConectado) cout << "Recibida notificacion: " << modif << endl;
+		socket.recibir_modif(modif);
+		cout << "Recibida notificacion: " << modif << endl;
 		aNotificar->AplicarNotificacion(modif);
 	}
 }

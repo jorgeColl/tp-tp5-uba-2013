@@ -21,7 +21,6 @@ private:
 	size_t delay_polling;
 	ClienteNotificador notificador;
 	Mutex mutexCambios;
-
 	/**
 	 * @brief Pide al servidor su indice y lo compara con los archivos locales y con el indice local
 	 * @return Modificaciones que deberian aplicarse para estar sincronizado con el servidor y ademas pasarle los nuevos cambios
@@ -36,7 +35,7 @@ public:
 	ClienteControlador();
 	/**
 	 * @brief IntentarÃ¡ iniciar sesion con el usuario y contraseÃ±a ingresados, en el servidor y los puertos indicados
-	 * @details Se comunicarÃ  con el servidor y este le responderÃ¡ si el usuario y contraseÃ±a son correctos
+	 * @details Se comunicara  con el servidor y este le responderÃ¡ si el usuario y password son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
 	void login(string server, string puerto1, string puerto2,string usuario,

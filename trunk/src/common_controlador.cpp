@@ -50,21 +50,13 @@ bool Controlador::renombrar_archivo(const string &nombre_archivo, const string &
 	return true;
 }
 
-/**
- * @brief Metodo a utilizar para pedir y recibir un archivo del servidor y agregarlo al indice
- * @param mod Moficacion
- * @return
- */
 bool Controlador::pedir_nuevo_archivo(string& nombre_archivo){
 	// Manda mensaje a server pidiendo que transmita archivo
 	// Le dice a base de datos que guarde al nuevo archivo
 	sock1.enviar_flag(PEDIDO_ARCHIVO_ENTERO);
 	sock1.enviar_msg_c_prefijo(nombre_archivo, 1);
-	cout << "bien" << endl;
 	recibir_nuevo_archivo(nombre_archivo);
-	cout << "bien2" << endl;
 	base_de_datos.registrar_nuevo(nombre_archivo);
-	cout << "bien3" << endl;
 	return true;
 }
 
@@ -95,18 +87,21 @@ bool Controlador::recibir_nuevo_archivo(const string &nombre_archivo)
 	return true;
 }
 
-bool Controlador::modificar_archivo(std::string& nombre_archivo){
-	// le indica a la base de datos que modifique el archivo
-	// falta definir parametros de modificacion
+bool Controlador::enviar_edicion(Modificacion& mod)
+{
+	// Mando la cantidad de bloques del archivo
+	// Mando todos los hashes por bloques del archivo
+	// Espero que el servidor me mande la lista de bloques que necesita
+	// Envio esos bloques, en orden
 	return true;
 }
 
-bool Controlador::enviar_edicion(Modificacion& mod){
-	//TODO : Terminar
-	return true;
-}
-
-bool Controlador::pedir_edicion(std::string& nombre_archivo){
+bool Controlador::pedir_edicion(std::string& nombre_archivo)
+{
+	// Mando el flag
+	// Recibo la cantida de bloques
+	// Comparo
+	// Creo un archivo temporario
 	// falta definir
 	return true;
 }

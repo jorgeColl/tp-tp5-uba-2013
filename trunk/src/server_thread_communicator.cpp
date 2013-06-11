@@ -8,7 +8,7 @@ ServerCommunicator::ServerCommunicator(const char* dir, int fd1, int fd2)
 
 void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 {
-	// TODO: Fijarse si ya esta aplicada y emitir YA_ESTA si es el caso
+	// TODO: Fijarse si ya esta aplicada/es vieja y emitir YA_ESTA si es el caso
 	sock1.enviar_flag(OK);
 	bool exito = false;
 	switch(mod.accion)
@@ -18,11 +18,9 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			ofstream destino;
 			exito = base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
 			sock1.recibir_archivo(destino);
-			//destino.close();
 			base_de_datos.cerrar_archivo(mod.nombre_archivo, destino);
 			base_de_datos.registrar_nuevo(mod.nombre_archivo);
 			sock1.enviar_flag(OK);
-
 			}
 			break;
 		case BORRADO:
@@ -91,16 +89,28 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 	}
 }
 
-void ServerCommunicator::ejecutar() {
+void ServerCommunicator::ejecutar()
+{
 	// Se comunica con el cliente
-	bool coneccion = true;
 	PacketID flag = ZERO;
-	while(coneccion && correr)
+	while(correr)
 	{
-		coneccion = sock1.recibir_flag(flag);
-		procesar_flag(flag);
+		try
+		{
+			sock1.recibir_flag(flag);
+			if (flag == LOGOUT)
+			{
+				correr = false;
+				cout << "Cliente cerro sesion" << endl;
+			}
+			else procesar_flag(flag);
+		}
+		catch (exception &e)
+		{
+			correr = false;
+			cout << "Se perdio la conexion con el cliente" << endl;
+		}
 	}
-	Lock temp (mutex); // Que hace esto aca???????
 }
 
 void ServerCommunicator::setVinculados(list<ServerCommunicator*> *vinc)

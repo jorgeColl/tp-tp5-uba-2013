@@ -55,12 +55,12 @@ class Socket
 		 * @brief Envia hasta que logre enviarse len
 		 * @return True si pudo enviarse, false en otro caso
 		 */
-		bool enviarLen(const char* msg, size_t len);
+		void enviarLen(const char* msg, size_t len);
 		/**
 		 * @brief Recibe hasta que logre recibirse len. El "sobrante" si existe queda en este socket
 		 * @return True si pudo recibirse, false en otro caso
 		 */
-		bool recibirLen(char *msg, size_t len);
+		void recibirLen(char *msg, size_t len);
 		/**
 		 * @var int sockfd
 		 * @brief socket file descriptor asociado

@@ -12,8 +12,8 @@
 #include "common_util.h"
 class BaseDeDatosConMutex {
 	BaseDeDatos base_de_datos;
-	std::string dir;
 	SmartP smpt;
+	std::string dir;
 	Mutex mutx_indice;
 	map<string, Mutex*> mutexs_en_actividad;
 public:

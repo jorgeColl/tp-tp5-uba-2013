@@ -29,8 +29,32 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			else { sock1.enviar_flag(FAIL); }
 			break;
 		case EDITADO:
-			//TODO: Implementar
-			cout << "Esto aun no esta implementado" << endl;
+			/*{
+			ofstream destino;
+			// Aca faltan cosas de la base de datos con mutexes loco
+			exito = base_de_datos.base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, destino);
+			off_t bloques;
+			sock1.recibirLen((char*)&bloques, sizeof(off_t));
+			list<off_t> bloqPedir;
+			for (off_t i = 0; i < bloques; ++i) // Reviso todos los hashes que me llegan
+			{
+				char buffer[BYTES_HASH];
+				sock1.recibirLen(buffer, sizeof(off_t));
+
+			}
+			//Envio la lista
+			sock1.enviarLen((char*)bloqPedir.size(), sizeof(size_t));
+			for(list<off_t>::iterator it = bloqPedir.begin(); it != bloqPedir.end(); ++it)
+			{
+				sock1.enviarLen((char*)*it, sizeof(off_t));
+			}
+			ifstream original;
+			for(list<off_t>::iterator it = bloqPedir.begin(); it != bloqPedir.end(); ++it)
+			{
+				sock1.enviarLen((char*)*it, sizeof(off_t));
+			}
+			base_de_datos.base_de_datos.registrar_modificado(mod.nombre_archivo);
+			}*/
 			break;
 		case RENOMBRADO:
 			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);

@@ -94,14 +94,15 @@ bool Controlador::enviar_edicion(Modificacion& mod)
 	base_de_datos.abrir_para_leer(mod.nombre_archivo, archivo);
 	off_t tam = tamArchivo(mod.nombre_archivo, dir);
 	off_t bloques = tam / TAM_BLOQ;
-	for (off_t i = 0; i < bloques; ++i)
+	sock1.enviarLen((char*)&bloques, sizeof(off_t)); // Mando la cantidad de bloques del archivo
+	for (off_t i = 0; i < bloques; ++i) // Mando todos los hashes por bloques del archivo
 	{
 		string hash;
 		MD5_bloque(archivo, password, i*TAM_BLOQ, TAM_BLOQ, hash);
+		sock1.enviarLen(hash.c_str(), BYTES_HASH);
 	}
-	// Mando la cantidad de bloques del archivo
-	// Mando todos los hashes por bloques del archivo
 	// Espero que el servidor me mande la lista de bloques que necesita
+
 	// Envio esos bloques, en orden
 	archivo.close();
 	return true;

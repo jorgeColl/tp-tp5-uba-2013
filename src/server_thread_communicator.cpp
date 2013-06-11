@@ -14,14 +14,14 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 	switch(mod.accion)
 	{
 		case NUEVO:
-			{
+		{
 			ofstream destino;
 			exito = base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
 			sock1.recibir_archivo(destino);
 			base_de_datos.cerrar_archivo(mod.nombre_archivo, destino);
 			base_de_datos.registrar_nuevo(mod.nombre_archivo);
 			sock1.enviar_flag(OK);
-			}
+		}
 			break;
 		case BORRADO:
 			exito = base_de_datos.eliminar_archivo(mod.nombre_archivo);
@@ -29,10 +29,10 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			else { sock1.enviar_flag(FAIL); }
 			break;
 		case EDITADO:
-			/*{
+		{
 			ofstream destino;
 			// Aca faltan cosas de la base de datos con mutexes loco
-			exito = base_de_datos.base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, destino);
+			base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, destino);
 			off_t bloques;
 			sock1.recibirLen((char*)&bloques, sizeof(off_t));
 			list<off_t> bloqPedir;
@@ -48,13 +48,15 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			{
 				sock1.enviarLen((char*)*it, sizeof(off_t));
 			}
+			// Hacemos el "mechado" entre los dos archivos
 			ifstream original;
-			for(list<off_t>::iterator it = bloqPedir.begin(); it != bloqPedir.end(); ++it)
+			base_de_datos.abrir_para_leer(mod.nombre_archivo, original);
+			for(size_t i = 0; i < bloques; ++i)
 			{
-				sock1.enviarLen((char*)*it, sizeof(off_t));
+				//escribo uno o el otro
 			}
-			base_de_datos.base_de_datos.registrar_modificado(mod.nombre_archivo);
-			}*/
+			base_de_datos.registrar_modificado(mod.nombre_archivo);
+		}
 			break;
 		case RENOMBRADO:
 			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);
@@ -106,6 +108,13 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				break;
 		case(PEDIDO_INDICE):
 				// Devuelve el indice
+				{
+					string nomb(NOMBRE_ARCH_IND);
+					ifstream archIndice;
+					base_de_datos.abrir_para_leer(nomb,archIndice);
+					sock1.enviar_archivo(archIndice);
+					base_de_datos.cerrar_archivo(nomb,archIndice);
+				}
 				break;
 		default:
 				// Otros casos no deberian llegar nunca "sueltos", se ignoran

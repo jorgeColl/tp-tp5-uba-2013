@@ -61,7 +61,9 @@ void ArchMutexcer::construir_mutexs() {
 }
 Mutex* ArchMutexcer::get_mutex(const char* dir_archivo) {
 	Lock(this->mutex_loc);
-
+	if (!is_mutex(dir_archivo)){
+		new_mutex(dir_archivo);
+	}
 	/*if((*mutex_archivos).count(dir_archivo) == 0) {
 		cout<<"ArchMutexcer: dir no encontrado, no puedo devolver mutex";
 		return NULL;
@@ -69,7 +71,6 @@ Mutex* ArchMutexcer::get_mutex(const char* dir_archivo) {
 	return (*mutex_archivos)[dir_archivo];
 }
 void ArchMutexcer::new_mutex(const char* dir_nuevo_archivo) {
-	Lock(this->mutex_loc);
 	if(mutex_archivos->count(dir_nuevo_archivo) == 1){
 		throw ios_base::failure("Se trata de crear un nuevo mutex para un archivo que ya tiene un mutex asociado");
 	}

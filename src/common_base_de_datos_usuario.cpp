@@ -5,7 +5,17 @@ BaseDeDatosUsuario::BaseDeDatosUsuario(const char* dir) {
 	this->dir = dir;
 }
 void BaseDeDatosUsuario::abrir() {
-	fstream arch;
+	ifstream arch1;
+	arch1.open(dir, arch1.in |arch1.out);
+	if (!arch1.is_open()) {
+		arch1.close();
+		//throw std::ios_base::failure("El archivo no existe");
+		ofstream temp;
+		temp.open(dir);
+		temp.close();
+	}
+	arch1.close();
+	ifstream arch;
 	arch.open(dir, arch.in |arch.out);
 	if (!arch.is_open()) {
 		throw std::ios_base::failure("El archivo no existe");

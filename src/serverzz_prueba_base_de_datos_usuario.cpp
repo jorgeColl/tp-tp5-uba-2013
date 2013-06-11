@@ -1,12 +1,13 @@
 
-#define prueba_de_base_de_datos_usuario
+//#define prueba_de_base_de_datos_usuario
 #ifndef prueba_de_base_de_datos_usuario
-#include "server_base_de_datos_usuario.h"
+#include "common_base_de_datos_usuario.h"
 #include "common_modificacion.h"
 #include <iostream>
 using namespace std;
 int main(int args, char** argv){
 	BaseDeDatosUsuario Bdd("/home/jorge/workspace2/tp5 tallerg/src/base_de_datos_usuario");
+	//Bdd.abrir();
 	// !los nombres sin espacios!!
 	Bdd.agregar_usuario("pepito","xlanoche");
 	Bdd.agregar_usuario("juanadearco", "tengounarcho");

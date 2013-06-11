@@ -100,7 +100,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);
 			if (exito) {
 				//Lock(this->mutex_ind);
-				base_de_datos.registrar_renombrado(mod.nombre_archivo_alt, mod.nombre_archivo);
+				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
 				sock1.enviar_flag(OK);
 			}
 			else { sock1.enviar_flag(FAIL); }
@@ -109,11 +109,11 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			exito = base_de_datos.copiar(mod.nombre_archivo_alt, mod.nombre_archivo);
 			if (exito){
 				//Lock(this->mutex_ind);
-				base_de_datos.registrar_copiado(mod.nombre_archivo_alt,mod.nombre_archivo);
+				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
 				sock1.enviar_flag(OK); }
 			else { sock1.enviar_flag(FAIL); }
 			break;
-		default: // Ignoro si llega otra cosa
+		default: // Igstnoro si llega otra cosa
 			break;
 	}
 	if (exito) notificar_todos(mod);

@@ -6,7 +6,8 @@
 #include "cliente_controlador.h"
 using namespace std;
 
-ClienteControlador::ClienteControlador() : Controlador(),delay_polling(POLLING_DEFAULT),notificador(this) {}
+ClienteControlador::ClienteControlador() : Controlador(),delay_polling(POLLING_DEFAULT),
+		notificador(this) {}
 
 void ClienteControlador::login(string server, string puerto1, string puerto2,
 		string usuario, string contrasenia, string polling)
@@ -15,23 +16,19 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 	try
 	{
 		delay_polling = atoi(polling.c_str());
-		bool exito;
 		base_de_datos.abrir(dir);
 		cout << "Intentado conectarse" << endl;
 		//Estos tiran excepciones dependiendo que falle
 		sock1.conectar(server.c_str(), puerto1.c_str());
-		exito = sock1.enviar_flag(LOGIN);
-		if (!exito) throw runtime_error("Error al enviar el flag.");
-		exito = sock1.enviar_msg_c_prefijo(usuario, BYTES_USER_PASS);
-		if (!exito) throw runtime_error("Error al enviar el usuario.");
-		exito = sock1.enviar_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
-		if (!exito) throw runtime_error("Error al enviar la password.");
+		sock1.enviar_flag(LOGIN);
+		sock1.enviar_msg_c_prefijo(usuario, BYTES_USER_PASS);
+		sock1.enviar_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
 		PacketID login;
-		exito = sock1.recibir_flag(login);
+		sock1.recibir_flag(login);
 		if(login != OK) throw runtime_error("Los datos de login son incorrectos.");
 		notificador.conectar(server.c_str(),puerto2.c_str());
 		conectado = true;
-		cout << "Conexion exitosa." << login << endl;
+		cout << "Conexion exitosa." << endl;
 	}
 	catch(runtime_error &e) //Cierro los sockets y propago
 	{

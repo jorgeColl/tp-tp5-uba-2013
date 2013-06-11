@@ -13,8 +13,8 @@ protected:
 	SocketProt sock1;
 	SocketProt sock2;
 	BaseDeDatos base_de_datos;
-	bool conectado;
 public:
+	bool conectado;
 
 	Controlador();
 
@@ -75,10 +75,6 @@ public:
 	 * @return True si la operacion fue un exito, caso contrario false
 	 */
 	bool recibir_nuevo_archivo(const string &nombre_archivo);
-
-	/**@brief pide a la base de datos que modifique a un archvio
-	 */
-	bool modificar_archivo(std::string& nombre_archivo);
 
 	/**@brief envia un mensaje al server con los datos necesarios para realizar la
 	 *  edicion del archivo ingresado

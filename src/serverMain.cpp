@@ -15,9 +15,9 @@ void cargar(string &dir, string &puerto1, string &puerto2)
 	ifstream arch(ARCH_PREFS_SERV);
 	if (arch.is_open())
 	{
-		arch >> dir;
 		arch >> puerto1;
 		arch >> puerto2;
+		arch >> dir;
 	}
 	else
 	{

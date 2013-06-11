@@ -63,10 +63,20 @@ int Socket::aceptar()
 
 int Socket::enviar(void *msg, size_t len)
 {
-	return send(sockfd, msg, len, 0);
+	int val = send(sockfd, msg, len, 0);
+	if (val == -1) throw std::runtime_error(strerror(errno));
+	return val;
 }
 
-bool Socket::enviarLen(const char *msg, size_t len)
+int Socket::recibir(void *msg, size_t len)
+{
+	int val = recv(sockfd, msg, len, 0);
+	if (val == -1) throw std::runtime_error(strerror(errno));
+	if (val == 0) throw std::runtime_error("Conexion perdida.");
+	return val;
+}
+
+void Socket::enviarLen(const char *msg, size_t len)
 {
 	//TODO: Teastear con gran cantidad de datos
 	size_t totalEnviados = 0;
@@ -74,18 +84,11 @@ bool Socket::enviarLen(const char *msg, size_t len)
 	{
 		//Por cada envio vamos corriendo el puntero y reduciendo la cantidad
 		int enviados = enviar((void*)(msg+totalEnviados), len-totalEnviados);
-		if (enviados == -1) return false;
 		totalEnviados += enviados;
 	}
-	return true;
 }
 
-int Socket::recibir(void *msg, size_t len)
-{
-	return recv(sockfd, msg, len, 0);
-}
-
-bool Socket::recibirLen(char *msg, size_t len)
+void Socket::recibirLen(char *msg, size_t len)
 {
 	//TODO: Teastear con gran cantidad de datos
 	size_t totalRecibidos = 0;
@@ -93,10 +96,8 @@ bool Socket::recibirLen(char *msg, size_t len)
 	{
 		// Por cada envio vamos corriendo el puntero y reduciendo la cantidad
 		int recibidos = recibir(msg+totalRecibidos, len-totalRecibidos);
-		if (recibidos <= 0) return false; // Recibe da 0 si se cayo la conexion ademas
 		totalRecibidos += recibidos;
 	}
-	return true;
 }
 
 void Socket::cerrar()

@@ -3,6 +3,7 @@
 #include <sstream>
 #include <gtkmm.h>
 #include <glibmm.h>
+#include <stdexcept>
 
 ClientInterface::ClientInterface()
 {
@@ -10,28 +11,22 @@ ClientInterface::ClientInterface()
 	builder->get_widget("winClient", window);
 	window->signal_hide().connect(sigc::mem_fun(this,&ClientInterface::cerrar));
 	//window->signal_delete_event().connect(sigc::mem_fun(this,&ClientInterface::cerrar));
+	builder->get_widget("bConex", logBot);
+	logBot->signal_clicked().connect(sigc::mem_fun(this,&ClientInterface::login));
+	builder->get_widget("chkGuardar", check);
+	builder->get_widget("eUser", entry_user);
+	builder->get_widget("ePass", entry_password);
+	builder->get_widget("eServ", entry_server);
+	builder->get_widget("ePort1", entry_puerto1);
+	builder->get_widget("ePort2", entry_puerto2);
+	builder->get_widget("ePoll", entry_int_polling);
+	builder->get_widget("eDir", chooser);
 
-	Gtk::Button* pButton = 0;
-	builder->get_widget("bConex", pButton);
-	if(pButton)
-	{
-	  pButton->signal_clicked().connect(sigc::mem_fun(this,&ClientInterface::login));
-	}
 	cargarPreferencias();
 }
 
 void ClientInterface::cargarPreferencias()
 {
-	Gtk::Entry* entry_server = NULL;
-	Gtk::Entry* entry_puerto1 = NULL;
-	Gtk::Entry* entry_puerto2 = NULL;
-	Gtk::Entry* entry_intrevalo_polling = NULL;
-	Gtk::FileChooserButton* chooser = NULL;
-	builder->get_widget("eServ", entry_server);
-	builder->get_widget("ePort1", entry_puerto1);
-	builder->get_widget("ePort2", entry_puerto2);
-	builder->get_widget("ePoll", entry_intrevalo_polling);
-	builder->get_widget("eDir", chooser);
 	// Leo del archivo, si no existe lo creo, si no se puede, cargo de un stringstream
 	istream *stream;
 	stringstream alternativa;
@@ -61,7 +56,7 @@ void ClientInterface::cargarPreferencias()
 	entry_puerto2->set_text(buffer);
 	// Intervalo de polling
 	*stream >> buffer;
-	entry_intrevalo_polling->set_text(buffer);
+	entry_int_polling->set_text(buffer);
 	// Directorio
 	*stream >> buffer;
 	chooser->set_current_folder(buffer);
@@ -76,20 +71,8 @@ void ClientInterface::correr()
 void ClientInterface::cerrar()
 {
 	// No hago nada si no esta marcado el boton
-	Gtk::CheckButton* check = NULL;
-	builder->get_widget("chkGuardar", check);
 	if (!check->get_active()) return;
 
-	Gtk::Entry* entry_server = NULL;
-	Gtk::Entry* entry_puerto1 = NULL;
-	Gtk::Entry* entry_puerto2 = NULL;
-	Gtk::Entry* entry_int_polling = NULL;
-	Gtk::FileChooserButton* chooser;
-	builder->get_widget("eServ", entry_server);
-	builder->get_widget("ePort1", entry_puerto1);
-	builder->get_widget("ePort2", entry_puerto2);
-	builder->get_widget("ePoll", entry_int_polling);
-	builder->get_widget("eDir", chooser);
 	// Guarda ultima configuracion
 	ofstream input;
 	input.open(ARCH_PREFS_CLI);
@@ -106,27 +89,12 @@ void ClientInterface::cerrar()
 
 void ClientInterface::login()
 {
-	Gtk::Entry* entry_user = NULL;
-	Gtk::Entry* entry_password = NULL;
-	Gtk::Entry* entry_server = NULL;
-	Gtk::Entry* entry_puerto1 = NULL;
-	Gtk::Entry* entry_puerto2 = NULL;
-	Gtk::Entry* entry_int_polling = NULL;
-	Gtk::FileChooserButton* chooser;
-
-	builder->get_widget("eUser", entry_user);
 	std::cout << "Usuario: " << entry_user->get_text() << std::endl;
-	builder->get_widget("ePass", entry_password);
 	// No imprimo la password por pantalla porque es "secreta"
-	builder->get_widget("eServ", entry_server);
 	std::cout << "Server: " << entry_server->get_text() << std::endl;
-	builder->get_widget("ePort1", entry_puerto1);
 	std::cout << "Puerto 1: " << entry_puerto1->get_text() << std::endl;
-	builder->get_widget("ePort2", entry_puerto2);
 	std::cout << "Puerto 2: " << entry_puerto2->get_text() << std::endl;
-	builder->get_widget("ePoll", entry_int_polling);
 	std::cout << "Polling: " << entry_int_polling->get_text() << std::endl;
-	builder->get_widget("eDir", chooser);
 	std::cout << "Carpeta: " << chooser->get_current_folder() << std::endl;
 
 	// Intenta loguearse
@@ -140,6 +108,7 @@ void ClientInterface::login()
 		builder->get_widget("lConex", logged);
 		logged->set_text("Conectado");
 		cli.start();
+		// TODO: Ver como atrapar la desconeccion
 	}
 	catch (exception &e)
 	{
@@ -150,6 +119,5 @@ void ClientInterface::login()
 		builder->get_widget("lConex", logged);
 		logged->set_text("No conectado");
 	}
-
 
 }

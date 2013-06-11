@@ -25,9 +25,6 @@ public:
 	 */
 	void correr();
 private:
-	Gtk::Dialog* window;
-	Glib::RefPtr<Gtk::Builder> builder;
-	ClienteControlador cli;
 	/**
 	 * @brief Carga las preferencias del archivo de preferencias
 	 */
@@ -40,6 +37,19 @@ private:
 	 * @brief Metodo a llamar al cerrarse la aplicacion
 	 */
 	void cerrar();
+
+	Gtk::Dialog* window;
+	Glib::RefPtr<Gtk::Builder> builder;
+	ClienteControlador cli;
+	Gtk::Entry* entry_user;
+	Gtk::Entry* entry_password;
+	Gtk::Entry* entry_server;
+	Gtk::Entry* entry_puerto1;
+	Gtk::Entry* entry_puerto2;
+	Gtk::Entry* entry_int_polling;
+	Gtk::FileChooserButton* chooser;
+	Gtk::CheckButton* check;
+	Gtk::Button* logBot;
 };
 
 #endif /* CLIENTINTERFACE_H_ */

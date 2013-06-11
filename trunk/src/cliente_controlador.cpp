@@ -15,6 +15,9 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 	if (conectado) throw runtime_error("El cliente ya esta corriendo."); // Nunca deberia darse
 	try
 	{
+		base_de_datos.cerrar();
+		sock1.cerrar();
+		sock2.cerrar();
 		delay_polling = atoi(polling.c_str());
 		base_de_datos.abrir(dir);
 		cout << "Intentado conectarse" << endl;
@@ -32,6 +35,7 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 	}
 	catch(runtime_error &e) //Cierro los sockets y propago
 	{
+		base_de_datos.cerrar();
 		sock1.cerrar();
 		sock2.cerrar();
 		throw e;

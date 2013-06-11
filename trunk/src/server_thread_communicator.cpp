@@ -44,7 +44,6 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			break;
 		case EDITADO:
 		{
-			cout << "pas1" << endl;
 			ofstream destino;
 			base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, destino);
 			ifstream original;

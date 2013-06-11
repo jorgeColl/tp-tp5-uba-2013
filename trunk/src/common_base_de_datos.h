@@ -27,6 +27,11 @@ public:
 	 */
 	void abrir(const string &dir);
 
+	/**
+	 * @brief Cierra el archivo asociado si no estaba abierto.
+	 */
+	void cerrar();
+
 	//----- Modificacion de archivos en el directorio
 
 	/**

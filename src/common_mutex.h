@@ -15,15 +15,19 @@ class Mutex
 	  Mutex();
 	  ~Mutex();
 	  friend class Lock;
-	//private:
+	  Mutex (const Mutex &otroMutex);
+	  /**@brief Pone al mutex a esperar una senial */
+	  void wait();
+	  /**@brief Pasa la senial a otro thread que este esperando */
+	  void signal();
+	  /**@brief Pasa la senial a todos los threads que esten esperando */
+	  void broadcast();
+	  /**@brief Lockea el mutex o espera que se libere si ya estaba lockeado */
+	  void lock();
+	  /**@brief Libera el mutex */
+	  void unlock();
 	  pthread_mutex_t mutex;
 	  pthread_cond_t conditionVariable;
-	  Mutex (const Mutex &otroMutex);
-	  void wait();
-	  void signal();
-	  void broadcast();
-	  void lock();
-	  void unlock();
 };
 
 /**
@@ -35,8 +39,11 @@ class Lock
 	public:
 	  Lock(Mutex &mutex);
 	  ~Lock();
+	  /**@brief Pone al mutex a esperar una senial */
 	  void wait();
+	  /**@brief Pasa la senial a otro thread que este esperando */
 	  void signal();
+	  /**@brief Lockea el mutex o espera que se libere si ya estaba lockeado */
 	  void broadcast();
 	private:
 	  Mutex &mutex;

@@ -28,6 +28,11 @@ void BaseDeDatos::abrir(const string &dir)
 	cargarARam();
 }
 
+void BaseDeDatos::cerrar()
+{
+	archivo.close();
+}
+
 list<Modificacion> BaseDeDatos::comparar_indices(istream &otro)
 {
 	// Flashie cualquiera

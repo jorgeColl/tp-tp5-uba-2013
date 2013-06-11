@@ -40,7 +40,7 @@ void MonitorInterface::cargarDB()
 {
 	try
 	{
-		bd_usr->setPath(unirPath(chooser_dir->get_current_folder(),DB_USU_ARCH));
+		bd_usr->setPath(unirPath(db_dir->get_current_folder(),DB_USU_ARCH));
 		bd_usr->abrir();
 		Gtk::MessageDialog msg(*window, "Se ha abierto la base de datos.", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
 		msg.run();

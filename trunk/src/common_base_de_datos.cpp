@@ -16,7 +16,7 @@
 void BaseDeDatos::abrir(const string &dir)
 {
 	directorio += dir;
-	pathArchivo = unirPath(dir, NOMBRE_ARCH_DEF);
+	pathArchivo = unirPath(dir, NOMBRE_ARCH_IND);
 	archivo.open(pathArchivo.c_str(), ios::in | ios::out | ios::binary);
 	if (!archivo.is_open())
 	{

@@ -23,6 +23,7 @@ public:
 	 */
 	virtual void stop();
 	virtual ~Thread();
+	bool correr;
 protected:
 	/**
 	 * @brief Funcion que sera llamada internamente para correr el thread
@@ -33,7 +34,7 @@ protected:
 	 */
 	static void* llamada(void* thread);
 	pthread_t thread;
-	bool correr;
+
 };
 
 

@@ -12,17 +12,49 @@ Accepter::~Accepter()
 	sock_prot1.cerrar();
 	sock_prot2.cerrar();
 }
+void Accepter::limpiar_procesos_terminados()
+{
+	vector<string>a_eliminar_en_map;
+	map<string, list<ServerCommunicator*> >::iterator it;
+	for(it = comunicadores.begin(); it!= comunicadores.end();it++){
+		vector<ServerCommunicator*> a_eliminar;
+		list<ServerCommunicator*>::iterator seg_it;
+		for(seg_it = it->second.begin(); seg_it!= it->second.end(); seg_it++){
+			if ((*seg_it)->correr == false){
+				a_eliminar.push_back((*seg_it));
+			}
+		}
+		for (size_t i=0;i<a_eliminar.size();++i) {
+			list<ServerCommunicator*>::iterator ter_it;
+			it->second.remove(a_eliminar[i]);
+			delete(a_eliminar[i]);
+		}
+		if(it->second.size() == 0){
+			a_eliminar_en_map.push_back(it->first);
+		}
+	}
+	for(size_t j=0;j<a_eliminar_en_map.size();++j){
+		comunicadores.erase(a_eliminar_en_map[j]);
+	}
 
+}
 void Accepter::ejecutar()
 {
 	correr = true;
 	base_datos_usu.abrir();
 	sock_prot1.escuchar(puerto1.c_str(), MAX_COLA);
 	sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
+	size_t contador = 0;
 	while (correr)
 	{
 		bool exito = aceptar_conexion();
-		if (exito) cout << "Conexion exitosa desde un cliente." << endl;
+		if (exito){
+			contador++;
+			if(contador >= CONEXCIONES_ACEPTADAS_PARA_BORRAR_MUERTOS){
+				limpiar_procesos_terminados();
+			}
+			cout << "Conexion exitosa desde un cliente." << endl;
+		}
 		else cout << "Aceptacion de cliente fallida." << endl;
 	}
 }

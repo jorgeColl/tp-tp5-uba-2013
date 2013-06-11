@@ -54,8 +54,6 @@ void ArchMutexcer::construir_mutexs() {
 		cout<<"ArchMutexcer::construir_mutexs(): encontre nuevo archivo "<<dirEnt->d_name<<endl;
 		Mutex* mu = new Mutex();
 		(*this->mutex_archivos)[dirEnt->d_name] = mu;
-		//string pepe = dirEnt->d_name;
-		//mutex_archivos->insert(pair<string,Mutex*>(pepe,mu));
 
 		dirEnt = readdir(direct);
 	}

@@ -28,7 +28,9 @@ void cargarPrefs(string &dir, string &puerto1, string &puerto2)
 	{
 		arch >> puerto1;
 		arch >> puerto2;
-		arch >> dir;
+		//arch >> dir;
+		arch.get();
+		getline(arch,dir);
 	}
 	else
 	{

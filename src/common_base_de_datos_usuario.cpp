@@ -18,7 +18,9 @@ void BaseDeDatosUsuario::abrir() {
 	ifstream arch;
 	arch.open(path.c_str(), arch.in |arch.out);
 	if (!arch.is_open()) {
-		throw std::ios_base::failure("El archivo no existe");
+		string falla = "BBD usuario: El archivo no existe dir: ";
+		falla += path;
+		throw std::ios_base::failure(falla.c_str());
 	}
 	string usu;
 	string contr;
@@ -73,7 +75,7 @@ void BaseDeDatosUsuario::agregar_usuario(const char* usuario,
 void BaseDeDatosUsuario::eliminar_usuario(const char* usuario) {
 	string usu(usuario);
 	if (usu_contr.count(usu) == 0) {
-		throw std::ios_base::failure("El usuario que queres borrar no existe");
+		throw std::ios_base::failure("El usuario que se intenta borrar no existe");
 	}
 	usu_contr.erase(usu);
 	/*arch.open(dir, arch.in | arch.out);
@@ -88,7 +90,9 @@ void BaseDeDatosUsuario::guardar_a_disco() {
 	ofstream archivo;
 	archivo.open(dir_aux.c_str());
 	if (!archivo.is_open()) {
-		throw std::ios_base::failure("El archivo no existe");
+		string falla = "BBD usuario: El archivo no existe dir: ";
+		falla += path;
+		throw std::ios_base::failure(falla.c_str());
 	}
 	std::map<string,string>::iterator it;
 	string usuario;

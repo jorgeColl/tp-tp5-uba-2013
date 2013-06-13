@@ -6,6 +6,7 @@ ClienteNotificador::ClienteNotificador(ClienteControlador* aNotificar) : aNotifi
 void ClienteNotificador::ejecutar()
 {
 	bool socketConectado = true;
+	correr = true;
 	while (correr && socketConectado)
 	{
 		Modificacion modif;

@@ -63,6 +63,7 @@ void ClienteControlador::AplicarNotificacion(Modificacion &modif)
 void ClienteControlador::ejecutar()
 {
 	bool exito;
+	correr = true;
 	//Comentado temporalmente para testear hasta que este terminado
 	/*
 	cout << "Ejecutando sincronizacion inicial" << endl;

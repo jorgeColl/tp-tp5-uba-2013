@@ -10,13 +10,13 @@ SocketProt::SocketProt (int socketfd) : Socket(socketfd) {}
 
 void SocketProt::enviar_flag(const PacketID flag)
 {
-	enviar((void*) &flag, 1);
+	enviarLen((char*) &flag, 1);
 }
 
 void SocketProt::recibir_flag(PacketID &flag)
 {
 	flag = ZERO;
-	recibir(&flag, 1);
+	recibirLen((char*)&flag, 1);
 }
 
 void SocketProt::enviar_msg_c_prefijo(const string &msg, uint8_t bytes_para_prefijo)
@@ -32,11 +32,11 @@ void SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 	recibirLen(buffer1, bytes_para_prefijo);
 	size_t tam = 0;
 	memcpy(&tam, buffer1, bytes_para_prefijo); // Copio bytes del char[] al size_t
-	delete buffer1;
+	delete []buffer1;
 	char* buffer2 = new char[tam];
 	recibirLen(buffer2, tam); // Recibo los bytes
 	msg.append(buffer2, tam);  // Append de los bytes
-	delete buffer2;
+	delete []buffer2;
 }
 
 void SocketProt::enviar_modif(const Modificacion &modif)

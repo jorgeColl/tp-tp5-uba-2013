@@ -312,6 +312,10 @@ void BaseDeDatos::registrar_copiado(const string &nombre_nuevo, const string &no
 	registrar_nuevo_fis(copia);
 }
 
+bool BaseDeDatos::estaIndexado(const string &nombre_archivo){
+	return indice.buscarNombre(nombre_archivo) != NULL;
+}
+
 //----- Metodos privados
 
 void BaseDeDatos::cargarARam()

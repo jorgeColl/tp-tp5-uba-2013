@@ -58,7 +58,9 @@ void ClientInterface::cargarPreferencias()
 	*stream >> buffer;
 	entry_int_polling->set_text(buffer);
 	// Directorio
-	*stream >> buffer;
+	//*stream >> buffer;
+	stream->get();
+	getline(*stream,buffer);
 	chooser->set_current_folder(buffer);
 	arch.close();
 }

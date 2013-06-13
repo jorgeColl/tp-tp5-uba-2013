@@ -116,6 +116,11 @@ public:
 	 */
 	void registrar_copiado(const string &nombre_nuevo, const string &nombre_viejo);
 
+	/**
+	 * @brief devuelve true si el archivo esta registrado en el indice
+	 */
+	bool estaIndexado(const string &nombre_archivo);
+
 	//----- Operaciones pertinentes al indice y registro de cambios
 
 	/**

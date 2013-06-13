@@ -10,13 +10,37 @@ ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, cons
 
 void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 {
+	switch(mod.accion)
+		{
+			case NUEVO:
+				if (base_de_datos.estaIndexado(mod.nombre_archivo)){
+					sock1.enviar_flag(YA_APLICADA);
+				return;
+				}
+				break;
+			case BORRADO:
+				if (!base_de_datos.estaIndexado(mod.nombre_archivo)){
+					sock1.enviar_flag(YA_APLICADA);
+				return;
+				}
+				break;
+			default:break;
+		}
 	// TODO: Fijarse si ya esta aplicada/es vieja y emitir YA_ESTA si es el caso
+	cout<<"enviando flag OK"<<endl;
 	sock1.enviar_flag(OK);
+	cout<<"flag enviado :)"<<endl;
 	bool exito = false;
+	cout<<"antes lock"<<endl;
 
-	//Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
-	//Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
+	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
+	Lock* lock = 0;
+	if(mod.nombre_archivo_alt ==""){
+		lock = new Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
+	}
+	Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
 
+	cout<<"despues lock"<<endl;
 	switch(mod.accion)
 	{
 		case NUEVO:
@@ -116,11 +140,21 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		default: // Igstnoro si llega otra cosa
 			break;
 	}
-	if (exito) notificar_todos(mod);
+	if (exito){
+		cout<<"notificando otros clientes de la modificacion"<<endl;
+		notificar_todos(mod);
+	}else{
+		cout<<"modificacion SIN exito , NO se notifica al resto"<<endl;
+	}
+	cout << "fin procesado"<<endl;
+	if(mod.nombre_archivo_alt ==""){
+		delete lock;
+	}
 }
 
 void ServerCommunicator::procesar_flag(PacketID flag)
 {
+	cout<<"procesando flag"<<endl;
 	switch(flag)
 	{
 		case(LOGOUT):
@@ -128,6 +162,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				break;
 		case(MODIFICACION):
 				{
+				cout<<"Flag es MODIFICACION"<<endl;
 				Modificacion mod;
 				sock1.recibir_modif(mod); // Recibe mod
 				cout << mod << endl;
@@ -136,9 +171,10 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				break;
 		case(PEDIDO_ARCHIVO_ENTERO):
 				{
+					cout<<"flag es PEDIDO_ARCHIVO_ENTERO"<<endl;
 					string nombre;
 					sock1.recibir_msg_c_prefijo(nombre, 1);
-					//Lock(*smpt.data().get_mutex(nombre.c_str()));
+					Lock(*smpt.data().get_mutex(nombre.c_str()));
 					ifstream arch;
 					base_de_datos.abrir_para_leer(nombre, arch);
 					sock1.enviar_archivo(arch);
@@ -154,6 +190,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 		case(PEDIDO_INDICE):
 				// Devuelve el indice
 				{
+					cout<<"flag es PEDIDO_INDICE"<<endl;
 					string nomb(NOMBRE_ARCH_IND);
 					ifstream archIndice;
 					//Lock(this->mutex_ind);
@@ -163,6 +200,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				}
 				break;
 		default:
+				cout<<"ALERTA !!! flag no identificado recibido !!!!!"<<endl;
 				// Otros casos no deberian llegar nunca "sueltos", se ignoran
 				break;
 	}
@@ -177,6 +215,7 @@ void ServerCommunicator::ejecutar()
 		try
 		{
 			sock1.recibir_flag(flag);
+			cout<<"cliente envio mensaje"<<endl;
 			if (flag == LOGOUT)
 			{
 				correr = false;

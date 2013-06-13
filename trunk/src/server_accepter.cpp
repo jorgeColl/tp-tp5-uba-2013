@@ -52,6 +52,7 @@ void Accepter::ejecutar()
 			contador++;
 			if(contador >= CONEXCIONES_ACEPTADAS_PARA_BORRAR_MUERTOS){
 				limpiar_procesos_terminados();
+				cout << "se realizo borrado de muertos"<<endl;
 			}
 			cout << "Conexion exitosa desde un cliente." << endl;
 		}
@@ -70,6 +71,7 @@ void Accepter::stop()
 			(*itL)->stop();
 		}
 	}
+	cout<<"cerrando conexion"<<endl;
 	sock_prot1.cerrar();
 	sock_prot2.cerrar();
 	// JOIN DE los ServerCommunicator

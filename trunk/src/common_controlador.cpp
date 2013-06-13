@@ -145,18 +145,37 @@ bool Controlador::aplicar_modificacion(Modificacion& mod)
 {
 	if (mod.es_local) // Si es local tengo que comunicarle al servidor del cambio
 	{
+		cout<<"LOCAL"<<endl;
+		cout<<"enviando flag MODIFICACION "<<endl;
 		sock1.enviar_flag(MODIFICACION);
+		cout<<"enviando modificacion"<<endl;
 		sock1.enviar_modif(mod);
 		PacketID flag;
+		cout<<"recibiendo flag"<<endl;
 		sock1.recibir_flag(flag);
-		if (flag == YA_APLICADA) return true;
+		cout<<"flag recibido"<<endl;
+		if (flag == YA_APLICADA) {
+			switch (mod.accion)
+			{
+			case NUEVO:
+				base_de_datos.registrar_nuevo(mod.nombre_archivo);
+				return true;
+			case BORRADO:
+				base_de_datos.registrar_eliminado(mod.nombre_archivo);
+				return true;
+			default:
+				return false;
+			}
+			return true;
+		}
 		if (flag != OK) return false; // Algo fallo?
 	}
 	switch (mod.accion)
 	{
 		case NUEVO:
-			if (mod.es_local) return enviar_nuevo_archivo(mod.nombre_archivo);
-			else return pedir_nuevo_archivo(mod.nombre_archivo);
+			cout<<"NUEVO"<<endl;
+			if (mod.es_local) { return enviar_nuevo_archivo(mod.nombre_archivo); }
+			else { return pedir_nuevo_archivo(mod.nombre_archivo); }
 		case EDITADO:
 			if (mod.es_local) return enviar_edicion(mod);
 			else return pedir_edicion(mod.nombre_archivo);
@@ -192,6 +211,7 @@ bool Controlador::aplicar_modificacion(Modificacion& mod)
 			}
 			else return copiar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
 		default: // En realidad no existen otros casos
+			cout<<"ALERT !!!! modificacion desconocida!!"<<endl;
 			return true;
 	}
 	return false;

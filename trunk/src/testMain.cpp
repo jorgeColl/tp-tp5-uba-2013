@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 		//cout << "Crear dir: " << mkdir("./testDir",0777) << endl; //Permisos depende de umask
 		BaseDeDatos db;
 		db.abrir("./testDir1");
-		//while (true)
+		while (true)
 		{
 			cout << "Comprobado" << endl;
 			list<Modificacion> modifs = db.comprobar_cambios_locales();

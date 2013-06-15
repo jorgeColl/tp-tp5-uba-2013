@@ -279,8 +279,10 @@ void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 {
 	//Busco el registro y lo elimino de ram y del fisico
-	RegistroIndice *reg = indice.buscarNombre(nombre_archivo);
-	registrar_eliminado_fis(*reg); // Primero borro del fisico porque sino hay problemas de mem
+	RegistroIndice *reg = 0;
+	reg = indice.buscarNombre(nombre_archivo);
+	if (!reg) return;
+	registrar_eliminado_fis(*reg); // Primero borro del fisico porque sino hay problemas por borrar reg
 	indice.eliminar(*reg);
 }
 
@@ -308,8 +310,8 @@ void BaseDeDatos::registrar_copiado(const string &nombre_nuevo, const string &no
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
 	RegistroIndice copia(*reg);
 	copia.nombre = nombre_nuevo;
+	registrar_nuevo_fis(copia); // En este orden asi obtengo el offset correcto
 	indice.agregar(copia);
-	registrar_nuevo_fis(copia);
 }
 
 bool BaseDeDatos::estaIndexado(const string &nombre_archivo){
@@ -336,7 +338,7 @@ void BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
 void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 {
 	// Eliminado logico. Sumo 1 debido a los prefijos.
-	archivo.seekp(reg.archOffset);
+	archivo.seekp(reg.archOffset, ios::beg);
 	size_t tam = RegistroIndice::tamReg(reg.nombre.size()) + BYTES_PREF_NOMBRE;
 	char *zeros = new char[tam]();
 	archivo.write(zeros, tam);

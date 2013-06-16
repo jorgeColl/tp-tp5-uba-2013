@@ -1,5 +1,7 @@
 #include "common_thread.h"
 
+Thread::Thread() : correr(false) {}
+
 void Thread::start()
 {
 	int rc = pthread_create(&thread, NULL, llamada, (void*) this);

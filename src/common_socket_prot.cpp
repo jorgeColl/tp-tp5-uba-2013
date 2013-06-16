@@ -62,7 +62,6 @@ void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)
 	off_t finArch = arch.tellg();
 	off_t fin = len;
 	if (offset+len > finArch) fin = finArch-offset;
-	cout << "aleer: " << fin << endl;
 	enviarLen((char*)&fin, sizeof(off_t));
 	arch.clear();
 	arch.seekg(offset, ios::beg);
@@ -116,9 +115,11 @@ void SocketProt::recibir_archivo(ostream &arch)
 
 void SocketProt::enviar_edicion(istream &arch)
 {
+	arch.clear();
 	arch.seekg(0, ios::end);
 	off_t tam = arch.tellg();
 	arch.seekg(0);
+	arch.clear();
 	off_t bloques = tam / TAM_BLOQ;
 	if (tam % TAM_BLOQ != 0) ++bloques;
 	enviarLen((char*)&bloques, sizeof(off_t)); // Mando la cantidad de bloques del archivo
@@ -141,7 +142,7 @@ void SocketProt::enviar_edicion(istream &arch)
 	// Envio esos bloques, en orden
 	for(list<off_t>::iterator it = bloqMandar.begin(); it != bloqMandar.end(); ++it)
 	{
-		cout << "Enviando bloque" << *it << endl;
+		cout << "Enviando bloque: " << *it << endl;
 		enviar_pedazo_archivo(arch, *it*TAM_BLOQ, TAM_BLOQ);
 	}
 }
@@ -150,9 +151,11 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 {
 	off_t bloques = 0;
 	recibirLen((char*)&bloques, sizeof(off_t));
+	cout << "Bloques:" << bloques << endl;
 	list<off_t> bloqPedir;
 	for (off_t i = 0; i < bloques; ++i) // Reviso todos los hashes que me llegan
 	{
+		cout << "Revisando hash:" << i << endl;
 		char buffer[BYTES_HASH];
 		recibirLen(buffer, BYTES_HASH);
 		string hashRecibido(buffer, BYTES_HASH);
@@ -162,6 +165,7 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 	}
 	//Envio la lista
 	size_t tam = bloqPedir.size();
+	cout << "Numero de bloques a pedir:" << tam << endl;
 	enviarLen((char*)&tam, sizeof(size_t)); // Prefijo de longitud
 	for(list<off_t>::iterator it = bloqPedir.begin(); it != bloqPedir.end(); ++it)
 	{
@@ -171,13 +175,13 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 	char buffer[TAM_BLOQ];
 	for(off_t i = 0; i < bloques; ++i)
 	{
-		cout << "I: " << i << endl;
+		cout << "A escribir bloque: " << i << endl;
 		off_t bloqNoLocal = -1;
 		if (!bloqPedir.empty())	bloqNoLocal = bloqPedir.front();
 		if (bloqNoLocal == i) // Si estamos en el bloque del archivo que me lleog por socket
 		{
 			// Copio lo que me llega por el socket
-			cout << "Recibiendo bloque" << i << endl;
+			cout << "Recibiendo bloque: " << i << endl;
 			recibir_pedazo_archivo(arch_temp, i*TAM_BLOQ);
 			bloqPedir.pop_front(); // Quito el bloque de la lista
 		}

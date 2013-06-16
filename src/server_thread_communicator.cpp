@@ -140,11 +140,10 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				}
 				break;
 		case(PEDIDO_ARCHIVO_EDICIONES):
-				// Devuelve "partes" de un archivo
 				{
 					cout<<"Flag es PEDIDO_ARCHIVO_EDICIONES"<<endl;
 					string nombre;
-					sock1.recibir_msg_c_prefijo(nombre, 1);
+					sock1.recibir_msg_c_prefijo(nombre, BYTES_PREF_NOMBRE);
 					Lock(*smpt.data().get_mutex(nombre.c_str()));
 					ifstream arch;
 					base_de_datos.abrir_para_leer(nombre, arch);
@@ -184,7 +183,7 @@ void ServerCommunicator::ejecutar()
 			if (flag == LOGOUT)
 			{
 				correr = false;
-				cout << "Cliente cerro sesion" << endl;
+				cout << "Cliente cerro sesion." << endl;
 			}
 			else procesar_flag(flag);
 		}

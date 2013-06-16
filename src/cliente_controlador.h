@@ -48,10 +48,6 @@ public:
 	 */
 	void AplicarNotificacion(Modificacion &modif);
 
-	/**
-	 * @brief Le pide gentilmente que pare
-	 */
-	void stop();
 };
 
 #endif /* CLIENTE_H_ */

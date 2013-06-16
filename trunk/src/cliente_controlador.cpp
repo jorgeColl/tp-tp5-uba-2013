@@ -45,6 +45,7 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 list<Modificacion> ClienteControlador::pedir_y_comparar_indices()
 {
 	sock1.enviar_flag(PEDIDO_INDICE);
+	// Lo recibo en ram pues lo voy a desechar tras comparar y es chico
 	stringstream idxServ;
 	sock1.recibir_archivo(idxServ);
 	list<Modificacion> modifs = base_de_datos.comparar_indices(idxServ);
@@ -65,16 +66,14 @@ void ClienteControlador::ejecutar()
 	bool exito;
 	correr = true;
 	//Comentado temporalmente para testear hasta que este terminado
-	/*
 	cout << "Ejecutando sincronizacion inicial" << endl;
 	// Comprobacion inicial
-	list<Modificacion> mod1 = pedir_y_comparar_indices();
-	for (list<Modificacion>::iterator it = mod1.begin(); it != mod1.end(); ++it)
+	list<Modificacion> modServer = pedir_y_comparar_indices();
+	for (list<Modificacion>::iterator it = modServer.begin(); it != modServer.end(); ++it)
 	{
 		aplicar_modificacion(*it);
 	}
-	*/
-	notificador.start(); // Recien aca pongo a correr el notificador, no se deberian haber "perdido datos"
+	notificador.start(); // Recien aca pongo a correr el notificador, no deberia haber "perdida de datos"
 	while(correr && conectado)
 	{
 		cout << "Esperando los " << delay_polling << " segundos de polling." << endl;

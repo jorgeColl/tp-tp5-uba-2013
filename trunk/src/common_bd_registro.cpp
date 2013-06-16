@@ -7,20 +7,21 @@
 #include "common_hashing.h"
 
 BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif,
-		off_t tam, const string &hash)	: nombre(nombre), modif(modif),
-		tam(tam), hash(hash), archOffset(-1) {}
+		off_t tam, const string &hash, bool valido)	: nombre(nombre), modif(modif),
+		tam(tam), hash(hash), archOffset(OFFSET_INVALIDO), valido(valido) {}
 
 BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre,
-		uint32_t archOffset)	: modif(0), tam(0), archOffset(archOffset)
+		uint32_t archOffset) : modif(0), tam(0), archOffset(archOffset), valido(0)
 {
-	nombre.append(bytes, tamNombre);
-	memcpy(&modif,(bytes+tamNombre), sizeof(time_t));
-	memcpy(&tam,(bytes+tamNombre+sizeof(time_t)), sizeof(off_t));
-	hash.append(bytes+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
+	memcpy(&valido,(bytes), sizeof(time_t));
+	nombre.append(bytes+BYTES_BOOL, tamNombre);
+	memcpy(&modif,(bytes+BYTES_BOOL+tamNombre), sizeof(time_t));
+	memcpy(&tam,(bytes+BYTES_BOOL+tamNombre+sizeof(time_t)), sizeof(off_t));
+	hash.append(bytes+BYTES_BOOL+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
 }
 
 BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre_archivo,
-		const string &dir) : archOffset(-1)
+		const string &dir, bool valido) : archOffset(OFFSET_INVALIDO), valido(valido)
 {
 	string path(dir);
 	path += "/";
@@ -37,6 +38,7 @@ string BaseDeDatos::RegistroIndice::serializar() const
 {
 	stringstream result;
 	uint8_t tamString = nombre.size();
+	result.write((char*)&valido, BYTES_BOOL);
 	result.write((char*)&tamString, BYTES_PREF_NOMBRE);
 	result.write(nombre.c_str(), nombre.size());
 	result.write((char*)&modif, sizeof(time_t));
@@ -48,15 +50,15 @@ string BaseDeDatos::RegistroIndice::serializar() const
 
 size_t BaseDeDatos::RegistroIndice::tamMax()
 {
-	return NAME_MAX+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
+	return BYTES_BOOL+NAME_MAX+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
 }
 
 size_t BaseDeDatos::RegistroIndice::tamReg(size_t prefijo)
 {
-	return prefijo+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
+	return BYTES_BOOL+prefijo+sizeof(time_t)+sizeof(off_t)+BYTES_HASH;
 }
 
-bool BaseDeDatos::RegistroIndice::calcularHash(const string &dir, const string &password, string &hash)
+bool BaseDeDatos::RegistroIndice::calcularHash(const string &dir,string &hash)
 {
 	string path(dir);
 	path += "/";
@@ -67,7 +69,7 @@ bool BaseDeDatos::RegistroIndice::calcularHash(const string &dir, const string &
 bool BaseDeDatos::RegistroIndice::operator==(const RegistroIndice &r2)
 {
 	return (nombre == r2.nombre && modif == r2.modif && tam == r2.tam
-			&& hash == r2.hash && archOffset == r2.archOffset);
+			&& hash == r2.hash && archOffset == r2.archOffset && valido == r2.valido);
 }
 
 

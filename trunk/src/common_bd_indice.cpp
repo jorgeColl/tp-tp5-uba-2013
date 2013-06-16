@@ -1,4 +1,5 @@
 #include "common_base_de_datos.h"
+#include "common_util.h"
 
 void BaseDeDatos::IndiceRam::cargar(istream &arch)
 {
@@ -27,65 +28,68 @@ void BaseDeDatos::IndiceRam::agregar(RegistroIndice &reg)
 
 void BaseDeDatos::IndiceRam::eliminar(RegistroIndice &reg)
 {
-	almacenamiento.remove(reg);
+	reg.valido = false;
+	reg.modif = time(NULL);
 }
 
-void BaseDeDatos::IndiceRam::modificar(RegistroIndice &reg, const string &password, const string &dir)
+void BaseDeDatos::IndiceRam::modificar(RegistroIndice &reg, const string &dir)
 {
-
-	reg.calcularHash(dir, password, reg.hash);
+	reg.calcularHash(dir, reg.hash);
+	reg.modif = fechaModificado(dir, reg.nombre);
 }
 
 void BaseDeDatos::IndiceRam::renombrar(RegistroIndice &reg, const string &nombre_nuevo)
 {
 	reg.nombre = nombre_nuevo;
+	reg.valido = true;
+	reg.archOffset = OFFSET_INVALIDO;
 }
 
-BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(const string &nombre)
+BaseDeDatos::RegistroIndice* BaseDeDatos::IndiceRam::buscarNombre(const string &nombre, bool valido)
 {
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{
-		if (it->nombre == nombre) return &(*it);
+		if (it->nombre == nombre && it->valido == valido) return &(*it);
 	}
 	return NULL;
 }
 
-list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarFecha(const time_t fecha)
+list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarFecha(const time_t fecha, bool valido)
 {
 	list<BaseDeDatos::RegistroIndice*> lista;
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{
-		if (it->modif == fecha) lista.push_back(&(*it));
+		if (it->modif == fecha && it->valido == valido) lista.push_back(&(*it));
 	}
 	return lista;
 }
 
-list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarTam(const off_t tam)
+list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarTam(const off_t tam, bool valido)
 {
 	list<BaseDeDatos::RegistroIndice*> lista;
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{
-		if (it->tam == tam) lista.push_back(&(*it));
+		if (it->tam == tam && it->valido == valido) lista.push_back(&(*it));
 	}
 	return lista;
 }
 
-list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarHash(const string &hash)
+list<BaseDeDatos::RegistroIndice*> BaseDeDatos::IndiceRam::buscarHash(const string &hash, bool valido)
 {
 	list<BaseDeDatos::RegistroIndice*> lista;
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{
-		if (it->hash == hash) lista.push_back(&(*it));
+		if (it->hash == hash && it->valido == valido) lista.push_back(&(*it));
 	}
 	return lista;
 }
 
-list<string> BaseDeDatos::IndiceRam::devolverNombres()
+list<string> BaseDeDatos::IndiceRam::devolverNombres(bool valido)
 {
 	list<string> nombres;
 	for (list<RegistroIndice>::iterator it = almacenamiento.begin(); it != almacenamiento.end(); ++it)
 	{
-		nombres.push_back(it->nombre);
+		if (it->valido == valido) nombres.push_back(it->nombre);
 	}
 	return nombres;
 }

@@ -124,8 +124,9 @@ public:
 
 	/**
 	 * @brief devuelve true si el archivo esta registrado en el indice
+	 * @param valido Si el registro esta indexado como valido (true) o como borrado (false)
 	 */
-	bool estaIndexado(const string &nombre_archivo);
+	bool estaIndexado(const string &nombre_archivo, bool valido = true);
 
 	//----- Operaciones pertinentes al indice y registro de cambios
 
@@ -174,16 +175,16 @@ private:
 	{
 		public:
 			/** @brief Constructor por toma de datos de archivo fisico */
-			RegistroIndice(const string &nombre_archivo, const string &dir);
+			RegistroIndice(const string &nombre_archivo, const string &dir, bool valido = true);
 			/** @brief Constructor por parametros explicitos */
-			RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash);
+			RegistroIndice(const string &nombre, time_t modif, off_t tam, const string &hash, bool valido = true);
 			/** @brief Constructor por deserializacion */
 			RegistroIndice(const char* bytes, uint8_t tamNombre, uint32_t archOffset);
 			/** @brief Devuelve el registro serializado */
 			string serializar() const;
 			/** @brief Calcula el hash del archivo y lo agrega al reg en el campo corresp
 			 * @return True si fue exitoso */
-			bool calcularHash(const string &dir, const string &password, string &hash);
+			bool calcularHash(const string &dir, string &hash);
 			/** @brief Devuelve el tam maximo que puede ocupar un registro */
 			static size_t tamMax();
 			/** @brief Devuelve el tam que ocupa un registro dado su prefijo de longitud */
@@ -195,6 +196,7 @@ private:
 			off_t tam;
 			string hash;
 			off_t archOffset;
+			bool valido;
 	};
 
 	/**
@@ -208,26 +210,27 @@ private:
 			void cargar(istream &arch);
 			/** @brief Agrega un registro al indice en ram */
 			void agregar(RegistroIndice &reg);
-			/** @brief Eliminar un registro al indice en ram */
+			/** @brief Eliminar un registro al indice en ram
+			 * @details Cambia el bool de validez y le pone la fecha a la hora de eliminacion */
 			void eliminar(RegistroIndice &reg);
 			/** @brief Modifica un registro del indice en ram */
-			void modificar(RegistroIndice &reg, const string &password, const string &dir);
+			void modificar(RegistroIndice &reg, const string &dir);
 			/** @brief Renombra un registro al indice en ram */
 			void renombrar(RegistroIndice &reg, const string &nombre_nuevo);
 			/** @brief Devuelve un puntero al registro de un dado nombre
 			 * @return Puntero al registro, o null si no se encontro */
-			RegistroIndice* buscarNombre(const string &nombre);
+			RegistroIndice* buscarNombre(const string &nombre, bool valido = true);
 			/** @brief Devuelve una lista de puntero a registros de una dada fecha de modificado
 			 * @return Lista de punteros a registros. Puede estar vacia si no se encontraron */
-			list<RegistroIndice*> buscarFecha(const time_t fecha);
+			list<RegistroIndice*> buscarFecha(const time_t fecha, bool valido = true);
 			/** @brief Devuelve una lista de punteros a registros de un dado tamanio
 			 * @return Lista de punteros a registros. Puede estar vacia si no se encontraron */
-			list<RegistroIndice*> buscarTam(const off_t tam);
+			list<RegistroIndice*> buscarTam(const off_t tam, bool valido = true);
 			/** @brief Devuelve una lista de punteros a registros dado un hash
 			 * @return Lista de punteros a registros. Puede estar vacia si no se encontraron */
-			list<RegistroIndice*> buscarHash(const string &hash);
+			list<RegistroIndice*> buscarHash(const string &hash, bool valido = true);
 			/** @brief Devuelve el nombre de todos los registros */
-			list<string> devolverNombres();
+			list<string> devolverNombres(bool valido = true);
 		private:
 			list<RegistroIndice> almacenamiento;
 	};

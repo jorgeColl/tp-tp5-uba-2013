@@ -21,7 +21,10 @@
 #define BYTES_PREF_NOMBRE 2
 #endif
 #define BYTES_USER_PASS 1 // Tam maximo en byes para la longitud de usuario o password
+#define BYTES_BOOL 1 // Al leer y escribir a un archivo no quiero gastar 4 bytes
 
 #define TAM_BLOQ 512 // Bloques de 4KB, tamanio razonable para testear.
+
+#define OFFSET_INVALIDO -1
 
 #endif /* DEFINES_H_ */

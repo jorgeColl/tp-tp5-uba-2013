@@ -51,13 +51,6 @@ list<Modificacion> ClienteControlador::pedir_y_comparar_indices()
 	return modifs;
 }
 
-void ClienteControlador::stop()
-{
-	Thread::stop();
-	sock2.cerrar();
-	sock1.cerrar();
-}
-
 void ClienteControlador::AplicarNotificacion(Modificacion &modif)
 {
 	Lock aplicandoCambio(mutexCambios);
@@ -86,8 +79,8 @@ void ClienteControlador::ejecutar()
 	{
 		cout << "Esperando los " << delay_polling << " segundos de polling." << endl;
 		sleep(delay_polling);
-		cout << "Ejecutando polling" << endl;
 		Lock cambiosLocales(mutexCambios);
+		cout << "Ejecutando polling" << endl;
 		list<Modificacion> modLocales = comprobar_cambios_locales();
 		cout << "Numero de cambios locales encontrados: " << modLocales.size() << endl;
 		for (list<Modificacion>::iterator it = modLocales.begin(); it != modLocales.end(); ++it)
@@ -99,8 +92,9 @@ void ClienteControlador::ejecutar()
 		}
 	}
 	sock1.enviar_flag(LOGOUT);
+	/*sock1.cerrar();
 	notificador.stop();
-	notificador.join();
+	notificador.join();*/
 	return;
 }
 

@@ -14,6 +14,7 @@ void ClienteNotificador::ejecutar()
 		cout << "Recibida notificacion." << endl;
 		aNotificar->AplicarNotificacion(modif);
 	}
+
 }
 
 void ClienteNotificador::conectar(const char* server,const char* puerto)

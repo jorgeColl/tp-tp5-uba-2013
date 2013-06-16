@@ -8,6 +8,7 @@
 class Thread
 {
 public:
+	Thread();
 	/**
 	 * @brief Crea un nuevo hilo de ejecucion y lo pone a correr
 	 */

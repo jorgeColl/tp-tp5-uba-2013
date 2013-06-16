@@ -87,11 +87,11 @@ void ClientInterface::cerrar()
 		input << chooser->get_current_folder();
 	} // Falla silenciosamente si no se puede abrir el archivo
 	input.close();
-	if (cli.correr)
+	/*if (cli.correr)
 	{
 		cli.stop();
 		cli.join();
-	}
+	}*/
 }
 
 void ClientInterface::login()

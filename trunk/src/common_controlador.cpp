@@ -56,7 +56,7 @@ bool Controlador::pedir_nuevo_archivo(const string& nombre_archivo){
 	// Manda mensaje a server pidiendo que transmita archivo
 	// Le dice a base de datos que guarde al nuevo archivo
 	sock1.enviar_flag(PEDIDO_ARCHIVO_ENTERO);
-	sock1.enviar_msg_c_prefijo(nombre_archivo, 1);
+	sock1.enviar_msg_c_prefijo(nombre_archivo, BYTES_PREF_NOMBRE);
 	recibir_nuevo_archivo(nombre_archivo);
 	base_de_datos.registrar_nuevo(nombre_archivo);
 	return true;
@@ -105,6 +105,7 @@ bool Controlador::enviar_edicion(const Modificacion& mod)
 bool Controlador::pedir_edicion(const string& nombre_archivo)
 {
 	sock1.enviar_flag(PEDIDO_ARCHIVO_EDICIONES);
+	sock1.enviar_msg_c_prefijo(nombre_archivo, BYTES_PREF_NOMBRE);
 	ofstream destino;
 	base_de_datos.abrir_para_escribir_temporal(nombre_archivo, destino);
 	ifstream original;

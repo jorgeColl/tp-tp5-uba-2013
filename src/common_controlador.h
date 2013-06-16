@@ -42,7 +42,7 @@ public:
 
 	/**@brief efectua una modificacion, segun los parametros de modificacion, la accion a realizar variarÃ¡
 	 */
-	bool aplicar_modificacion(Modificacion& mod);
+	bool aplicar_modificacion(const Modificacion& mod);
 
 	/**
 	 * @brief Pide a la base de datos local que borre el archivo y registre el borrado
@@ -64,13 +64,13 @@ public:
 	 *  utilizando a la clase BaseDeDatos
 	 * @return devuelve true si toda la operacion fue un exito, caso contrario devuelve false
 	 */
-	bool pedir_nuevo_archivo(string& nombre_archivo);
+	bool pedir_nuevo_archivo(const string &nombre_archivo);
 
 	/**@brief enviar el archivo cuyo nombre es ingresado
 	 * @details el archivo a enviar sera abierto y a medida que se lee se envia
 	 * @return devuelve true si la operacion fue un exito, caso contrario devuelve false
 	 */
-	bool enviar_nuevo_archivo(string& nombre_archivo);
+	bool enviar_nuevo_archivo(const string &nombre_archivo);
 	/**
 	 * @brief Recibe un nuevo archivo
 	 * @return True si la operacion fue un exito, caso contrario false
@@ -80,12 +80,24 @@ public:
 	/**@brief envia un mensaje al server con los datos necesarios para realizar la
 	 *  edicion del archivo ingresado
 	 */
-	bool enviar_edicion(Modificacion& mod);
+	bool enviar_edicion(const Modificacion &mod);
 
-	/**@brief pide al server la informacion necesaria para poder realizar la
+	/**@brief Pide al server la informacion necesaria para poder realizar la
 	 *  edicion del archivo y lo edita
 	 */
-	bool pedir_edicion(std::string& nombre_archivo);
+	bool pedir_edicion(const string &nombre_archivo);
+
+	/** @breif Envia un mensaje de borrado de archivo, si tiene exito lo registra en el indice local
+	 */
+	bool enviar_borrado(const string& nombre_archivo);
+
+	/** @breif Envia un mensaje de renombrado de archivo, si tiene exito lo registra en el indice local
+	 */
+	bool enviar_renombrado(const string& nombre_archivo_nuevo, const string& nombre_archivo_viejo);
+
+	/** @breif Envia un mensaje de copiad de archivo, si tiene exito lo registra en el indice local
+	 */
+	bool enviar_copiado(const string& nombre_archivo_nuevo, const string& nombre_archivo_viejo);
 
 	virtual ~Controlador() {}
 };

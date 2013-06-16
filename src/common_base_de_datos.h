@@ -75,6 +75,12 @@ public:
 	bool eliminar_archivo(const string &nombre_archivo);
 
 	/**
+	 * @brief Elimina un archivo temporal del directorio.
+	 * @param nombre_archivo Nombre del archivo sin los caracteres que lo denotan como temporal
+	 */
+	bool eliminar_archivo_temporal(const string &nombre_archivo);
+
+	/**
 	 * @brief Copia un archivo
 	 */
 	bool copiar(const string &viejo_nombre, const string &nuevo_nombre);

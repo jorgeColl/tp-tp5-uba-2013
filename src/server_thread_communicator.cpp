@@ -27,15 +27,16 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			default:break;
 		}
 	// TODO: Fijarse si ya esta aplicada/es vieja y emitir YA_ESTA si es el caso
-	cout<<"enviando flag OK"<<endl;
+	cout<<"Eenviando flag OK"<<endl;
 	sock1.enviar_flag(OK);
-	cout<<"flag enviado :)"<<endl;
+	cout<<"Flag enviado :)"<<endl;
 	bool exito = false;
 	cout<<"antes lock"<<endl;
 
 	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
 	Lock* lock = 0;
-	if(mod.nombre_archivo_alt ==""){
+	if(mod.nombre_archivo_alt =="")
+	{
 		lock = new Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
 	}
 	Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
@@ -52,18 +53,12 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 					sock1.recibir_archivo(destino);
 					destino.close();
 					base_de_datos.registrar_nuevo(mod.nombre_archivo);
-					sock1.enviar_flag(OK);
 				}
 			}
 			break;
 		case BORRADO:
 			exito = base_de_datos.eliminar_archivo(mod.nombre_archivo);
-			if (exito)
-			{
-				base_de_datos.registrar_eliminado(mod.nombre_archivo);
-				sock1.enviar_flag(OK);
-			}
-			else sock1.enviar_flag(FAIL);
+			if (exito) base_de_datos.registrar_eliminado(mod.nombre_archivo);
 			break;
 		case EDITADO:
 		{
@@ -71,53 +66,13 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, destino);
 			ifstream original;
 			base_de_datos.abrir_para_leer(mod.nombre_archivo, original);
-			off_t bloques = 0;
-			sock1.recibirLen((char*)&bloques, sizeof(off_t));
-			list<off_t> bloqPedir;
-			for (off_t i = 0; i < bloques; ++i) // Reviso todos los hashes que me llegan
-			{
-				char buffer[BYTES_HASH];
-				sock1.recibirLen(buffer, BYTES_HASH);
-				string hashRecibido(buffer, BYTES_HASH);
-				string hashLocal;
-				MD5_bloque(original, password, i*TAM_BLOQ, TAM_BLOQ, hashLocal);
-				if (hashLocal != hashRecibido) bloqPedir.push_back(i);
-			}
-			//Envio la lista
-			size_t tam = bloqPedir.size();
-			sock1.enviarLen((char*)&tam, sizeof(size_t)); // Prefijo de longitud
-			for(list<off_t>::iterator it = bloqPedir.begin(); it != bloqPedir.end(); ++it)
-			{
-				sock1.enviarLen((char*)&(*it), sizeof(off_t));
-			}
-			// Hacemos el "mechado" entre los dos archivos con lo que vamos recibiendo
-			char buffer[TAM_BLOQ];
-			for(off_t i = 0; i < bloques; ++i)
-			{
-				cout << "I: " << i << endl;
-				off_t bloqNoLocal = -1;
-				if (!bloqPedir.empty())	bloqNoLocal = bloqPedir.front();
-				if (bloqNoLocal == i) // Si estamos en el bloque del archivo que me lleog por socket
-				{
-					// Copio lo que me llega por el socket
-					cout << "Recibiendo bloque" << i << endl;
-					sock1.recibir_pedazo_archivo(destino, i*TAM_BLOQ);
-					bloqPedir.pop_front(); // Quito el bloque de la lista
-				}
-				else // Copio del original en el otro caso
-				{
-					original.clear();
-					original.seekg(i*TAM_BLOQ, ios::beg);
-					original.read(buffer, TAM_BLOQ);
-					destino.write(buffer, original.gcount());
-				}
-			}
+			sock1.recibir_edicion(original, destino);
 			// Terminamos
 			original.close();
 			destino.close();
 			exito = base_de_datos.renombrar_temporal(mod.nombre_archivo);
 			if (exito) base_de_datos.registrar_modificado(mod.nombre_archivo);
-			sock1.enviar_flag(OK);
+			else base_de_datos.eliminar_archivo_temporal(mod.nombre_archivo);
 		}
 			break;
 		case RENOMBRADO:
@@ -125,30 +80,32 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			if (exito)
 			{
 				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
-				sock1.enviar_flag(OK);
 			}
-			else { sock1.enviar_flag(FAIL); }
 			break;
 		case COPIADO:
 			exito = base_de_datos.copiar(mod.nombre_archivo_alt, mod.nombre_archivo);
 			if (exito)
 			{
 				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
-				sock1.enviar_flag(OK);
 			}
-			else sock1.enviar_flag(FAIL);
 			break;
 		default: // Igstnoro si llega otra cosa
 			break;
 	}
-	if (exito){
-		cout<<"notificando otros clientes de la modificacion"<<endl;
+	if (exito)
+	{
+		cout<<"Notificando otros clientes de la modificacion"<<endl;
+		sock1.enviar_flag(OK);
 		notificar_todos(mod);
-	}else{
-		cout<<"modificacion SIN exito , NO se notifica al resto"<<endl;
 	}
-	cout << "fin procesado"<<endl;
-	if(mod.nombre_archivo_alt ==""){
+	else
+	{
+		sock1.enviar_flag(FAIL);
+		cout<<"Modificacion SIN exito, NO se notifica al resto"<<endl;
+	}
+	cout << "Fin del procesado." << endl;
+	if(mod.nombre_archivo_alt =="")
+	{
 		delete lock;
 	}
 }
@@ -172,9 +129,9 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				break;
 		case(PEDIDO_ARCHIVO_ENTERO):
 				{
-					cout<<"flag es PEDIDO_ARCHIVO_ENTERO"<<endl;
+					cout<<"Flag es PEDIDO_ARCHIVO_ENTERO"<<endl;
 					string nombre;
-					sock1.recibir_msg_c_prefijo(nombre, 1);
+					sock1.recibir_msg_c_prefijo(nombre, BYTES_PREF_NOMBRE);
 					Lock(*smpt.data().get_mutex(nombre.c_str()));
 					ifstream arch;
 					base_de_datos.abrir_para_leer(nombre, arch);
@@ -182,16 +139,23 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 					arch.close();
 				}
 				break;
-		case(PEDIDO_ARCHIVO_PARTES):
+		case(PEDIDO_ARCHIVO_EDICIONES):
 				// Devuelve "partes" de un archivo
-				break;
-		case(PEDIDO_HASHES_BLOQUES):
-				// Devuelve todos los hashes de cada bloque del archivo
+				{
+					cout<<"Flag es PEDIDO_ARCHIVO_EDICIONES"<<endl;
+					string nombre;
+					sock1.recibir_msg_c_prefijo(nombre, 1);
+					Lock(*smpt.data().get_mutex(nombre.c_str()));
+					ifstream arch;
+					base_de_datos.abrir_para_leer(nombre, arch);
+					sock1.enviar_edicion(arch);
+					arch.close();
+				}
 				break;
 		case(PEDIDO_INDICE):
 				// Devuelve el indice
 				{
-					cout<<"flag es PEDIDO_INDICE"<<endl;
+					cout<<"Flag es PEDIDO_INDICE"<<endl;
 					string nomb(NOMBRE_ARCH_IND);
 					ifstream archIndice;
 					//Lock(this->mutex_ind);

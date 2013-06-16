@@ -15,7 +15,7 @@ class md5wrapperRaw : public md5wrapper
 	}
 };
 
-bool MD5_arch(const string &path_arch, const string &password, string &hash)
+bool MD5_arch(const string &path_arch, string &hash)
 {
 	md5wrapperRaw wrapper;
 	try
@@ -29,13 +29,13 @@ bool MD5_arch(const string &path_arch, const string &password, string &hash)
 	return true;
 }
 
-string MD5_arch(const string &path_arch, const string &password)
+string MD5_arch(const string &path_arch)
 {
 	md5wrapperRaw wrapper;
 	return wrapper.getHashFromFile(path_arch);
 }
 
-bool MD5_bloque(ifstream &arch, const string &password, off_t offset, off_t tamBloq, string &hash)
+bool MD5_bloque(istream &arch, off_t offset, off_t tamBloq, string &hash)
 {
 	arch.clear();
 	arch.seekg(offset, ios::beg);

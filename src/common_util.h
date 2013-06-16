@@ -35,6 +35,11 @@ bool esArchivo(const string &dir, const string &nombre);
 off_t tamArchivo(const string &dir, const string &nombre);
 
 /**
+ * @brief Devuelve la fecha de ultima modificacion de un archivo
+ */
+time_t fechaModificado(const string &dir, const string &nombre);
+
+/**
  * @brief Se fija si un nombre de archivo contiene caracteres especiales que lo hacen no apto para indexarse
  */
 bool esIgnorable(const string &nombre);

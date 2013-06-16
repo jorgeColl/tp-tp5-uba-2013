@@ -35,10 +35,9 @@ void BaseDeDatos::cerrar()
 
 list<Modificacion> BaseDeDatos::comparar_indices(istream &otro)
 {
-	// Flashie cualquiera
 	// TODO: Hacerlo bien
-	list<Modificacion> mod_serv = comprobar_cambios_externos(otro);
-	list<Modificacion> mod_cli = comprobar_cambios_locales();
+	//list<Modificacion> mod_serv = comprobar_cambios_externos(otro);
+	//list<Modificacion> mod_cli = comprobar_cambios_locales();
 
 	return list<Modificacion>();
 }
@@ -278,8 +277,13 @@ void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 {
 	//Armo el registro con el archivo, y lo agrego al indice en ram y fisico
 	RegistroIndice reg(nombre_archivo, directorio); //Puede fallar si el archivo no es bueno
-	reg.calcularHash(directorio,password,reg.hash);
+	reg.calcularHash(directorio,reg.hash);
+	RegistroIndice* regBorrado = indice.buscarNombre(nombre_archivo, false);
+	if (regBorrado) // Ya existia pero borrado, entonces usamos el mismo offset
+		reg.archOffset = regBorrado->archOffset;
 	registrar_nuevo_fis(reg); // Primero lo agrego para obtener el offset correcto
+	if (regBorrado) // Lo borramos de ram si estaba
+		indice.eliminar(*regBorrado);
 	indice.agregar(reg);
 }
 
@@ -289,26 +293,24 @@ void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 	RegistroIndice *reg = 0;
 	reg = indice.buscarNombre(nombre_archivo);
 	if (!reg) return;
-	registrar_eliminado_fis(*reg); // Primero borro del fisico porque sino hay problemas por borrar reg
-	indice.eliminar(*reg);
+	indice.eliminar(*reg); // Primero tengo que cambiar los valores del registro
+	registrar_eliminado_fis(*reg);
 }
 
 void BaseDeDatos::registrar_modificado(const string &nombre_archivo)
 {
 	//Busco el registro y le recalculo el hash, y luego lo pongo en ram y el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_archivo);
-	reg->calcularHash(directorio,password,reg->hash);
-	indice.modificar(*reg, password, directorio); // Primero modifico para luego guardar
+	indice.modificar(*reg, directorio); // Primero modifico para luego guardar
 	registrar_modificado_fis(*reg);
 }
 
 void BaseDeDatos::registrar_renombrado(const string &nombre_nuevo, const string &nombre_viejo)
 {
-	//Busco el reg y lo edito en ram y luego en el fisico
-	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
-	registrar_eliminado_fis(*reg); //Lo borro del archivo si existe
-	indice.renombrar(*reg, nombre_nuevo); // Cambio el nombre en ram
-	registrar_nuevo_fis(*reg); //Lo agrego como archivo nuevo tras cambiarle el nombre
+	// Busco el reg viejo y lo elimino
+	registrar_eliminado(nombre_viejo);
+	// Registro como nuevo el nombre nuevo
+	registrar_nuevo(nombre_nuevo); //Lo agrego como archivo nuevo tras cambiarle el nombre
 }
 
 void BaseDeDatos::registrar_copiado(const string &nombre_nuevo, const string &nombre_viejo)
@@ -317,12 +319,18 @@ void BaseDeDatos::registrar_copiado(const string &nombre_nuevo, const string &no
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
 	RegistroIndice copia(*reg);
 	copia.nombre = nombre_nuevo;
-	registrar_nuevo_fis(copia); // En este orden asi obtengo el offset correcto
+	copia.archOffset = OFFSET_INVALIDO;
+	RegistroIndice* regBorrado = indice.buscarNombre(nombre_nuevo, false);
+	if (regBorrado) // Ya existia pero borrado, entonces usamos el mismo offset
+		copia.archOffset = regBorrado->archOffset;
+	registrar_nuevo_fis(copia); // Primero lo agrego para obtener el offset correcto
+	if (regBorrado) // Lo borramos de ram si estaba
+		indice.eliminar(*regBorrado);
 	indice.agregar(copia);
 }
 
-bool BaseDeDatos::estaIndexado(const string &nombre_archivo){
-	return indice.buscarNombre(nombre_archivo) != NULL;
+bool BaseDeDatos::estaIndexado(const string &nombre_archivo, bool valido){
+	return indice.buscarNombre(nombre_archivo, valido) != NULL;
 }
 
 //----- Metodos privados
@@ -335,9 +343,18 @@ void BaseDeDatos::cargarARam()
 
 void BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
 {
-	archivo.seekp(0, ios::end);
-	reg.archOffset = archivo.tellp();
-	archivo << reg.serializar();
+	 // Si ya tenia offset, ya lo habia encontrado
+	if (reg.archOffset != OFFSET_INVALIDO) // Lo reemplazo en el archivo
+	{
+		archivo.seekp(reg.archOffset, ios::beg);
+		archivo << reg.serializar();
+	}
+	else // Sino hago un append al archivo
+	{
+		archivo.seekp(0, ios::end);
+		reg.archOffset = archivo.tellp();
+		archivo << reg.serializar();
+	}
 	if (!archivo.good()) throw runtime_error("Fallo el registro de un nuevo en el indice fisico.");
 	archivo.flush(); // Seguridad
 }
@@ -346,10 +363,7 @@ void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 {
 	// Eliminado logico. Sumo 1 debido a los prefijos.
 	archivo.seekp(reg.archOffset, ios::beg);
-	size_t tam = RegistroIndice::tamReg(reg.nombre.size()) + BYTES_PREF_NOMBRE;
-	char *zeros = new char[tam]();
-	archivo.write(zeros, tam);
-	delete[] zeros;
+	archivo.write((char*)&(reg.valido), BYTES_BOOL);
 	if (!archivo.good()) throw runtime_error("Fallo el borrado en el indice fisico.");
 	archivo.flush(); // Seguridad
 }
@@ -364,6 +378,5 @@ void BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
 
 BaseDeDatos::~BaseDeDatos()
 {
-	// TODO: Ver si hace falta reestructurar el archivo
 	archivo.close();
 }

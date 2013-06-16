@@ -58,6 +58,7 @@ void Accepter::ejecutar()
 		}
 		else cout << "Aceptacion de cliente fallida." << endl;
 	}
+	cout<<"Accepter termina ejecucion"<<endl;
 }
 
 void Accepter::stop()
@@ -71,10 +72,19 @@ void Accepter::stop()
 			(*itL)->stop();
 		}
 	}
-	cout<<"cerrando conexion"<<endl;
+	cout<<"cerrando conexiones"<<endl;
 	sock_prot1.cerrar();
 	sock_prot2.cerrar();
 	// JOIN DE los ServerCommunicator
+	for (map<string, list<ServerCommunicator*> >::iterator it = comunicadores.begin(); it != comunicadores.end(); ++it) {
+		for (list<ServerCommunicator*>::iterator itL = it->second.begin(); itL != it->second.end(); ++itL) {
+			(*itL)->stop();
+			(*itL)->join();
+			delete (*itL);
+		}
+	}
+	cout<<"conexiones cerradas"<<endl;
+
 }
 
 bool Accepter::aceptar_conexion()

@@ -178,21 +178,26 @@ void ServerCommunicator::ejecutar()
 	{
 		try
 		{
+			cout<<"Esperando Flag"<<endl;
 			sock1.recibir_flag(flag);
-			cout<<"cliente envio mensaje"<<endl;
+			cout<<"cliente envio Flag"<<endl;
 			if (flag == LOGOUT)
 			{
 				correr = false;
 				cout << "Cliente cerro sesion." << endl;
+			}else{
+				procesar_flag(flag);
 			}
-			else procesar_flag(flag);
 		}
 		catch (exception &e)
 		{
+			if(correr==true){
+				cout << "Se perdio la conexion con el cliente:" << e.what() <<"estado correr: "<<correr<< endl;
+			}
 			correr = false;
-			cout << "Se perdio la conexion con el cliente:" << e.what() << endl;
 		}
 	}
+	cout<<"ServerComunicator: termino ejecucion"<<endl;
 }
 
 void ServerCommunicator::setVinculados(list<ServerCommunicator*> *vinc)
@@ -207,9 +212,17 @@ void ServerCommunicator::notificar_todos(Modificacion &mod)
 		if (*it != this) (*it)->propagar_cambio(mod);
 	}
 }
-
+void ServerCommunicator::stop(){
+	cout<<"server comunicator: me pidieron STOP"<<endl;
+	this->correr = false;
+}
 void ServerCommunicator::propagar_cambio(Modificacion &mod)
 {
 	//Lock temp (mutex);
 	sock2.enviar_modif(mod);
+}
+ServerCommunicator::~ServerCommunicator(){
+	this->stop();
+	sock1.cerrar();
+	sock2.cerrar();
 }

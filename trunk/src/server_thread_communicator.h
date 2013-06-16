@@ -47,6 +47,10 @@ public:
 	void propagar_cambio(Modificacion &mod);
 
 	bool enviar_modificaciones();
+
+	virtual void stop();
+
+	~ServerCommunicator();
 };
 
 

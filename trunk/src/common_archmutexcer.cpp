@@ -90,7 +90,7 @@ bool ArchMutexcer::is_mutex(const char* dir_archivo){
 }
 void ArchMutexcer::borrar() {
 	Lock* lock = new Lock(this->mutex_loc);
-	Lock(this->mutex_clase);
+
 	// se pone para eliminarse , si solo queda él se elimina de verdad, sino se resta 1
 	cout << "ArchMutexcer::~ArchMutexcer(): eliminando instancia" << endl;
 	cout << "ArchMutexcer::~ArchMutexcer():cant instancias: "
@@ -99,10 +99,11 @@ void ArchMutexcer::borrar() {
 		delete(lock);
 		delete this;
 	} else {
+		Lock(this->mutex_clase);
 		cout << "ArchMutexcer::~ArchMutexcer(): solo se resta 1" << endl;
 		ArchMutexcer::restar_instancia(this);
+		delete(lock);
 	}
-	delete(lock);
 }
 ArchMutexcer::~ArchMutexcer() {
 	cout << "ArchMutexcer::~ArchMutexcer(): se elimina permanentemente" << endl;

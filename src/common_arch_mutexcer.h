@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 class ArchMutexcer {
-	std::string* dir;
+	std::string dir;
 	std::map <std::string,Mutex*>* mutex_archivos;
 	Mutex mutex_loc;
 protected:

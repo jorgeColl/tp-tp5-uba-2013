@@ -27,9 +27,8 @@ ArchMutexcer* ArchMutexcer::generar_archmutexcer(const char* directorio) {
 	ArchMutexcer::cant_hijitos[hijitos[directorio]] = 1;
 	return nuevo;
 }
-ArchMutexcer::ArchMutexcer(const char* dir) {
-
-	this->dir = dir;
+ArchMutexcer::ArchMutexcer(const char* dir) : dir(dir)
+{
 	this->mutex_archivos = new std::map <std::string,Mutex*>;
 }
 void ArchMutexcer::construir_mutexs() {

@@ -77,7 +77,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			for (off_t i = 0; i < bloques; ++i) // Reviso todos los hashes que me llegan
 			{
 				char buffer[BYTES_HASH];
-				sock1.recibirLen(buffer, sizeof(off_t));
+				sock1.recibirLen(buffer, BYTES_HASH);
 				string hashRecibido(buffer, BYTES_HASH);
 				string hashLocal;
 				MD5_bloque(original, password, i*TAM_BLOQ, TAM_BLOQ, hashLocal);
@@ -94,28 +94,29 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			char buffer[TAM_BLOQ];
 			for(off_t i = 0; i < bloques; ++i)
 			{
+				cout << "I: " << i << endl;
 				off_t bloqNoLocal = -1;
-				if (!bloqPedir.empty())
+				if (!bloqPedir.empty())	bloqNoLocal = bloqPedir.front();
+				if (bloqNoLocal == i) // Si estamos en el bloque del archivo que me lleog por socket
 				{
-					bloqPedir.front();
-					bloqPedir.pop_front();
+					// Copio lo que me llega por el socket
+					cout << "Recibiendo bloque" << i << endl;
+					sock1.recibir_pedazo_archivo(destino, i*TAM_BLOQ);
+					bloqPedir.pop_front(); // Quito el bloque de la lista
 				}
-				if (bloqNoLocal == i) // Copio lo que me llega por el socket
+				else // Copio del original en el otro caso
 				{
-					sock1.recibir_pedazo_archivo(destino, i*TAM_BLOQ, TAM_BLOQ);
-				}
-				else // Copio del original de ser necesario
-				{
+					original.clear();
+					original.seekg(i*TAM_BLOQ, ios::beg);
 					original.read(buffer, TAM_BLOQ);
 					destino.write(buffer, original.gcount());
 				}
 			}
-
 			// Terminamos
 			original.close();
 			destino.close();
-			base_de_datos.renombrar_temporal(mod.nombre_archivo);
-			base_de_datos.registrar_modificado(mod.nombre_archivo);
+			exito = base_de_datos.renombrar_temporal(mod.nombre_archivo);
+			if (exito) base_de_datos.registrar_modificado(mod.nombre_archivo);
 			sock1.enviar_flag(OK);
 		}
 			break;

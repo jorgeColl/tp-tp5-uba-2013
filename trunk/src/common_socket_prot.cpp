@@ -56,9 +56,16 @@ void SocketProt::recibir_modif(Modificacion &modif)
 
 void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)
 {
-	arch.seekg(offset);
-	char buffer[TAM_BUFFER];
+	arch.clear();
+	arch.seekg(0, ios::end);
+	off_t finArch = arch.tellg();
 	off_t fin = len;
+	if (offset+len > finArch) fin = finArch-offset;
+	cout << "aleer: " << fin << endl;
+	enviarLen((char*)&fin, sizeof(off_t));
+	arch.clear();
+	arch.seekg(offset, ios::beg);
+	char buffer[TAM_BUFFER];
 	while (fin > 0 && arch.good())
 	{
 		streamsize aEnviar = TAM_BUFFER;
@@ -71,11 +78,12 @@ void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)
 	arch.clear();
 }
 
-void SocketProt::recibir_pedazo_archivo(ostream &arch, off_t offset, off_t len)
+void SocketProt::recibir_pedazo_archivo(ostream &arch, off_t offset)
 {
+	off_t tam = 0;
+	recibirLen((char*)&tam, sizeof(off_t));
 	arch.clear();
-	arch.seekp(offset);
-	streampos tam = len;
+	arch.seekp(offset, ios::beg);
 	char buffer[TAM_BUFFER];
 	while (tam > 0)
 	{
@@ -102,5 +110,5 @@ void SocketProt::recibir_archivo(ostream &arch)
 	//TODO: Optimizar viendo como funciona el buffer interno de ofstream
 	streampos tam = 0;
 	recibirLen((char*) &tam, sizeof(streampos));
-	recibir_pedazo_archivo(arch, 0, tam);
+	recibir_pedazo_archivo(arch, 0);
 }

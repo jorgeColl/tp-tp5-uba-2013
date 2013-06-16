@@ -118,11 +118,12 @@ bool Controlador::enviar_edicion(Modificacion& mod)
 	// Envio esos bloques, en orden
 	for(list<off_t>::iterator it = bloqMandar.begin(); it != bloqMandar.end(); ++it)
 	{
+		cout << "enviando bloque" << *it << endl;
 		sock1.enviar_pedazo_archivo(archivo, *it*TAM_BLOQ, TAM_BLOQ);
 	}
 	archivo.close();
-
 	PacketID flag;
+	cout << "esperando flag" << endl;
 	sock1.recibir_flag(flag);
 	if (flag != OK) return false;
 	base_de_datos.registrar_modificado(mod.nombre_archivo);

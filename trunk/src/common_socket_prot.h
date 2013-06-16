@@ -10,7 +10,7 @@
 using namespace std;
 
 enum PacketID {ZERO = 0, OK, YA_APLICADA, FAIL, LOGIN, LOGOUT, MODIFICACION, PEDIDO_ARCHIVO_ENTERO,
-	PEDIDO_ARCHIVO_PARTES, PEDIDO_HASHES_BLOQUES, PEDIDO_INDICE};
+	PEDIDO_ARCHIVO_EDICIONES, PEDIDO_INDICE};
 
 /**
  * @class SocketProt common_socket_prot.h "common_socket_prot.h"
@@ -86,7 +86,18 @@ public:
 	 * @return True en caso de exito, false si falla
 	 * @pre El archivo esta abierto en modo escritura binaria
 	 */
-	void recibir_archivo(std::ostream &arch);
+	void recibir_archivo(ostream &arch);
+	/**
+	 * @brief Envia los hashes de los bloques del archivo y luego lo que se le pida
+	 * @param arch Archivo del cual enviar los hashes y las partes
+	 */
+	void enviar_edicion(istream &arch);
+	/**
+	 * @brief Recibe los hashes de los bloques, pide lo que necesite y vuelca el resultado en arch_temp
+	 * @param arch_orig Archivo original al cual se le aplicaran las ediciones
+	 * @param arch_temp Archivo donde se escribira la union entre lo recibido y lo del archivo original
+	 */
+	void recibir_edicion(istream &arch_orig, ostream &arch_temp);
 	/**@brief firma un mensaje  */
 	void firmar_mensaje(std::string& mensaje, std::string contrasenia);
 	/**@brief verifica si el mensaje está correctamente firmado */

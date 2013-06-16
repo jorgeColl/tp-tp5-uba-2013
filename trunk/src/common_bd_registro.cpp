@@ -61,7 +61,7 @@ bool BaseDeDatos::RegistroIndice::calcularHash(const string &dir, const string &
 	string path(dir);
 	path += "/";
 	path += nombre;
-	return MD5_arch(path, password, hash);
+	return MD5_arch(path, hash);
 }
 
 bool BaseDeDatos::RegistroIndice::operator==(const RegistroIndice &r2)

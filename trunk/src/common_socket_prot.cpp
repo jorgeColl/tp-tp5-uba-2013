@@ -1,6 +1,7 @@
 #include <cstring>	// Memcpy
 #include "common_socket_prot.h"
 #include "common_base_de_datos.h" // BYTES_PREF_NOMBRE
+#include "common_hashing.h"
 
 #define TAM_BUFFER 4096
 
@@ -111,4 +112,81 @@ void SocketProt::recibir_archivo(ostream &arch)
 	streampos tam = 0;
 	recibirLen((char*) &tam, sizeof(streampos));
 	recibir_pedazo_archivo(arch, 0);
+}
+
+void SocketProt::enviar_edicion(istream &arch)
+{
+	arch.seekg(0, ios::end);
+	off_t tam = arch.tellg();
+	arch.seekg(0);
+	off_t bloques = tam / TAM_BLOQ;
+	if (tam % TAM_BLOQ != 0) ++bloques;
+	enviarLen((char*)&bloques, sizeof(off_t)); // Mando la cantidad de bloques del archivo
+	for (off_t i = 0; i < bloques; ++i) // Mando todos los hashes por bloques del archivo
+	{
+		string hash;
+		MD5_bloque(arch, i*TAM_BLOQ, TAM_BLOQ, hash);
+		enviarLen(hash.c_str(), BYTES_HASH);
+	}
+	// Espero que el servidor me mande la lista de bloques que necesita
+	list<off_t> bloqMandar;
+	size_t numBloqMandar = 0;
+	recibirLen((char*)&numBloqMandar, sizeof(size_t));
+	for (size_t i = 0; i < numBloqMandar; ++i)
+	{
+		off_t numBloq = 0;
+		recibirLen((char*)&numBloq, sizeof(off_t));
+		bloqMandar.push_back(numBloq);
+	}
+	// Envio esos bloques, en orden
+	for(list<off_t>::iterator it = bloqMandar.begin(); it != bloqMandar.end(); ++it)
+	{
+		cout << "Enviando bloque" << *it << endl;
+		enviar_pedazo_archivo(arch, *it*TAM_BLOQ, TAM_BLOQ);
+	}
+}
+
+void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
+{
+	off_t bloques = 0;
+	recibirLen((char*)&bloques, sizeof(off_t));
+	list<off_t> bloqPedir;
+	for (off_t i = 0; i < bloques; ++i) // Reviso todos los hashes que me llegan
+	{
+		char buffer[BYTES_HASH];
+		recibirLen(buffer, BYTES_HASH);
+		string hashRecibido(buffer, BYTES_HASH);
+		string hashLocal;
+		MD5_bloque(arch_orig, i*TAM_BLOQ, TAM_BLOQ, hashLocal);
+		if (hashLocal != hashRecibido) bloqPedir.push_back(i);
+	}
+	//Envio la lista
+	size_t tam = bloqPedir.size();
+	enviarLen((char*)&tam, sizeof(size_t)); // Prefijo de longitud
+	for(list<off_t>::iterator it = bloqPedir.begin(); it != bloqPedir.end(); ++it)
+	{
+		enviarLen((char*)&(*it), sizeof(off_t));
+	}
+	// Hacemos el "mechado" entre los dos archivos con lo que vamos recibiendo
+	char buffer[TAM_BLOQ];
+	for(off_t i = 0; i < bloques; ++i)
+	{
+		cout << "I: " << i << endl;
+		off_t bloqNoLocal = -1;
+		if (!bloqPedir.empty())	bloqNoLocal = bloqPedir.front();
+		if (bloqNoLocal == i) // Si estamos en el bloque del archivo que me lleog por socket
+		{
+			// Copio lo que me llega por el socket
+			cout << "Recibiendo bloque" << i << endl;
+			recibir_pedazo_archivo(arch_temp, i*TAM_BLOQ);
+			bloqPedir.pop_front(); // Quito el bloque de la lista
+		}
+		else // Copio del original en el otro caso
+		{
+			arch_orig.clear();
+			arch_orig.seekg(i*TAM_BLOQ, ios::beg);
+			arch_orig.read(buffer, TAM_BLOQ);
+			arch_temp.write(buffer, arch_orig.gcount());
+		}
+	}
 }

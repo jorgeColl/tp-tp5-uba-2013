@@ -51,10 +51,17 @@ list<Modificacion> ClienteControlador::pedir_y_comparar_indices()
 	return modifs;
 }
 
+void ClienteControlador::stop()
+{
+	Thread::stop();
+	sock2.cerrar();
+	sock1.cerrar();
+}
+
 void ClienteControlador::AplicarNotificacion(Modificacion &modif)
 {
 	Lock aplicandoCambio(mutexCambios);
-	cout << "Se recibio modificacion" << modif << endl;
+	cout << "Se recibio modificacion: " << modif << endl;
 	bool exito = aplicar_modificacion(modif);
 	// Si falla, solo logeo, se supone que el indice fisico y demas quedo en condiciones
 	if (!exito) cout << "Error al aplicar una modificacion recibida." << endl;
@@ -80,10 +87,10 @@ void ClienteControlador::ejecutar()
 		cout << "Esperando los " << delay_polling << " segundos de polling." << endl;
 		sleep(delay_polling);
 		cout << "Ejecutando polling" << endl;
-		Lock cLocales(mutexCambios);
-		list<Modificacion> mod2 = comprobar_cambios_locales();
-		cout << "Numero de cambios locales encontrados: " << mod2.size() << endl;
-		for (list<Modificacion>::iterator it = mod2.begin(); it != mod2.end(); ++it)
+		Lock cambiosLocales(mutexCambios);
+		list<Modificacion> modLocales = comprobar_cambios_locales();
+		cout << "Numero de cambios locales encontrados: " << modLocales.size() << endl;
+		for (list<Modificacion>::iterator it = modLocales.begin(); it != modLocales.end(); ++it)
 		{
 			cout << *it << endl;
 			exito = aplicar_modificacion(*it);
@@ -91,6 +98,9 @@ void ClienteControlador::ejecutar()
 			if (!exito) cout << "Error al aplicar una modificacion local." << endl;
 		}
 	}
+	sock1.enviar_flag(LOGOUT);
+	notificador.stop();
+	notificador.join();
 	return;
 }
 

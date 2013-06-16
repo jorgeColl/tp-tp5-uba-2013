@@ -11,7 +11,7 @@ void ClienteNotificador::ejecutar()
 	{
 		Modificacion modif;
 		socket.recibir_modif(modif);
-		cout << "Recibida notificacion: " << modif << endl;
+		cout << "Recibida notificacion." << endl;
 		aNotificar->AplicarNotificacion(modif);
 	}
 }

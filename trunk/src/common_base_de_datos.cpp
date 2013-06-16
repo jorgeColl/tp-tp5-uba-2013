@@ -137,6 +137,13 @@ bool BaseDeDatos::renombrar_temporal(const string &nombre_archivo)
 	return renombrar(viejo_nombre, nombre_archivo);
 }
 
+bool BaseDeDatos::eliminar_archivo_temporal(const string &nombre_archivo)
+{
+	string viejo_nombre(nombre_archivo);
+	viejo_nombre.append(EXT_TMP);
+	return eliminar_archivo(viejo_nombre);
+}
+
 bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 {
 	// A criterio si conviene levantar una excepcion si rename != 0
@@ -197,9 +204,9 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 		if (esta) // Ya estaba indexado, vemos si fue modificado
 		{
 			// Se encontro archivo de mismo nombre y distinta fecha modif y distinto hash, entonces es una modif
-			if (buf.st_mtim.tv_sec != esta->modif && esta->hash != MD5_arch(path,password))
+			if (buf.st_mtim.tv_sec != esta->modif && esta->hash != MD5_arch(path))
 			{
-				MD5_arch(path, password); // Me fijo que el hash sea distinto
+				MD5_arch(path); // Me fijo que el hash sea distinto
 				Modificacion modif(EDITADO, es_local, esta->nombre);
 				modifs.push_back(modif);
 			}
@@ -211,7 +218,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 			string hash;
 			if (!matches.empty()) // Si se encontro el tamanio miro por los hashes
 			{
-				hash = MD5_arch(path, password); // Si hubo matches, calculo el hash
+				hash = MD5_arch(path); // Si hubo matches, calculo el hash
 				matches = indice.buscarHash(hash); // Cambio los matches por los matches de hash
 			}
 			// Una pasada para renombres antes de la de copias

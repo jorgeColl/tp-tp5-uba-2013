@@ -13,15 +13,17 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 	switch(mod.accion)
 		{
 			case NUEVO:
-				if (base_de_datos.estaIndexado(mod.nombre_archivo)){
+				if (base_de_datos.estaIndexado(mod.nombre_archivo)) {
 					sock1.enviar_flag(YA_APLICADA);
-				return;
+					cout<<"modificacion NUEVO "<<mod.nombre_archivo<<" ya estaba aplicada"<<endl;
+					return;
 				}
 				break;
 			case BORRADO:
-				if (!base_de_datos.estaIndexado(mod.nombre_archivo)){
+				if (!base_de_datos.estaIndexado(mod.nombre_archivo)) {
 					sock1.enviar_flag(YA_APLICADA);
-				return;
+					cout<<"modificacion BORRADO "<<mod.nombre_archivo<<" ya estaba aplicada"<<endl;
+					return;
 				}
 				break;
 			default:break;
@@ -225,6 +227,4 @@ void ServerCommunicator::propagar_cambio(Modificacion &mod)
 }
 ServerCommunicator::~ServerCommunicator(){
 	this->stop();
-	sock1.cerrar();
-	sock2.cerrar();
 }

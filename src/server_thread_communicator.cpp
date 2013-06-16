@@ -215,6 +215,8 @@ void ServerCommunicator::notificar_todos(Modificacion &mod)
 void ServerCommunicator::stop(){
 	cout<<"server comunicator: me pidieron STOP"<<endl;
 	this->correr = false;
+	sock1.cerrar();
+	sock2.cerrar();
 }
 void ServerCommunicator::propagar_cambio(Modificacion &mod)
 {

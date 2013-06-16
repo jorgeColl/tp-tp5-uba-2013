@@ -71,7 +71,7 @@ int Socket::enviar(void *msg, size_t len)
 int Socket::recibir(void *msg, size_t len)
 {
 	int val = recv(sockfd, msg, len, 0);
-	if (val == -1) throw std::runtime_error(strerror(errno));
+	if (val <= -1) throw std::runtime_error(strerror(errno));
 	if (val == 0) throw std::runtime_error("Conexion perdida.");
 	return val;
 }

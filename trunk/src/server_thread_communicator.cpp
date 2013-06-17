@@ -230,7 +230,9 @@ void ServerCommunicator::notificar_todos(Modificacion &mod)
 {
 	for (list<ServerCommunicator*>::iterator it = vinculados->begin(); it != vinculados->end(); ++it)
 	{
-		if (*it != this) (*it)->propagar_cambio(mod);
+		// Transmito la modificacion a todos los vinculados que aun esten corriendo
+		// Si no esta corriendo, el servidor tiene aun que limpiarlo, por ahora lo ignoro
+		if (*it != this && (*it)->correr) (*it)->propagar_cambio(mod);
 	}
 }
 void ServerCommunicator::stop(){

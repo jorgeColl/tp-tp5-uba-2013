@@ -13,8 +13,8 @@ BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif,
 BaseDeDatos::RegistroIndice::RegistroIndice(const char *bytes, uint8_t tamNombre,
 		uint32_t archOffset) : modif(0), tam(0), archOffset(archOffset), valido(0)
 {
-	memcpy(&valido,(bytes), sizeof(time_t));
-	nombre.append(bytes+BYTES_BOOL, tamNombre);
+	nombre.append(bytes, tamNombre);
+	memcpy(&valido,(bytes+tamNombre), sizeof(time_t));
 	memcpy(&modif,(bytes+BYTES_BOOL+tamNombre), sizeof(time_t));
 	memcpy(&tam,(bytes+BYTES_BOOL+tamNombre+sizeof(time_t)), sizeof(off_t));
 	hash.append(bytes+BYTES_BOOL+tamNombre+sizeof(time_t)+sizeof(off_t), BYTES_HASH);
@@ -38,9 +38,9 @@ string BaseDeDatos::RegistroIndice::serializar() const
 {
 	stringstream result;
 	uint8_t tamString = nombre.size();
-	result.write((char*)&valido, BYTES_BOOL);
 	result.write((char*)&tamString, BYTES_PREF_NOMBRE);
 	result.write(nombre.c_str(), nombre.size());
+	result.write((char*)&valido, BYTES_BOOL);
 	result.write((char*)&modif, sizeof(time_t));
 	result.write((char*)&tam, sizeof(off_t));
 	result.write(hash.c_str(), BYTES_HASH);

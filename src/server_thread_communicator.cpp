@@ -10,6 +10,15 @@ ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, cons
 
 void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 {
+	cout << "antes lock" << endl;
+	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
+	Lock* lock = 0;
+	if (mod.nombre_archivo_alt == "") {
+		lock = new Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
+	}
+	Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
+	cout << "despues lock" << endl;
+
 	switch(mod.accion)
 	{
 		case NUEVO:
@@ -39,17 +48,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 	sock1.enviar_flag(OK);
 	cout<<"Flag enviado :)"<<endl;
 	bool exito = false;
-	cout<<"antes lock"<<endl;
 
-	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
-	Lock* lock = 0;
-	if(mod.nombre_archivo_alt =="")
-	{
-		lock = new Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
-	}
-	Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
-
-	cout<<"despues lock"<<endl;
 	switch(mod.accion)
 	{
 		case NUEVO:

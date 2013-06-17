@@ -22,7 +22,14 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		case BORRADO:
 			if (base_de_datos.estaIndexado(mod.nombre_archivo), false) {
 				sock1.enviar_flag(YA_APLICADA);
-				cout<<"Modificacion BORRADO: "<<mod.nombre_archivo<<" ya estaba aplicada."<<endl;
+				cout<<"Modificacion BORRADO: " << mod.nombre_archivo << " ya estaba aplicada."<<endl;
+				return;
+			}
+			break;
+		case RENOMBRADO:
+			if (base_de_datos.estaIndexado(mod.nombre_archivo)) {
+				sock1.enviar_flag(YA_APLICADA);
+				cout<<"Modificacion RENOMBRADO: "<< mod.nombre_archivo <<" ya estaba aplicada."<<endl;
 				return;
 			}
 			break;

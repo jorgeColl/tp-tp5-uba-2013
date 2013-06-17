@@ -53,10 +53,10 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 	// Itero por los archivos que deberian estar borrados, si existe, veo si lo tengo que borrar
 	for (list<string>::iterator it = archIBorrados.begin(); it != archIBorrados.end(); ++it)
 	{
-		if (esArchivo(directorio,*it) // Existe y tal vez no deberia, miro la fecha
+		if (esArchivo(directorio,*it) // Existe y tal vez no deberia, miro la fecha para determinar eso
 			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it))
 		{
-			Modificacion modif(BORRADO, es_local, *it);
+			Modificacion modif(BORRADO, es_local, *it); // Existe y es viejo, lo borro
 			modifs.push_back(modif);
 		}
 	}
@@ -64,10 +64,16 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 	// Itero por los archivos que existen, si no existe, lo pido como nuevo
 	for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
 	{
-		if (!esArchivo(directorio,*it)) // No existe, tengo que pedirlo
+		if (!esArchivo(directorio,*it)) // No existe, tal vez tengo que pedirlo
 		{
-			Modificacion modif(NUEVO, es_local, *it);
-			modifs.push_back(modif);
+			RegistroIndice* estaba = indice.buscarNombre(*it);
+			if (!estaba || // Si no estaba indexado valido hay que pedirlo
+				estaba->modif < indiceServer.devolverFecha(*it)) // Si estaba y recien se borro
+				// antes de prender el cliente, miro si la fecha es más reciente que la de borrado
+			{
+				Modificacion modif(NUEVO, es_local, *it);
+				modifs.push_back(modif);
+			}
 		}
 		else // Si existe, veo que tengo que cambiarle
 		{

@@ -231,6 +231,8 @@ private:
 			list<RegistroIndice*> buscarHash(const string &hash, bool valido = true);
 			/** @brief Devuelve el nombre de todos los registros */
 			list<string> devolverNombres(bool valido = true);
+			/** @brief Devuelve la fecha de ultima modificacion de algo indexado */
+			time_t devolverFecha(const string& nombre, bool valido = true);
 		private:
 			list<RegistroIndice> almacenamiento;
 	};

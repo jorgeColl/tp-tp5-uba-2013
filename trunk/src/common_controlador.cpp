@@ -171,6 +171,9 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 			case BORRADO:
 				base_de_datos.registrar_eliminado(mod.nombre_archivo);
 				return true;
+			case RENOMBRADO:
+				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				return true;
 			default:
 				return false;
 			}

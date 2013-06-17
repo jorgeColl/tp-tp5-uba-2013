@@ -49,9 +49,9 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 	bool es_local = false;
 	list<Modificacion> modifs;
 	// Me fijo si los archivos que tenia indexado siguen en la carpeta
-	list<string> archIBorrados = indice.devolverNombres(false);
+	list<string> archBorrados = indiceServer.devolverNombres(false);
 	// Itero por los archivos que deberian estar borrados, si existe, veo si lo tengo que borrar
-	for (list<string>::iterator it = archIBorrados.begin(); it != archIBorrados.end(); ++it)
+	for (list<string>::iterator it = archBorrados.begin(); it != archBorrados.end(); ++it)
 	{
 		if (esArchivo(directorio,*it) // Existe y tal vez no deberia, miro la fecha para determinar eso
 			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it))
@@ -60,7 +60,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 			modifs.push_back(modif);
 		}
 	}
-	list<string> archIndexados = indice.devolverNombres();
+	list<string> archIndexados = indiceServer.devolverNombres();
 	// Itero por los archivos que existen, si no existe, lo pido como nuevo
 	for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
 	{

@@ -10,14 +10,14 @@ ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, cons
 
 void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 {
-	cout << "antes lock" << endl;
+	cout << "Antes lock" << endl;
 	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
 	Lock* lock = 0;
 	if (mod.nombre_archivo_alt == "") {
 		lock = new Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
 	}
 	Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
-	cout << "despues lock" << endl;
+	cout << "Despues lock" << endl;
 
 	switch(mod.accion)
 	{
@@ -36,7 +36,8 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			}
 			break;
 		case RENOMBRADO:
-			if (base_de_datos.estaIndexado(mod.nombre_archivo)) {
+			if (base_de_datos.estaIndexado(mod.nombre_archivo))
+			{
 				sock1.enviar_flag(YA_APLICADA);
 				cout<<"Modificacion RENOMBRADO: "<< mod.nombre_archivo <<" ya estaba aplicada."<<endl;
 				return;
@@ -45,19 +46,21 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		case EDITADO:
 			//base_de_datos.registrar_editado(mod.nombre_archivo);
 			//TODO: Revisar el hash
-			return;
+			//return;
+			break;
 		case COPIADO:
-			if (base_de_datos.estaIndexado(mod.nombre_archivo)) {
+			if (base_de_datos.estaIndexado(mod.nombre_archivo))
+			{
 				sock1.enviar_flag(YA_APLICADA);
 				cout<<"Modificacion COPIADO: "<< mod.nombre_archivo <<" ya estaba aplicada."<<endl;
 				return;
 			}
-			return;
-		default:break;
+			break;
+		default:
+			break;
 	}
-	cout<<"Eenviando flag OK"<<endl;
+	cout << "Enviando flag OK" << endl;
 	sock1.enviar_flag(OK);
-	cout<<"Flag enviado :)"<<endl;
 	bool exito = false;
 
 	switch(mod.accion)

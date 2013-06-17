@@ -181,7 +181,6 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 	switch (mod.accion)
 	{
 		case NUEVO:
-			cout<<"NUEVO"<<endl;
 			if (mod.es_local) { return enviar_nuevo_archivo(mod.nombre_archivo); }
 			else { return pedir_nuevo_archivo(mod.nombre_archivo); }
 		case EDITADO:

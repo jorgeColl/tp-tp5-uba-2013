@@ -11,24 +11,23 @@ ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, cons
 void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 {
 	switch(mod.accion)
-		{
-			case NUEVO:
-				if (base_de_datos.estaIndexado(mod.nombre_archivo)) {
-					sock1.enviar_flag(YA_APLICADA);
-					cout<<"modificacion NUEVO "<<mod.nombre_archivo<<" ya estaba aplicada"<<endl;
-					return;
-				}
-				break;
-			case BORRADO:
-				if (!base_de_datos.estaIndexado(mod.nombre_archivo)) {
-					sock1.enviar_flag(YA_APLICADA);
-					cout<<"modificacion BORRADO "<<mod.nombre_archivo<<" ya estaba aplicada"<<endl;
-					return;
-				}
-				break;
-			default:break;
-		}
-	// TODO: Fijarse si ya esta aplicada/es vieja y emitir YA_ESTA si es el caso
+	{
+		case NUEVO:
+			if (base_de_datos.estaIndexado(mod.nombre_archivo)) {
+				sock1.enviar_flag(YA_APLICADA);
+				cout<<"Modificacion NUEVO: "<< mod.nombre_archivo <<" ya estaba aplicada."<<endl;
+				return;
+			}
+			break;
+		case BORRADO:
+			if (base_de_datos.estaIndexado(mod.nombre_archivo), false) {
+				sock1.enviar_flag(YA_APLICADA);
+				cout<<"Modificacion BORRADO: "<<mod.nombre_archivo<<" ya estaba aplicada."<<endl;
+				return;
+			}
+			break;
+		default:break;
+	}
 	cout<<"Eenviando flag OK"<<endl;
 	sock1.enviar_flag(OK);
 	cout<<"Flag enviado :)"<<endl;

@@ -148,7 +148,11 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 	// A criterio si conviene levantar una excepcion si rename != 0
 	string path = unirPath(directorio, nombre_archivo);
 	int exito = remove( path.c_str() );
-	if(exito != 0) return false;
+	if(exito != 0)
+	{
+		cout << (strerror(errno)) << endl;
+		return false;
+	}
 	return true;
 }
 
@@ -275,6 +279,8 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_locales()
 
 void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 {
+	RegistroIndice* yaEstaba = indice.buscarNombre(nombre_archivo);
+	if (yaEstaba) return;
 	//Armo el registro con el archivo, y lo agrego al indice en ram y fisico
 	RegistroIndice reg(nombre_archivo, directorio); //Puede fallar si el archivo no es bueno
 	reg.calcularHash(directorio,reg.hash);
@@ -289,6 +295,8 @@ void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 
 void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 {
+	RegistroIndice* yaEstabaBorrado = indice.buscarNombre(nombre_archivo, false);
+	if (yaEstabaBorrado) return;
 	//Busco el registro y lo elimino de ram y del fisico
 	RegistroIndice *reg = 0;
 	reg = indice.buscarNombre(nombre_archivo);

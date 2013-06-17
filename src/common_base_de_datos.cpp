@@ -340,12 +340,12 @@ void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 	registrar_eliminado_fis(*reg);
 }
 
-void BaseDeDatos::registrar_modificado(const string &nombre_archivo)
+void BaseDeDatos::registrar_editado(const string &nombre_archivo)
 {
 	//Busco el registro y le recalculo el hash, y luego lo pongo en ram y el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_archivo);
 	indice.modificar(*reg, directorio); // Primero modifico para luego guardar
-	registrar_modificado_fis(*reg);
+	registrar_editado_fis(*reg);
 }
 
 void BaseDeDatos::registrar_renombrado(const string &nombre_nuevo, const string &nombre_viejo)
@@ -358,6 +358,7 @@ void BaseDeDatos::registrar_renombrado(const string &nombre_nuevo, const string 
 
 void BaseDeDatos::registrar_copiado(const string &nombre_nuevo, const string &nombre_viejo)
 {
+	if (indice.buscarNombre(nombre_nuevo)) return; // Ya estaba, fue un error entrar aca
 	//Busco el reg, hago una copia, le cambio el nombre, lo agrego en ram y luego en el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
 	RegistroIndice copia(*reg);
@@ -410,7 +411,7 @@ void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 	archivo.flush(); // Seguridad
 }
 
-void BaseDeDatos::registrar_modificado_fis(const RegistroIndice &reg)
+void BaseDeDatos::registrar_editado_fis(const RegistroIndice &reg)
 {
 	archivo.seekp(reg.archOffset);
 	archivo << reg.serializar();

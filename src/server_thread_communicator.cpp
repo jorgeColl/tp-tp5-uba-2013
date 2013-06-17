@@ -42,6 +42,17 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 				return;
 			}
 			break;
+		case EDITADO:
+			//base_de_datos.registrar_editado(mod.nombre_archivo);
+			//TODO: Revisar el hash
+			return;
+		case COPIADO:
+			if (base_de_datos.estaIndexado(mod.nombre_archivo)) {
+				sock1.enviar_flag(YA_APLICADA);
+				cout<<"Modificacion COPIADO: "<< mod.nombre_archivo <<" ya estaba aplicada."<<endl;
+				return;
+			}
+			return;
 		default:break;
 	}
 	cout<<"Eenviando flag OK"<<endl;
@@ -78,7 +89,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			original.close();
 			destino.close();
 			exito = base_de_datos.renombrar_temporal(mod.nombre_archivo);
-			if (exito) base_de_datos.registrar_modificado(mod.nombre_archivo);
+			if (exito) base_de_datos.registrar_editado(mod.nombre_archivo);
 			else base_de_datos.eliminar_archivo_temporal(mod.nombre_archivo);
 		}
 			break;

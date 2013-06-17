@@ -98,7 +98,7 @@ bool Controlador::enviar_edicion(const Modificacion& mod)
 	PacketID flag;
 	sock1.recibir_flag(flag);
 	if (flag != OK) return false;
-	base_de_datos.registrar_modificado(mod.nombre_archivo);
+	base_de_datos.registrar_editado(mod.nombre_archivo);
 	return true;
 }
 
@@ -115,7 +115,7 @@ bool Controlador::pedir_edicion(const string& nombre_archivo)
 	original.close();
 	destino.close();
 	bool exito = base_de_datos.renombrar_temporal(nombre_archivo);
-	if (exito) base_de_datos.registrar_modificado(nombre_archivo);
+	if (exito) base_de_datos.registrar_editado(nombre_archivo);
 	else
 	{
 		base_de_datos.eliminar_archivo_temporal(nombre_archivo);
@@ -171,8 +171,14 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 			case BORRADO:
 				base_de_datos.registrar_eliminado(mod.nombre_archivo);
 				return true;
+			case EDITADO:
+				base_de_datos.registrar_editado(mod.nombre_archivo);
+				return true;
 			case RENOMBRADO:
 				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				return true;
+			case COPIADO:
+				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
 				return true;
 			default:
 				return false;

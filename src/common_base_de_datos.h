@@ -106,7 +106,7 @@ public:
 	 * @pre El archivo existe y habia sido previamente indexado
 	 * @throws Excepcion si falla
 	 */
-	void registrar_modificado(const string &nombre_archivo);
+	void registrar_editado(const string &nombre_archivo);
 
 	/**
 	 * @brief Registra que se cambio el nombre de un archivo ya indexado
@@ -255,7 +255,7 @@ private:
 	 * @brief Persiste una modificacion de archivo en la indexacion fisica
 	 * @return True si la operacion tiene exito
 	 */
-	void registrar_modificado_fis(const RegistroIndice &reg);
+	void registrar_editado_fis(const RegistroIndice &reg);
 
 	/**
 	 * @brief Carga los contenidos del archivo indice a una estructura en ram

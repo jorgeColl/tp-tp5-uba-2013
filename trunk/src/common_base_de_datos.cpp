@@ -346,7 +346,6 @@ bool BaseDeDatos::estaIndexado(const string &nombre_archivo, bool valido){
 void BaseDeDatos::cargarARam()
 {
 	indice.cargar(archivo);
-	if (!archivo.good()) throw runtime_error("Fallo la carga del archivo indice.");
 }
 
 void BaseDeDatos::registrar_nuevo_fis(RegistroIndice &reg)
@@ -371,7 +370,7 @@ void BaseDeDatos::registrar_eliminado_fis(const RegistroIndice &reg)
 {
 	// Eliminado logico. Sumo 1 debido a los prefijos.
 	archivo.seekp(reg.archOffset, ios::beg);
-	archivo.write((char*)&(reg.valido), BYTES_BOOL);
+	archivo << reg.serializar();
 	if (!archivo.good()) throw runtime_error("Fallo el borrado en el indice fisico.");
 	archivo.flush(); // Seguridad
 }

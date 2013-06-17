@@ -178,7 +178,8 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 	int exito = remove( path.c_str() );
 	if(exito != 0)
 	{
-		cout << (strerror(errno)) << endl;
+		cout << "Error al eliminar el archivo " << nombre_archivo <<
+				".Error: " << (strerror(errno)) << endl;
 		return false;
 	}
 	return true;

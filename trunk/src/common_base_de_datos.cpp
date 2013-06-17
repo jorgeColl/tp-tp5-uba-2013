@@ -43,6 +43,7 @@ list<Modificacion> BaseDeDatos::comparar_indices(istream &otro)
 
 list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente)
 {
+	// Todo: Cambiar los devolvernombres por devolverRegistros
 	IndiceRam indiceServer;
 	indiceFuente.seekg(0, ios::beg);
 	indiceServer.cargar(indiceFuente);
@@ -54,7 +55,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 	for (list<string>::iterator it = archBorrados.begin(); it != archBorrados.end(); ++it)
 	{
 		if (esArchivo(directorio,*it) // Existe y tal vez no deberia, miro la fecha para determinar eso
-			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it)) // Existe y es viejo, lo borro
+			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it, false)) // Existe y es viejo, lo borro
 		{
 			Modificacion modif(BORRADO, es_local, *it);
 			modifs.push_back(modif);

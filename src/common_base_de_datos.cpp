@@ -193,6 +193,7 @@ bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombr
 	string pathViejo = unirPath(directorio, viejo_nombre);
 	string pathNuevo = unirPath(directorio, nuevo_nombre);
 	// A criterio si conviene levantar una excepcion si rename != 0
+	if (!esArchivo(pathViejo)) return true; // No se podia renombrar porque no existe
 	bool exito = rename(pathViejo.c_str(), pathNuevo.c_str());
 	if(exito != 0)
 	{

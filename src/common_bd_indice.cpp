@@ -93,3 +93,9 @@ list<string> BaseDeDatos::IndiceRam::devolverNombres(bool valido)
 	}
 	return nombres;
 }
+
+time_t BaseDeDatos::IndiceRam::devolverFecha(const string& nombre, bool valido)
+{
+	RegistroIndice* reg = buscarNombre(nombre, valido);
+	return reg->modif;
+}

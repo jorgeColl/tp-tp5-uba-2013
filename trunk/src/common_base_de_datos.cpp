@@ -35,16 +35,16 @@ void BaseDeDatos::cerrar()
 
 list<Modificacion> BaseDeDatos::comparar_indices(istream &otro)
 {
-	// TODO: Hacerlo bien
+	// Primero reviso los del servidor porque voy a hacer cosas con los archivos fisicos
 	list<Modificacion> mod_serv = comprobar_cambios_externos(otro);
 	list<Modificacion> mod_cli = comprobar_cambios_locales();
-
-	return list<Modificacion>();
+	return merge_modifs(mod_serv, mod_cli);
 }
 
 list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente)
 {
 	IndiceRam indiceServer;
+	indiceFuente.seekg(0, ios::beg);
 	indiceServer.cargar(indiceFuente);
 	bool es_local = false;
 	list<Modificacion> modifs;
@@ -54,16 +54,17 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 	for (list<string>::iterator it = archBorrados.begin(); it != archBorrados.end(); ++it)
 	{
 		if (esArchivo(directorio,*it) // Existe y tal vez no deberia, miro la fecha para determinar eso
-			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it))
+			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it)) // Existe y es viejo, lo borro
 		{
-			Modificacion modif(BORRADO, es_local, *it); // Existe y es viejo, lo borro
+			Modificacion modif(BORRADO, es_local, *it);
 			modifs.push_back(modif);
 		}
 	}
 	list<string> archIndexados = indiceServer.devolverNombres();
-	// Itero por los archivos que existen, si no existe, lo pido como nuevo
+	// Itero por los archivos que existen, si no existe, lo pido como nuevo si es apropiado
 	for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
 	{
+		cout << *it << endl;
 		if (!esArchivo(directorio,*it)) // No existe, tal vez tengo que pedirlo
 		{
 			RegistroIndice* estaba = indice.buscarNombre(*it);
@@ -77,7 +78,43 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 		}
 		else // Si existe, veo que tengo que cambiarle
 		{
-
+			RegistroIndice* reg = indice.buscarNombre(*it);
+			if (!reg) // No existe en el indice local pero existe como archivo fisico
+					  // Por lo tanto es un archivo que el usuario recien creo/copio/renombro
+					  // Pero tambien existe en el indice del server, asi que otro usuario lo commiteo
+					  // Resuelvo el conflicto cambiandole el nombre al archivo del usuario local
+					  // Y pidiendo un archivo nuevo
+			{
+				string nombrenuevo(NOMBRE_CONFLICTO);
+				time_t fecha = time(NULL);
+				struct tm *newtime = localtime(&fecha);
+				nombrenuevo += asctime(newtime);
+				nombrenuevo += *it;
+				rename(reg->nombre.c_str(), nombrenuevo.c_str());
+				Modificacion modif(NUEVO, es_local, *it);
+				modifs.push_back(modif);
+			}
+			else // Ya estaba indexado, comparo las fechas y si es menor pido una modificacion
+			{
+				RegistroIndice* regExt = indiceServer.buscarNombre(*it);
+				if (regExt->modif > reg->modif)
+				{
+					// Primero me fijo si no tengo ningun archivo del mismo hash para hacer una copia y listo
+					list<RegistroIndice*> matches = indice.buscarHash(regExt->hash);
+					RegistroIndice *aCopiar = NULL;
+					if (!matches.empty()) aCopiar = matches.front(); // Agarro el primero, total es lo mismo
+					if (aCopiar)
+					{
+						registrar_eliminado(*it); // Elimino el que tengo
+						registrar_copiado(*it, aCopiar->nombre); // Copio
+					}
+					else // No encontre tal cosa, pido la modificacion
+					{
+						Modificacion modif(EDITADO, es_local, *it);
+						modifs.push_back(modif);
+					}
+				}
+			}
 		}
 	}
 	return modifs;
@@ -92,7 +129,7 @@ list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, 
 	list<Modificacion>::iterator it_loc = lista_local.begin();
 	vector<string> renombrados;
 	vector<string> renombres;
-	// TODO: Menejar el gran problema que presentan los renombres usando solo los hashes como dato?
+	// TODO: Analisar si esto funciona apropiadamente
 	while(it_ext != lista_externa.end() && it_loc != lista_local.end())
 	{
 		if (*it_ext < *it_loc)
@@ -358,19 +395,8 @@ void BaseDeDatos::registrar_renombrado(const string &nombre_nuevo, const string 
 
 void BaseDeDatos::registrar_copiado(const string &nombre_nuevo, const string &nombre_viejo)
 {
-	if (indice.buscarNombre(nombre_nuevo)) return; // Ya estaba, fue un error entrar aca
-	//Busco el reg, hago una copia, le cambio el nombre, lo agrego en ram y luego en el fisico
-	RegistroIndice* reg = indice.buscarNombre(nombre_viejo);
-	RegistroIndice copia(*reg);
-	copia.nombre = nombre_nuevo;
-	copia.archOffset = OFFSET_INVALIDO;
-	RegistroIndice* regBorrado = indice.buscarNombre(nombre_nuevo, false);
-	if (regBorrado) // Ya existia pero borrado, entonces usamos el mismo offset
-		copia.archOffset = regBorrado->archOffset;
-	registrar_nuevo_fis(copia); // Primero lo agrego para obtener el offset correcto
-	if (regBorrado) // Lo borramos de ram si estaba
-		indice.eliminar(*regBorrado);
-	indice.agregar(copia);
+	// Es lo mismo que registrar uno nuevo
+	registrar_nuevo(nombre_nuevo);
 }
 
 bool BaseDeDatos::estaIndexado(const string &nombre_archivo, bool valido){

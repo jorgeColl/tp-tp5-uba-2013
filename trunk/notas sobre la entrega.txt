@@ -1,0 +1,14 @@
+	Cosas que faltan implementar:
+Firmas HMAC
+Syslog
+Grafico de bytes
+Opcional: Optimizar un poco la parte de la sincronizacion inicial
+
+	La documentacion de usuario
+Hay varios videos instructivos subidos a Youtube tambien para ver.
+
+	Salvedades:
+Estamos aun intentando limpiar unos bugs que se presentan en la pc de Jorge pero no en la de Fran.
+Uno es un segmentation fault al recibir una modificacion en el servidor.
+El otro es relacionado a recibir un renombre de archivo donde aparentemente un cliente se queda enviando mensajes de borrado.
+Con suerte para el Lunes a la noche o el Martes estaran arreglados.

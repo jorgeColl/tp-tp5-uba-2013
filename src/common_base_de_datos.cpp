@@ -36,8 +36,8 @@ void BaseDeDatos::cerrar()
 list<Modificacion> BaseDeDatos::comparar_indices(istream &otro)
 {
 	// TODO: Hacerlo bien
-	//list<Modificacion> mod_serv = comprobar_cambios_externos(otro);
-	//list<Modificacion> mod_cli = comprobar_cambios_locales();
+	list<Modificacion> mod_serv = comprobar_cambios_externos(otro);
+	list<Modificacion> mod_cli = comprobar_cambios_locales();
 
 	return list<Modificacion>();
 }
@@ -46,7 +46,35 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 {
 	IndiceRam indiceServer;
 	indiceServer.cargar(indiceFuente);
-	return list<Modificacion>();
+	bool es_local = false;
+	list<Modificacion> modifs;
+	// Me fijo si los archivos que tenia indexado siguen en la carpeta
+	list<string> archIBorrados = indice.devolverNombres(false);
+	// Itero por los archivos que deberian estar borrados, si existe, veo si lo tengo que borrar
+	for (list<string>::iterator it = archIBorrados.begin(); it != archIBorrados.end(); ++it)
+	{
+		if (esArchivo(directorio,*it) // Existe y tal vez no deberia, miro la fecha
+			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it))
+		{
+			Modificacion modif(BORRADO, es_local, *it);
+			modifs.push_back(modif);
+		}
+	}
+	list<string> archIndexados = indice.devolverNombres();
+	// Itero por los archivos que existen, si no existe, lo pido como nuevo
+	for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
+	{
+		if (!esArchivo(directorio,*it)) // No existe, tengo que pedirlo
+		{
+			Modificacion modif(NUEVO, es_local, *it);
+			modifs.push_back(modif);
+		}
+		else // Si existe, veo que tengo que cambiarle
+		{
+
+		}
+	}
+	return modifs;
 }
 
 list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local)

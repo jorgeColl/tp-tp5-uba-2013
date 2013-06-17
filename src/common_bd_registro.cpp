@@ -5,6 +5,7 @@
 #include <stdexcept> 		// Excepciones genericas
 #include <sstream>
 #include "common_hashing.h"
+#include "common_util.h"
 
 BaseDeDatos::RegistroIndice::RegistroIndice(const string &nombre, time_t modif,
 		off_t tam, const string &hash, bool valido)	: nombre(nombre), modif(modif),
@@ -60,9 +61,7 @@ size_t BaseDeDatos::RegistroIndice::tamReg(size_t prefijo)
 
 bool BaseDeDatos::RegistroIndice::calcularHash(const string &dir,string &hash)
 {
-	string path(dir);
-	path += "/";
-	path += nombre;
+	string path = unirPath(dir, nombre);
 	return MD5_arch(path, hash);
 }
 

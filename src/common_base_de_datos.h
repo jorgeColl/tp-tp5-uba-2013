@@ -148,6 +148,7 @@ public:
 	 */
 	list<Modificacion> comparar_indices(istream &otro);
 
+	// Deprecated
 	/**
 	 * @brief Fusiona 2 listas de modificaciones de forma que queden resueltos los conflictos
 	 * @pre La lista externa tiene modificaciones no locales, y la local modificaciones locales
@@ -156,7 +157,7 @@ public:
 	 * @return Lista con las modificaciones tras resolver los conflictos
 	 * @post La lista_externa y la lista_local fueron ordenadas
 	 */
-	list<Modificacion> merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local);
+	// list<Modificacion> merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local);
 
 	/**
 	 * @param modif_externa Modificacion no local

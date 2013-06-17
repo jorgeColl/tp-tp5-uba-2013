@@ -35,10 +35,7 @@ void BaseDeDatos::cerrar()
 
 list<Modificacion> BaseDeDatos::comparar_indices(istream &otro)
 {
-	// Primero reviso los del servidor porque voy a hacer cosas con los archivos fisicos
-	list<Modificacion> mod_serv = comprobar_cambios_externos(otro);
-	list<Modificacion> mod_cli = comprobar_cambios_locales();
-	return merge_modifs(mod_serv, mod_cli);
+	return comprobar_cambios_externos(otro);
 }
 
 list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente)
@@ -120,6 +117,7 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 	return modifs;
 }
 
+/* Deprecated
 list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local)
 {
 	list<Modificacion> result;
@@ -165,7 +163,7 @@ list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, 
 		++it_loc;
 	}
 	return result;
-}
+}*/
 
 list<Modificacion> BaseDeDatos::resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local)
 {
@@ -195,7 +193,14 @@ bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombr
 	string pathViejo = unirPath(directorio, viejo_nombre);
 	string pathNuevo = unirPath(directorio, nuevo_nombre);
 	// A criterio si conviene levantar una excepcion si rename != 0
-	return (rename(pathViejo.c_str(), pathNuevo.c_str()) == 0);
+	bool exito = rename(pathViejo.c_str(), pathNuevo.c_str());
+	if(exito != 0)
+	{
+		cout << "Error al renombrar el archivo " << viejo_nombre << " a "
+				<< nuevo_nombre << ".Error: " << (strerror(errno)) << endl;
+		return false;
+	}
+	return true;
 }
 
 bool BaseDeDatos::copiar(const string &viejo_nombre,const string &nuevo_nombre) {
@@ -392,6 +397,7 @@ void BaseDeDatos::registrar_editado(const string &nombre_archivo)
 {
 	//Busco el registro y le recalculo el hash, y luego lo pongo en ram y el fisico
 	RegistroIndice* reg = indice.buscarNombre(nombre_archivo);
+	if (!reg) return; // Si el registro no estaba que hago aca?
 	indice.modificar(*reg, directorio); // Primero modifico para luego guardar
 	registrar_editado_fis(*reg);
 }

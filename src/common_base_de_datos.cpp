@@ -64,7 +64,6 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 	// Itero por los archivos que existen, si no existe, lo pido como nuevo si es apropiado
 	for (list<string>::iterator it = archIndexados.begin(); it != archIndexados.end(); ++it)
 	{
-		cout << *it << endl;
 		if (!esArchivo(directorio,*it)) // No existe, tal vez tengo que pedirlo
 		{
 			RegistroIndice* estaba = indice.buscarNombre(*it);
@@ -153,7 +152,18 @@ list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, 
 			++it_loc;
 		}
 	}
-	return list<Modificacion>();
+	// Salimos del while, copio los que aun falten
+	while(it_ext != lista_externa.end())
+	{
+		result.push_back(*it_ext);
+		++it_ext;
+	}
+	while(it_loc != lista_local.end())
+	{
+		result.push_back(*it_loc);
+		++it_loc;
+	}
+	return result;
 }
 
 list<Modificacion> BaseDeDatos::resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local)

@@ -27,4 +27,6 @@
 
 #define OFFSET_INVALIDO -1
 
+#define NOMBRE_CONFLICTO "conflictuado_"
+
 #endif /* DEFINES_H_ */

@@ -67,12 +67,13 @@ void ClienteControlador::ejecutar()
 	correr = true;
 	//Comentado temporalmente para testear hasta que este terminado
 	cout << "Ejecutando sincronizacion inicial" << endl;
-	// Comprobacion inicial, comentada por ahora
-	/*list<Modificacion> modServer = pedir_y_comparar_indices();
+	// Comprobacion inicial
+	list<Modificacion> modServer = pedir_y_comparar_indices();
 	for (list<Modificacion>::iterator it = modServer.begin(); it != modServer.end(); ++it)
 	{
+		cout << "Modificacion inicial: " << *it << endl;
 		aplicar_modificacion(*it);
-	}*/
+	}
 	notificador.start(); // Recien aca pongo a correr el notificador, no deberia haber "perdida de datos"
 	while(correr && conectado)
 	{

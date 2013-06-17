@@ -176,9 +176,9 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				// Devuelve el indice
 				{
 					cout<<"Flag es PEDIDO_INDICE"<<endl;
+					Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
 					string nomb(NOMBRE_ARCH_IND);
 					ifstream archIndice;
-					//Lock(this->mutex_ind);
 					base_de_datos.abrir_para_leer(nomb,archIndice);
 					sock1.enviar_archivo(archIndice);
 					archIndice.close();

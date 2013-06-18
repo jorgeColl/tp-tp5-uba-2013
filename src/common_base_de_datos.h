@@ -159,13 +159,27 @@ public:
 	 */
 	// list<Modificacion> merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local);
 
+	// Deprecated
 	/**
 	 * @param modif_externa Modificacion no local
 	 * @param modif_local Modificacion local
 	 * @return Modificaciones resultantes de resolver el conflicto
 	 */
-	list<Modificacion> resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local);
+	//list<Modificacion> resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local);
 
+	/**
+	 * @brief Dado un nombre de archivo, le cambia el nombre al archivo fisico
+	 * @param nombre Nombre del archivo actual
+	 * @return True si el renombramiento tiene exito
+	 */
+	bool renombrar_a_conflictuado(const string &nombre);
+
+	/**
+	 * @brief Dado un nombre de archivo crea una copia con el de un conflictuado
+	 * @param nombre Nombre del archivo
+	 * @return True si tiene exito
+	 */
+	bool copiar_a_conflictuado(const string &nombre);
 
 private:
 	/**

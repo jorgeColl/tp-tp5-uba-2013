@@ -52,4 +52,11 @@ bool esIgnorable(const string &nombre);
  */
 string unirPath(const string dir, const string nombre);
 
+/**
+ * @brief Devuelve el resultado de agregarlo un "sufijo de conflicto" a un nombre
+ * @param nombre Nombre al que se le agregara el sufijo
+ * @return El string deseado
+ */
+string nombreConflictuado(const string &nombre);
+
 #endif /* COMMON_UTIL_H_ */

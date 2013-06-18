@@ -1,4 +1,6 @@
 #include "common_util.h"
+#include "defines.h"
+#include <sstream>
 #include <sys/stat.h>
 
 bool esArchivo(const string &path)
@@ -45,4 +47,16 @@ string unirPath(const string dir, const string nombre)
 	path += "/";
 	path += nombre;
 	return path;
+}
+
+string nombreConflictuado(const string &nombre)
+{
+	string conflic(NOMBRE_CONFLICTO);
+	conflic += "_";
+	stringstream fecha;
+	fecha << time(NULL);
+	conflic += fecha.str();
+	conflic += "_";
+	conflic += nombre;
+	return conflic;
 }

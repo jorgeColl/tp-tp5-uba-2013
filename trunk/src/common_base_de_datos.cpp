@@ -38,6 +38,24 @@ list<Modificacion> BaseDeDatos::comparar_indices(istream &otro)
 	return comprobar_cambios_externos(otro);
 }
 
+bool BaseDeDatos::copiar_a_conflictuado(const string &nombre)
+{
+	return copiar(nombre, nombreConflictuado(nombre));
+}
+
+bool BaseDeDatos::renombrar_a_conflictuado(const string &nombre)
+{
+	string path_viejo = unirPath(directorio, nombre);
+	string pathNuevo = unirPath(directorio, nombreConflictuado(nombre));
+	bool exito = rename(path_viejo.c_str(), pathNuevo.c_str());
+	if (exito != 0)
+	{
+		cout << "Error renombrado el archivo a conflictuado: " << strerror(errno) << endl;
+		return false;
+	}
+	return true;
+}
+
 list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente)
 {
 	// Todo: Cambiar los devolvernombres por devolverRegistros
@@ -54,7 +72,9 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 		if (esArchivo(directorio,*it) // Existe y tal vez no deberia, miro la fecha para determinar eso
 			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it, false)) // Existe y es viejo, lo borro
 		{
-			Modificacion modif(BORRADO, es_local, *it);
+			cout << "modif arch: " << fechaModificado(directorio, *it) << endl;
+			cout << "modif segun ind:" << indiceServer.devolverFecha(*it, false) << endl;
+			Modificacion modif(BORRADO, es_local, *it); // Pongo la modif que al ejecutarse borra el archivo y registra
 			modifs.push_back(modif);
 		}
 	}
@@ -80,35 +100,43 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 					  // Por lo tanto es un archivo que el usuario recien creo/copio/renombro
 					  // Pero tambien existe en el indice del server, asi que otro usuario lo commiteo
 					  // Resuelvo el conflicto cambiandole el nombre al archivo del usuario local
-					  // Y pidiendo un archivo nuevo
+					  // Y pidiendo el del server como nuevo
 			{
-				string nombrenuevo(NOMBRE_CONFLICTO);
-				time_t fecha = time(NULL);
-				struct tm *newtime = localtime(&fecha);
-				nombrenuevo += asctime(newtime);
-				nombrenuevo += *it;
-				rename(reg->nombre.c_str(), nombrenuevo.c_str());
+				renombrar_a_conflictuado(*it);
 				Modificacion modif(NUEVO, es_local, *it);
 				modifs.push_back(modif);
 			}
 			else // Ya estaba indexado, comparo las fechas y si es menor pido una modificacion
 			{
 				RegistroIndice* regExt = indiceServer.buscarNombre(*it);
-				if (regExt->modif > reg->modif)
+				if (regExt->modif > reg->modif) // Si la edicion externa es más reciente que la local indexada
 				{
-					// Primero me fijo si no tengo ningun archivo del mismo hash para hacer una copia y listo
-					list<RegistroIndice*> matches = indice.buscarHash(regExt->hash);
-					RegistroIndice *aCopiar = NULL;
-					if (!matches.empty()) aCopiar = matches.front(); // Agarro el primero, total es lo mismo
-					if (aCopiar)
+					// Si la fecha del archivo es distinto al del servidor y ademas distinto al que estaba guardado local
+					// Se cambio el archivo mientras estaba el cliente apagado y tambien cambio el del servidor, conflicto
+					if (reg->modif < fechaModificado(directorio, *it))
 					{
-						registrar_eliminado(*it); // Elimino el que tengo
-						registrar_copiado(*it, aCopiar->nombre); // Copio
-					}
-					else // No encontre tal cosa, pido la modificacion
-					{
+						copiar_a_conflictuado(*it);
 						Modificacion modif(EDITADO, es_local, *it);
 						modifs.push_back(modif);
+					}
+					else // Otro caso, solo cambio el del servidor y no el local, solo hay que actualizar
+					{
+						// Primero me fijo si no tengo ningun archivo del mismo hash para hacer una copia y listo
+						list<RegistroIndice*> matches = indice.buscarHash(regExt->hash);
+						RegistroIndice *aCopiar = NULL;
+						if (!matches.empty()) aCopiar = matches.front(); // Agarro el primero, total es lo mismo
+						if (aCopiar)
+						{
+							eliminar_archivo(*it); // Elimino el archivo fisico
+							registrar_eliminado(*it); // Elimino el que tengo ubdexadi
+							copiar(aCopiar->nombre, *it); // Copio el archivo
+							registrar_copiado(*it, aCopiar->nombre); // Registro la copia
+						}
+						else // No encontre tal cosa, pido la modificacion al servidor
+						{
+							Modificacion modif(EDITADO, es_local, *it);
+							modifs.push_back(modif);
+						}
 					}
 				}
 			}
@@ -165,13 +193,14 @@ list<Modificacion> BaseDeDatos::merge_modifs(list<Modificacion> &lista_externa, 
 	return result;
 }*/
 
+/* Deprecated
 list<Modificacion> BaseDeDatos::resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local)
 {
 	// TODO: Mejor resolucion de conflictos generando/renombrando archivos conflictuados
 	list<Modificacion> resultado;
 	resultado.push_back(modif_externa);
 	return resultado;
-}
+} */
 
 //----- Modificacion de archivos en el directorio
 
@@ -192,8 +221,7 @@ bool BaseDeDatos::abrir_para_escribir_temporal(const string& nombre_archivo, ofs
 bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombre) {
 	string pathViejo = unirPath(directorio, viejo_nombre);
 	string pathNuevo = unirPath(directorio, nuevo_nombre);
-	// A criterio si conviene levantar una excepcion si rename != 0
-	if (!esArchivo(pathViejo)) return true; // No se podia renombrar porque no existe
+	if (esArchivo(pathNuevo) && !esArchivo(pathViejo)) return true; // Ya fue renombrado suponemos
 	bool exito = rename(pathViejo.c_str(), pathNuevo.c_str());
 	if(exito != 0)
 	{
@@ -219,9 +247,9 @@ bool BaseDeDatos::copiar(const string &viejo_nombre,const string &nuevo_nombre) 
 
 bool BaseDeDatos::renombrar_temporal(const string &nombre_archivo)
 {
-	string viejo_nombre(nombre_archivo);
-	viejo_nombre.append(EXT_TMP);
-	return renombrar(viejo_nombre, nombre_archivo);
+    string viejo_nombre(nombre_archivo);
+    viejo_nombre.append(EXT_TMP);
+    return renombrar(viejo_nombre, nombre_archivo);
 }
 
 bool BaseDeDatos::eliminar_archivo_temporal(const string &nombre_archivo)
@@ -235,6 +263,7 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 {
 	// A criterio si conviene levantar una excepcion si rename != 0
 	string path = unirPath(directorio, nombre_archivo);
+	if (!esArchivo(path)) return true; // No existia, no hay que hacer nada
 	int exito = remove( path.c_str() );
 	if(exito != 0)
 	{
@@ -377,8 +406,6 @@ void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 	if (regBorrado) // Ya existia pero borrado, entonces usamos el mismo offset
 		reg.archOffset = regBorrado->archOffset;
 	registrar_nuevo_fis(reg); // Primero lo agrego para obtener el offset correcto
-	if (regBorrado) // Lo borramos de ram si estaba
-		indice.eliminar(*regBorrado);
 	indice.agregar(reg);
 }
 
@@ -387,8 +414,7 @@ void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 	RegistroIndice* yaEstabaBorrado = indice.buscarNombre(nombre_archivo, false);
 	if (yaEstabaBorrado) return;
 	//Busco el registro y lo elimino de ram y del fisico
-	RegistroIndice *reg = 0;
-	reg = indice.buscarNombre(nombre_archivo);
+	RegistroIndice *reg = indice.buscarNombre(nombre_archivo);
 	if (!reg) return;
 	indice.eliminar(*reg); // Primero tengo que cambiar los valores del registro
 	registrar_eliminado_fis(*reg);

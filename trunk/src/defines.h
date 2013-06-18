@@ -33,6 +33,6 @@
 
 #define OFFSET_INVALIDO -1
 
-#define NOMBRE_CONFLICTO "conflictuado_"
+#define NOMBRE_CONFLICTO "conflictuado"
 
 #endif /* DEFINES_H_ */

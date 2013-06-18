@@ -30,8 +30,11 @@ list<Modificacion> Controlador::recibir_modificaciones() {
 
 bool Controlador::borrar_archivo(const string &nombre_archivo)
 {
-	bool exito = base_de_datos.eliminar_archivo(nombre_archivo);
-	if (!exito) return false;
+	if (esArchivo(dir, nombre_archivo)) // Solo tiene sentido si el archivo existe
+	{
+		bool exito = base_de_datos.eliminar_archivo(nombre_archivo);
+		if (!exito) return false;
+	}
 	base_de_datos.registrar_eliminado(nombre_archivo);
 	return true;
 }
@@ -184,6 +187,16 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 				return false;
 			}
 			return true;
+		}
+		if (flag == CONFLICTO)
+		{
+			// Si hubo conflicto, probamos denuevo pero de otra manera
+			Modificacion copia(mod);
+			string nombreConflic(nombreConflictuado(mod.nombre_archivo));
+			base_de_datos.renombrar(mod.nombre_archivo, nombreConflic);
+			copia.nombre_archivo = nombreConflic;
+			copia.accion = NUEVO;
+			return aplicar_modificacion(copia);
 		}
 		if (flag != OK) return false; // Algo fallo?
 	}

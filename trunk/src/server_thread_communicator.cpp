@@ -35,11 +35,20 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 				return;
 			}
 			break;
+		case COPIADO:
 		case RENOMBRADO:
-			if (base_de_datos.estaIndexado(mod.nombre_archivo))
+			if (base_de_datos.estaIndexado(mod.nombre_archivo)) // Ya existe un archivo con ese nombre
 			{
 				sock1.enviar_flag(YA_APLICADA);
-				cout<<"Modificacion RENOMBRADO: "<< mod.nombre_archivo <<" ya estaba aplicada."<<endl;
+				cout<<"Modificacion RENOMBRADO o COPIADO: "<< mod.nombre_archivo <<
+						" - " << mod.nombre_archivo_alt << " ya estaba aplicada."<<endl;
+				return;
+			}
+			else if (base_de_datos.estaIndexado(mod.nombre_archivo_alt, false)) // Pero no esta borrado el otro
+			{
+				sock1.enviar_flag(CONFLICTO);
+				cout<<"Modificacion RENOMBRADO o COPIADO: "<< mod.nombre_archivo <<
+						" - " << mod.nombre_archivo_alt << " genero un conflicto."<<endl;
 				return;
 			}
 			break;
@@ -47,14 +56,6 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			//base_de_datos.registrar_editado(mod.nombre_archivo);
 			//TODO: Revisar el hash
 			//return;
-			break;
-		case COPIADO:
-			if (base_de_datos.estaIndexado(mod.nombre_archivo))
-			{
-				sock1.enviar_flag(YA_APLICADA);
-				cout<<"Modificacion COPIADO: "<< mod.nombre_archivo <<" ya estaba aplicada."<<endl;
-				return;
-			}
 			break;
 		default:
 			break;
@@ -99,18 +100,14 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		case RENOMBRADO:
 			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);
 			if (exito)
-			{
 				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
-			}
 			break;
 		case COPIADO:
 			exito = base_de_datos.copiar(mod.nombre_archivo_alt, mod.nombre_archivo);
 			if (exito)
-			{
 				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
-			}
 			break;
-		default: // Igstnoro si llega otra cosa
+		default: // Ignoro si llega otra cosa
 			break;
 	}
 	if (exito)

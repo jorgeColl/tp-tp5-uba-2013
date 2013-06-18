@@ -2,8 +2,21 @@
 #include "common_socket_prot.h"
 #include "common_base_de_datos.h" // BYTES_PREF_NOMBRE
 #include "common_hashing.h"
-
 #define TAM_BUFFER 4096
+
+size_t SocketProt::cantidad_transmitida = 0;
+Mutex SocketProt::mutex_cant_transmitida;
+
+size_t SocketProt::cantidad_recibida = 0;
+Mutex SocketProt::mutex_cant_recibida;
+
+size_t SocketProt::get_and_reset_cantidad_recibida() {
+	size_t aux;
+	Lock lock_temp (SocketProt::mutex_cant_recibida);
+	aux = cantidad_recibida;
+	cantidad_recibida = 0;
+	return aux;
+}
 
 SocketProt::SocketProt() : Socket() {}
 
@@ -12,12 +25,14 @@ SocketProt::SocketProt (int socketfd) : Socket(socketfd) {}
 void SocketProt::enviar_flag(const PacketID flag)
 {
 	enviarLen((char*) &flag, 1);
+	guardar_cant_transmitida(1);
 }
 
 void SocketProt::recibir_flag(PacketID &flag)
 {
 	flag = ZERO;
 	recibirLen((char*)&flag, 1);
+	guardar_cant_recibida(1);
 }
 
 void SocketProt::enviar_msg_c_prefijo(const string &msg, uint8_t bytes_para_prefijo)
@@ -25,6 +40,7 @@ void SocketProt::enviar_msg_c_prefijo(const string &msg, uint8_t bytes_para_pref
 	size_t len = msg.length();
 	enviarLen((char*)&len, bytes_para_prefijo);
 	enviarLen(msg.c_str(), msg.length());
+	guardar_cant_transmitida(bytes_para_prefijo+msg.size());
 }
 
 void SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
@@ -38,6 +54,8 @@ void SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 	recibirLen(buffer2, tam); // Recibo los bytes
 	msg.append(buffer2, tam);  // Append de los bytes
 	delete []buffer2;
+
+	guardar_cant_recibida(msg.size());
 }
 
 void SocketProt::enviar_modif(const Modificacion &modif)
@@ -45,6 +63,8 @@ void SocketProt::enviar_modif(const Modificacion &modif)
 	enviar((void*)&(modif.accion),1);
 	enviar_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
 	enviar_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
+
+	guardar_cant_transmitida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
 }
 
 void SocketProt::recibir_modif(Modificacion &modif)
@@ -53,6 +73,8 @@ void SocketProt::recibir_modif(Modificacion &modif)
 	recibir(&(modif.accion),1);
 	recibir_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
 	recibir_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
+	guardar_cant_recibida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
+
 }
 
 void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)
@@ -193,4 +215,14 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 			arch_temp.write(buffer, arch_orig.gcount());
 		}
 	}
+}
+
+void SocketProt::guardar_cant_transmitida(size_t cantidad){
+	Lock aux (mutex_cant_transmitida);
+	cantidad_transmitida += cantidad;
+}
+
+void SocketProt::guardar_cant_recibida(size_t cantidad) {
+	Lock aux (mutex_cant_recibida);
+	cantidad_recibida += cantidad;
 }

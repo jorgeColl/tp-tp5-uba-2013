@@ -6,6 +6,7 @@
 #include "common_socket.h"
 #include "common_modificacion.h"
 #include "defines.h"
+#include "common_mutex.h"
 
 using namespace std;
 
@@ -19,6 +20,11 @@ enum PacketID {ZERO = 0, OK, YA_APLICADA, FAIL, LOGIN, LOGOUT, MODIFICACION, PED
 class SocketProt : public Socket
 {
 public:
+	static Mutex mutex_cant_transmitida;
+	static Mutex mutex_cant_recibida;
+	static size_t cantidad_transmitida;
+	static size_t cantidad_recibida;
+	static size_t get_and_reset_cantidad_recibida();
 	SocketProt();
 	SocketProt(int socketfd);
 	/**
@@ -102,6 +108,10 @@ public:
 	void firmar_mensaje(std::string& mensaje, std::string contrasenia);
 	/**@brief verifica si el mensaje está correctamente firmado */
 	void comprobar_firma(std::string& mensaje,std::string contrasenia);
+
+	void guardar_cant_transmitida(size_t cantidad);
+
+	void guardar_cant_recibida(size_t cantidad);
 };
 
 #endif /* COMMON_SOCKET_PROT_H_ */

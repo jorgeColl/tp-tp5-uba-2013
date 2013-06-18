@@ -21,52 +21,20 @@ ArchMutexcer* ArchMutexcer::generar_archmutexcer(const char* directorio) {
 	}
 	cout<<"ArchMutexcer::generar_archmutexcer():  NUEVA instancia creada"<<endl;
 	ArchMutexcer* nuevo = new ArchMutexcer(directorio);
-	nuevo->construir_mutexs();
 
 	ArchMutexcer::hijitos[directorio] = nuevo;
 	ArchMutexcer::cant_hijitos[hijitos[directorio]] = 1;
 	return nuevo;
 }
-ArchMutexcer::ArchMutexcer(const char* dir) : dir(dir)
-{
+ArchMutexcer::ArchMutexcer(const char* dir) : dir(dir) {
 	this->mutex_archivos = new std::map <std::string,Mutex*>;
 }
-void ArchMutexcer::construir_mutexs() {
 
-	// lista todos los archivos en el dir
-	// le hace un mutex para cada uno
-	DIR* direct = opendir(dir.c_str());
-	if (direct == NULL) {
-		cout << "ArchMutexcer:: no hay dir valido ????" << endl;
-	}
-	struct dirent* dirEnt = readdir(direct);
-	while (dirEnt != NULL) {
-		string path = unirPath(dir,dirEnt->d_name);
-		//mutex_archivos[dirEnt->d_name] = new Mutex;
-
-		if (esIgnorable(dirEnt->d_name) || !esArchivo(path)) {
-			dirEnt = readdir(direct); //Error, seguimos
-			continue;
-		}
-
-		// agrego al map
-		cout<<"ArchMutexcer::construir_mutexs(): encontre nuevo archivo "<<dirEnt->d_name<<endl;
-		Mutex* mu = new Mutex();
-		(*this->mutex_archivos)[dirEnt->d_name] = mu;
-
-		dirEnt = readdir(direct);
-	}
-	closedir(direct);
-}
 Mutex* ArchMutexcer::get_mutex(const char* dir_archivo) {
 	Lock(this->mutex_loc);
-	if (!is_mutex(dir_archivo)){
+	if (!is_mutex(dir_archivo)) {
 		new_mutex(dir_archivo);
 	}
-	/*if((*mutex_archivos).count(dir_archivo) == 0) {
-		cout<<"ArchMutexcer: dir no encontrado, no puedo devolver mutex";
-		return NULL;
-	}*/
 	return (*mutex_archivos)[dir_archivo];
 }
 void ArchMutexcer::new_mutex(const char* dir_nuevo_archivo) {
@@ -95,6 +63,8 @@ void ArchMutexcer::borrar() {
 	cout << "ArchMutexcer::~ArchMutexcer():cant instancias: "
 			<< ArchMutexcer::cant_instacias(this) << endl;
 	if (1 == ArchMutexcer::cant_instacias(this)) {
+		ArchMutexcer::cant_hijitos.erase(this);
+		ArchMutexcer::hijitos.erase(dir);
 		delete(lock);
 		delete this;
 	} else {
@@ -108,11 +78,8 @@ ArchMutexcer::~ArchMutexcer() {
 	cout << "ArchMutexcer::~ArchMutexcer(): mutexs de carpeta "<<dir<<" se elimina permanentemente" << endl;
 	std::map<std::string, Mutex*>::iterator it;
 	for (it = mutex_archivos->begin(); it != mutex_archivos->end(); it++) {
-		//cout << "eliminando mutex de: " << it->first << endl;
 		delete it->second;
 	}
-	//cout << "CANT ELIMINADA: " << ArchMutexcer::cant_hijitos.erase(this)<< endl;
-	//cout << "CANT ELIMINADA: " << ArchMutexcer::hijitos.erase(*dir) << endl;
 	delete this->mutex_archivos;
 }
 size_t ArchMutexcer::cant_instacias(ArchMutexcer* mutexcer) {

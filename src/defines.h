@@ -11,6 +11,12 @@
 #define PUERTO2_DEF "12701"
 #define DIR_DEF_SERV "./serverDir"
 
+#define INTERVALO_GRAFICO 10
+#define ARCHIVO_GRAFICO1 ".recibido1"
+#define ARCHIVO_GRAFICO2 ".recibido2"
+
+
+
 #define NOMBRE_ARCH_IND ".auindice"
 #define EXT_TMP "~"
 #define BYTES_HASH 16 // Cuantos bytes ocupa un hash

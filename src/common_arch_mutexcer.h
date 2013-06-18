@@ -13,8 +13,6 @@ class ArchMutexcer {
 protected:
 	/**@brief resta una "pseudinstancia" */
 	static void restar_instancia(ArchMutexcer* mutexcer);
-	/**@brief busca en el directorio todos los nombres de archivos y le asigna un mutex unico para cada uno */
-	void construir_mutexs();
 	/**@brief devuelve el mutex correspondiente al nombre de archivo ingresado */
 	/**@brief devuelve la cantidad de "pseudoinstancias" que hay */
 	static size_t cant_instacias(ArchMutexcer* mutexcer);

@@ -2,6 +2,7 @@
 #include "common_util.h"
 #include <sys/stat.h>	//mkdir
 #include "defines.h"
+#include "common_observador_recibido.h"
 
 Accepter::Accepter(const string &dir, const string &puerto1, const string &puerto2) :
 		base_datos_usu(unirPath(dir,DB_USU_ARCH)), dir(dir),
@@ -45,6 +46,8 @@ void Accepter::ejecutar()
 	sock_prot1.escuchar(puerto1.c_str(), MAX_COLA);
 	sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
 	size_t contador = 0;
+	ObserbadorRecibido obs;
+	obs.start();
 	while (correr)
 	{
 		bool exito = aceptar_conexion();
@@ -59,6 +62,8 @@ void Accepter::ejecutar()
 		else cout << "Aceptacion de cliente fallida." << endl;
 	}
 	cout<<"Accepter termina ejecucion"<<endl;
+	obs.stop();
+	obs.join();
 }
 
 void Accepter::stop()

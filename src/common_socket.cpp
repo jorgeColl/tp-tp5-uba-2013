@@ -5,6 +5,12 @@
 #include <netdb.h>		// Inet
 #include "common_socket.h"
 
+Socket::addrinfoWrap::addrinfoWrap() : res(NULL) {}
+Socket::addrinfoWrap::~addrinfoWrap()
+{
+	freeaddrinfo(res);
+}
+
 Socket::Socket() : sockfd(-1) {}
 
 Socket::Socket(int sockfd) : sockfd(sockfd) {}

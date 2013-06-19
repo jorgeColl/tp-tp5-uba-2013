@@ -74,9 +74,9 @@ class Socket
 		class addrinfoWrap
 		{
 			public:
-				addrinfoWrap() : res(0) {}
+				addrinfoWrap();
 				struct addrinfo *res;
-				~addrinfoWrap() { free(res); }
+				~addrinfoWrap();
 		};
 };
 

@@ -1,4 +1,4 @@
-Compilacion:
+	Compilacion:
 La version de Gtkmm usada es 2.24
 Solo hace falta hacer make
 
@@ -6,7 +6,8 @@ Solo hace falta hacer make
 Firmas HMAC
 Syslog
 Grafico de bytes
-Algunos casos de conflicto por ejemplo cuando llega un renombrado o copiado y el archivo fue eliminado
+Algunos casos de conflicto. Por ejemplo cuando llega un renombrado o copiado y el archivo fue eliminado previamente.
 
-	La documentacion de usuario
+	Documentacion de usuario
+En el archivo aparte apropiado.
 Hay varios videos instructivos subidos a Youtube tambien para ver.

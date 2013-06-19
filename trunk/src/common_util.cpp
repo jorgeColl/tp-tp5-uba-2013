@@ -23,6 +23,13 @@ off_t tamArchivo(const string &dir, const string &nombre)
 	stat(path.c_str(), &buf);
 	return buf.st_size;
 }
+off_t tamCarpeta(const char* dir)
+{
+
+	struct stat buf;
+	stat(dir, &buf);
+	return buf.st_size;
+}
 
 time_t fechaModificado(const string &dir, const string &nombre)
 {

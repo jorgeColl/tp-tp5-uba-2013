@@ -40,7 +40,7 @@ void cargarPrefs(string &dir, string &puerto1, string &puerto2)
 	}
 	arch.close();
 }
-
+#include <sys/stat.h>
 int main (int argc, char** argv)
 {
 	try
@@ -51,6 +51,7 @@ int main (int argc, char** argv)
 		cout << "Directorio: " << dir << endl;
 		cout << "Puerto 1: " << p1 << endl;
 		cout << "Puerto 2: " << p2 << endl;
+		mkdir(dir.c_str(), 0700); // Si no existia la carpeta, se crea.
 		Accepter acp(dir.c_str(), p1.c_str(), p2.c_str());
 		// Aca manda a ejecutar al accepter en otro thread
 		acp.start();

@@ -190,6 +190,7 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 		}
 		if (flag == CONFLICTO)
 		{
+			cout << "Hubo un conflicto al enviar la modificacion." << endl;
 			// Si hubo conflicto, probamos denuevo pero de otra manera
 			Modificacion copia(mod);
 			string nombreConflic(nombreConflictuado(mod.nombre_archivo));

@@ -18,29 +18,42 @@ size_t SocketProt::get_and_reset_cantidad_recibida() {
 	return aux;
 }
 
-SocketProt::SocketProt() : Socket() {}
+SocketProt::SocketProt() : Socket(), contrasenia("default"){}
 
-SocketProt::SocketProt (int socketfd) : Socket(socketfd) {}
+SocketProt::SocketProt (int socketfd) : Socket(socketfd), contrasenia("default") {}
+
+void SocketProt::set_passw(string pass){
+	contrasenia = pass;
+}
 
 void SocketProt::enviar_flag(const PacketID flag)
 {
-	enviarLen((char*) &flag, 1);
-	guardar_cant_transmitida(1);
+	string flag_a_enviar = (char*)&flag;
+	this->firmar_mensaje(flag_a_enviar, contrasenia);
+	enviarLen(flag_a_enviar.c_str(), flag_a_enviar.length());
+	guardar_cant_transmitida(flag_a_enviar.length());
 }
 
 void SocketProt::recibir_flag(PacketID &flag)
 {
 	flag = ZERO;
-	recibirLen((char*)&flag, 1);
-	guardar_cant_recibida(1);
+	char flag_a_recibir [1 + BYTES_HASH];
+	recibirLen(flag_a_recibir, 1 + BYTES_HASH);
+	this->comprobar_firma(flag_a_recibir, contrasenia);
+
+	flag = (PacketID) flag_a_recibir[0];
+	guardar_cant_recibida(1 + BYTES_HASH);
 }
 
 void SocketProt::enviar_msg_c_prefijo(const string &msg, uint8_t bytes_para_prefijo)
 {
-	size_t len = msg.length();
+	string men = msg;
+	this->firmar_mensaje(men,contrasenia);
+
+	size_t len = men.length();
 	enviarLen((char*)&len, bytes_para_prefijo);
-	enviarLen(msg.c_str(), msg.length());
-	guardar_cant_transmitida(bytes_para_prefijo+msg.size());
+	enviarLen(men.c_str(), men.length());
+	guardar_cant_transmitida(bytes_para_prefijo+men.size());
 }
 
 void SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
@@ -55,24 +68,39 @@ void SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 	msg.append(buffer2, tam);  // Append de los bytes
 	delete []buffer2;
 
+	this->comprobar_y_extraer_firma(msg,contrasenia);
+
 	guardar_cant_recibida(msg.size());
 }
 
 void SocketProt::enviar_modif(const Modificacion &modif)
 {
-	enviar((void*)&(modif.accion),1);
+	size_t cant =0;
+	string men = (char*)&modif.accion;
+	this->firmar_mensaje(men,contrasenia);
+	//enviar((void*)&(modif.accion),1);
+	enviarLen(men.c_str(), men.length());
+
 	enviar_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
+
 	enviar_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
 
-	guardar_cant_transmitida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
+
 }
 
 void SocketProt::recibir_modif(Modificacion &modif)
 {
 	modif.es_local = false;
-	recibir(&(modif.accion),1);
+	string men;
+	char aux_men[1+BYTES_HASH];
+	//recibir(&(modif.accion),1);
+	recibirLen(aux_men,1+BYTES_HASH);
+
 	recibir_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
+	this->comprobar_y_extraer_firma(modif.nombre_archivo, contrasenia);
 	recibir_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
+	this->comprobar_y_extraer_firma(modif.nombre_archivo, contrasenia);
+
 	guardar_cant_recibida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
 
 }
@@ -216,7 +244,26 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 		}
 	}
 }
+void SocketProt::firmar_mensaje(std::string& mensaje, std::string contrasenia){
+	mensaje += MD5_string(mensaje + contrasenia);
+	//MD5_string(mensaje + contrasenia);
+}
 
+void SocketProt::comprobar_y_extraer_firma(std::string& mensaje,std::string contrasenia){
+	string firma_recibida = mensaje.substr(mensaje.length()-BYTES_HASH);
+	mensaje = mensaje.substr(0 , mensaje.length()-BYTES_HASH);
+	if(firma_recibida != MD5_string(mensaje+contrasenia)){
+		//throw std::runtime_error("firma no correcta de acuerdo al mensaje");
+		cout<<"ERROR FIRMA NO BIEN ,mensaje entero"<<mensaje<< "hash esperado "<<mensaje.substr(mensaje.length()-BYTES_HASH)<<" recibido "<<MD5_string(mensaje+contrasenia)<<endl;
+	}
+}
+void SocketProt::comprobar_firma(char* mensaje,string contrasenia){
+	string men = mensaje;
+	if( men.substr(men.length()-BYTES_HASH) != MD5_string(men.substr(0,men.length()-BYTES_HASH)+contrasenia) ) {
+		//throw std::runtime_error("firma no correcta de acuerdo al mensaje");
+		cout<<"ERROR FIRMA NO BIEN ,mensaje entero"<<mensaje<< "hash esperado "<<men.substr(men.length()-BYTES_HASH)<<" recibido "<<MD5_string(men+contrasenia)<<endl;
+	}
+}
 void SocketProt::guardar_cant_transmitida(size_t cantidad){
 	Lock aux (mutex_cant_transmitida);
 	cantidad_transmitida += cantidad;

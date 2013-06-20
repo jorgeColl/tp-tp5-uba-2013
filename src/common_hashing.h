@@ -37,5 +37,9 @@ string MD5_arch(const string &path_arch);
  * @return True si el proceso fue exitoso, false de no serlo
  */
 bool MD5_bloque(istream &arch, off_t offset, off_t tamBloq, string &hash);
+/**
+ * @brief devuelve el hash de un string pasado por parametro
+ */
+string MD5_string(const string& mensaje);
 
 #endif /* COMMON_HASHING_H_ */

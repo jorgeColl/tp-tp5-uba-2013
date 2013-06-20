@@ -56,5 +56,9 @@ bool MD5_bloque(istream &arch, off_t offset, off_t tamBloq, string &hash)
 	hash = string((char*)digest, BYTES_HASH);
 	return false;
 }
-
+string MD5_string(const string& mensaje)
+{
+	md5wrapperRaw wrapper;
+	return  wrapper.getHashFromString(mensaje);
+}
 

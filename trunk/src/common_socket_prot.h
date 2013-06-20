@@ -32,7 +32,10 @@ public:
 	static size_t get_and_reset_cantidad_recibida();
 	*/
 	SocketProt();
+
 	SocketProt(int socketfd);
+
+	void set_password(string pass);
 
 	virtual int enviar(void *msg, size_t len);
 

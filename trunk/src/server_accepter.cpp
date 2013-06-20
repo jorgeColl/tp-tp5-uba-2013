@@ -109,7 +109,7 @@ bool Accepter::aceptar_conexion()
 	sock1.recibir_msg_c_prefijo(usuario, BYTES_USER_PASS);
 	sock1.recibir_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
 	bool login_correcto = base_datos_usu.usuario_contrasenia_correcto
-			(usuario.c_str(), contrasenia.c_str());
+			(usuario, contrasenia);
 	if (!login_correcto)
 	{
 		cout << "Password incorrecta." << endl;

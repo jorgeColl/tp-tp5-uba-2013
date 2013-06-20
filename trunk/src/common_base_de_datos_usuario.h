@@ -8,6 +8,7 @@
 #include <cerrno>
 #include <cstring>
 #include <string>
+#include "defines.h"
 
 using namespace std;
 
@@ -31,8 +32,9 @@ public:
 	void setPath(const string &path);
 	/**@brief abre y carga en memoria la base de datos de usuario y su respectiva contraseña */
 	void abrir();
+	std::string get_pass(std::string& usuario);
 	/**@brief Verifica si el usuario y contraseña ingresados pertenecen a un usuario de la base de datos */
-	bool usuario_contrasenia_correcto(const char* usu, const char* contrasenia);
+	bool usuario_contrasenia_correcto(string& usu, string& contrasenia);
 	/**@brief Agrega un usuario a la base de datos */
 	void agregar_usuario(const char* usuario, const char* contrasenia);
 	/**@brief Elimina un usuari de la base de datos */

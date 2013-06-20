@@ -20,6 +20,7 @@ public:
 		correr=false;
 	}
 	void ejecutar() {
+		/* QUEDA CONGELADO HASTA NUEVO AVISO
 		correr=true;
 
 		while (correr) {
@@ -50,6 +51,7 @@ public:
 			delete(out);
 
 		}
+		*/
 	}
 
 

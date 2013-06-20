@@ -38,6 +38,7 @@ class Lock
 {
 	public:
 	  Lock(Mutex &mutex);
+	  Lock(Mutex& mutex, bool trabar);
 	  ~Lock();
 	  /**@brief Pone al mutex a esperar una senial */
 	  void wait();

@@ -45,6 +45,11 @@ Lock::Lock(Mutex &mutex) : mutex(mutex)
 {
 	mutex.lock();
 }
+Lock::Lock(Mutex& mutex, bool trabar):mutex(mutex) {
+	if(trabar == true){
+		mutex.lock();
+	}
+}
 
 Lock::~Lock()
 {

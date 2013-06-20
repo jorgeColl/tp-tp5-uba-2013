@@ -1,5 +1,6 @@
 #include "common_base_de_datos_usuario.h"
 #include <iostream>
+#include "common_hashing.h"
 using namespace std;
 
 BaseDeDatosUsuario::BaseDeDatosUsuario(const string &path) : path(path) {}
@@ -50,17 +51,31 @@ void BaseDeDatosUsuario::setPath(const string &path)
 }
 
 /**@brief Verifica si el usuario y contraseña ingresados pertenecen a un usuario de la base de datos */
-bool BaseDeDatosUsuario::usuario_contrasenia_correcto(const char* usu,
-		const char* contrasenia) {
-	const string usuario(usu);
-	const string contr(contrasenia);
-	if (usu_contr.count(usuario) == 0) {
+bool BaseDeDatosUsuario::usuario_contrasenia_correcto(string& usu,
+		string& contrasenia_recibida) {
+	//const string contr(contrasenia);
+	if (usu_contr.count(usu) == 0) {
 		return false;
 	}
-	if (usu_contr[usuario] != contr) {
+	if (usu_contr[usu] != contrasenia_recibida) {
 		return false;
 	}
+	/*
+	string contr_esperada = MD5_string(usu+usu_contr[usu]);
+	for(size_t i=0;i<BYTES_HASH;++i){
+		if(contr_esperada[i]!=contrasenia_recibida[i]){
+			cout<<"pass bochada en el login, se esperaba "<<contr_esperada<<"se recibio"<<contrasenia_recibida<<endl;
+			return false;
+		}
+	}*/
 	return true;
+}
+string BaseDeDatosUsuario::get_pass(string& usuario){
+	if (usu_contr.count(usuario) == 0) {
+		throw runtime_error("usuario al que se intenta conseguir conteseña no existe");
+	}
+	return usu_contr[usuario];
+
 }
 /**@brief Agrega un usuario a la base de datos */
 void BaseDeDatosUsuario::agregar_usuario(const char* usuario,

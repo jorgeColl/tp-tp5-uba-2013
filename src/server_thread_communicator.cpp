@@ -5,6 +5,8 @@
 ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, const string &password)
 	: Controlador(dir, fd1, fd2, password), Thread(), vinculados(NULL), smpt(dir)
 {
+	sock1.set_password(password);
+	sock2.set_password(password);
 	base_de_datos.abrir(dir);
 }
 

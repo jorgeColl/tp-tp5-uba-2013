@@ -30,6 +30,9 @@ SocketProt::SocketProt() : Socket() , contrasenia(CONTR_DEFAULT) {
 SocketProt::SocketProt (int socketfd) : Socket(socketfd) , contrasenia(CONTR_DEFAULT) {
 	md5.MD5Init(&ctx);
 }
+void SocketProt::set_password(string pass){
+	contrasenia = pass;
+}
 int SocketProt::enviar(void *msg, size_t len) {
 	int aux = Socket::enviar(msg,len);
 	md5.MD5Update(&ctx, (unsigned char*)msg, aux);
@@ -41,7 +44,7 @@ int SocketProt::recibir(void *msg, size_t len) {
 	return aux;
 }
 void SocketProt::enviar_firma() {
-	cout<<"enviando firma"<<endl;
+	cout<<"enviando firma con clave: "<<contrasenia<<endl;
 	unsigned char digest[BYTES_HASH];
 
 	//md5.MD5Init(&ctx);
@@ -53,7 +56,7 @@ void SocketProt::enviar_firma() {
 	// aca podria recibir un OK o FAIL
 }
 void SocketProt::comprobar_firma(){
-	cout<<"recibiendo firma -> ";
+	cout<<"recibiendo firma comprobando con clave: "<<contrasenia<<"-> ";
 	unsigned char digest_recibido[BYTES_HASH];
 	unsigned char digest_esperado[BYTES_HASH];
 

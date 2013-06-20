@@ -4,6 +4,7 @@
 #include <fstream>
 #include <stdexcept>	// Excepciones estandar
 #include "cliente_controlador.h"
+#include "common_hashing.h"
 using namespace std;
 
 ClienteControlador::ClienteControlador() : Controlador(),delay_polling(POLLING_DEFAULT),
@@ -26,11 +27,14 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 		sock1.enviar_flag(LOGIN);
 		sock1.enviar_msg_c_prefijo(usuario, BYTES_USER_PASS);
 		sock1.enviar_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
+		//sock1.enviarLen(MD5_string(contrasenia).c_str(),BYTES_HASH);
 		PacketID login;
 		sock1.recibir_flag(login);
 		if(login != OK) throw runtime_error("Los datos de login son incorrectos.");
 		notificador.conectar(server.c_str(),puerto2.c_str());
 		conectado = true;
+		sock1.set_password(contrasenia);
+		sock2.set_password(contrasenia);
 		cout << "Conexion exitosa." << endl;
 	}
 	catch(runtime_error &e) //Cierro los sockets y propago

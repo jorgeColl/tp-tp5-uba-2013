@@ -3,6 +3,8 @@
 #include <gtkmm/drawingarea.h>
 #include <ctime>
 #include <cmath>
+#include <cairomm/cairomm.h>
+#include <pangomm.h>
 #include <cairomm/context.h>
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>

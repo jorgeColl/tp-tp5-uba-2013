@@ -18,7 +18,7 @@ Grafico::Grafico(): ancho(0.42), largo(0.05) {
 
 void Grafico::dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double offsetx) {
 	double distancia = 1/double(cant_div);
-	for(size_t i=0;i<cant_div;++i){
+	for(size_t i=0;i<cant_div;++i) {
 		cr->set_line_width(0.009);
 		cr->move_to(i*distancia+offsetx,1);
 		cr->line_to(i*distancia+offsetx,1-largo);
@@ -51,9 +51,19 @@ bool Grafico::on_expose_event(GdkEventExpose* event) {
 			// redraw the portion of the window that needs to be redrawn
 			cr->rectangle(event->area.x, event->area.y, event->area.width, event->area.height);
 			cr->clip();
-		}
 
-    cr->scale(width, height);
+		}
+		cr->scale(width, height);
+		for (float g = 0.1; g < 1; g += 0.1) {
+
+			Glib::RefPtr<Pango::Layout> lay = Pango::Layout::create(cr);
+			cr->move_to(g, g); // Coordenadas donde tenga que aparecer el texto
+			lay->set_text("CADENA QUE QUERES ESCRIBIR");
+			Pango::FontDescription font = Pango::FontDescription("sans 8");
+			lay->set_font_description(font);
+			lay->update_from_cairo_context(cr);
+			lay->add_to_cairo_context(cr);
+		}
 
     //long long unsigned int tam_medido = tamCarpeta(DIR_DEF_SERV);
     if(test_aux < 15 && bajando == false){
@@ -116,10 +126,9 @@ bool Grafico::on_expose_event(GdkEventExpose* event) {
     	x+=espacio;
     	cout<<"line to: "<<x<<" , "<<1-(*it/max_medida)<<endl;
 		cr->line_to(x,1-(*it/max_medida));
-
     }
-    cr->stroke();
 
+    cr->stroke();
 
  }
 
@@ -132,8 +141,7 @@ bool Grafico::on_timeout()
     Glib::RefPtr<Gdk::Window> win = get_window();
     if (win)
     {
-        Gdk::Rectangle r(0, 0, get_allocation().get_width(),
-                get_allocation().get_height());
+        Gdk::Rectangle r(0, 0, get_allocation().get_width(), get_allocation().get_height());
         win->invalidate_rect(r, false);
     }
     return true;

@@ -1,10 +1,15 @@
 #include <cstring>	// Memcpy
 #include "common_socket_prot.h"
 #include "common_base_de_datos.h" // BYTES_PREF_NOMBRE
+#include <cerrno> 		// Errores de C
+#include <sys/socket.h> // Sockets
+#include <netdb.h>		// Inet
+#include <stdexcept> 	// Excepciones genericas
+
 #include "common_hashing.h"
 #define TAM_BUFFER 4096
 
-size_t SocketProt::cantidad_transmitida = 0;
+/*size_t SocketProt::cantidad_transmitida = 0;
 Mutex SocketProt::mutex_cant_transmitida;
 
 size_t SocketProt::cantidad_recibida = 0;
@@ -16,44 +21,79 @@ size_t SocketProt::get_and_reset_cantidad_recibida() {
 	aux = cantidad_recibida;
 	cantidad_recibida = 0;
 	return aux;
+}*/
+
+SocketProt::SocketProt() : Socket() , contrasenia(CONTR_DEFAULT) {
+	md5.MD5Init(&ctx);
 }
 
-SocketProt::SocketProt() : Socket(), contrasenia("default"){}
-
-SocketProt::SocketProt (int socketfd) : Socket(socketfd), contrasenia("default") {}
-
-void SocketProt::set_passw(string pass){
-	contrasenia = pass;
+SocketProt::SocketProt (int socketfd) : Socket(socketfd) , contrasenia(CONTR_DEFAULT) {
+	md5.MD5Init(&ctx);
 }
+int SocketProt::enviar(void *msg, size_t len) {
+	int aux = Socket::enviar(msg,len);
+	md5.MD5Update(&ctx, (unsigned char*)msg, aux);
+	return aux;
+}
+int SocketProt::recibir(void *msg, size_t len) {
+	int aux = Socket::recibir(msg,len);
+	md5.MD5Update(&ctx, (unsigned char*)msg, aux);
+	return aux;
+}
+void SocketProt::enviar_firma() {
+	cout<<"enviando firma"<<endl;
+	unsigned char digest[BYTES_HASH];
 
+	//md5.MD5Init(&ctx);
+	md5.MD5Update(&ctx, (unsigned char*)contrasenia.c_str(), contrasenia.length());
+	md5.MD5Final(digest,&ctx);
+	md5.MD5Init(&ctx);
+	enviarLen((const char*)digest,BYTES_HASH);
+	md5.MD5Init(&ctx);
+
+}
+void SocketProt::comprobar_firma(){
+	cout<<"recibiendo firma"<<endl;
+	unsigned char digest_recibido[BYTES_HASH];
+	unsigned char digest_esperado[BYTES_HASH];
+
+	//md5.MD5Init(&ctx);
+	md5.MD5Update(&ctx, (unsigned char*)contrasenia.c_str(), contrasenia.length());
+	md5.MD5Final(digest_esperado,&ctx);
+	md5.MD5Init(&ctx);
+
+	recibirLen((char*)digest_recibido,BYTES_HASH);
+	md5.MD5Init(&ctx);
+	for(size_t i=0; i<BYTES_HASH;++i){
+		if(digest_esperado[i]!=digest_recibido[i]){
+			cout<<"ERROR, FIRMA NO COINCIDE"<< " ESPERADA "<<digest_esperado<<" RECIBIDA "<<digest_recibido<<endl;
+			break;
+		}
+	}
+
+}
 void SocketProt::enviar_flag(const PacketID flag)
 {
-	string flag_a_enviar = (char*)&flag;
-	this->firmar_mensaje(flag_a_enviar, contrasenia);
-	enviarLen(flag_a_enviar.c_str(), flag_a_enviar.length());
-	guardar_cant_transmitida(flag_a_enviar.length());
+	enviarLen((char*) &flag, 1);
+	enviar_firma();
+	//guardar_cant_transmitida(1);
 }
 
 void SocketProt::recibir_flag(PacketID &flag)
 {
 	flag = ZERO;
-	char flag_a_recibir [1 + BYTES_HASH];
-	recibirLen(flag_a_recibir, 1 + BYTES_HASH);
-	this->comprobar_firma(flag_a_recibir, contrasenia);
-
-	flag = (PacketID) flag_a_recibir[0];
-	guardar_cant_recibida(1 + BYTES_HASH);
+	recibirLen((char*)&flag, 1);
+	comprobar_firma();
+	//guardar_cant_recibida(1);
 }
 
 void SocketProt::enviar_msg_c_prefijo(const string &msg, uint8_t bytes_para_prefijo)
 {
-	string men = msg;
-	this->firmar_mensaje(men,contrasenia);
-
-	size_t len = men.length();
+	size_t len = msg.length();
 	enviarLen((char*)&len, bytes_para_prefijo);
-	enviarLen(men.c_str(), men.length());
-	guardar_cant_transmitida(bytes_para_prefijo+men.size());
+	enviarLen(msg.c_str(), msg.length());
+	//enviar_firma();
+	//guardar_cant_transmitida(bytes_para_prefijo+msg.size());
 }
 
 void SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
@@ -68,40 +108,27 @@ void SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 	msg.append(buffer2, tam);  // Append de los bytes
 	delete []buffer2;
 
-	this->comprobar_y_extraer_firma(msg,contrasenia);
-
-	guardar_cant_recibida(msg.size());
+	//comprobar_firma();
+	//guardar_cant_recibida(msg.size());
 }
 
 void SocketProt::enviar_modif(const Modificacion &modif)
 {
-	size_t cant =0;
-	string men = (char*)&modif.accion;
-	this->firmar_mensaje(men,contrasenia);
-	//enviar((void*)&(modif.accion),1);
-	enviarLen(men.c_str(), men.length());
-
+	enviar((void*)&(modif.accion),1);
 	enviar_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
-
 	enviar_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
-
-
+	//enviar_firma();
+	//guardar_cant_transmitida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
 }
 
 void SocketProt::recibir_modif(Modificacion &modif)
 {
 	modif.es_local = false;
-	string men;
-	char aux_men[1+BYTES_HASH];
-	//recibir(&(modif.accion),1);
-	recibirLen(aux_men,1+BYTES_HASH);
-
+	recibir(&(modif.accion),1);
 	recibir_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
-	this->comprobar_y_extraer_firma(modif.nombre_archivo, contrasenia);
 	recibir_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
-	this->comprobar_y_extraer_firma(modif.nombre_archivo, contrasenia);
-
-	guardar_cant_recibida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
+	//comprobar_firma();
+	//guardar_cant_recibida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
 
 }
 
@@ -126,6 +153,7 @@ void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)
 		fin -= leidos;
 	}
 	arch.clear();
+	//enviar_firma();
 }
 
 void SocketProt::recibir_pedazo_archivo(ostream &arch, off_t offset)
@@ -143,6 +171,7 @@ void SocketProt::recibir_pedazo_archivo(ostream &arch, off_t offset)
 		arch.write(buffer, aRecibir);
 		tam -= aRecibir;
 	}
+	//comprobar_firma();
 }
 
 void SocketProt::enviar_archivo(istream &arch)
@@ -153,6 +182,7 @@ void SocketProt::enviar_archivo(istream &arch)
 	arch.seekg(0);
 	enviarLen((const char*) &fin, sizeof(streampos)); //Envio el prefijo de longitud
 	enviar_pedazo_archivo(arch, 0, fin);
+	//enviar_firma();
 }
 
 void SocketProt::recibir_archivo(ostream &arch)
@@ -161,6 +191,7 @@ void SocketProt::recibir_archivo(ostream &arch)
 	streampos tam = 0;
 	recibirLen((char*) &tam, sizeof(streampos));
 	recibir_pedazo_archivo(arch, 0);
+	//comprobar_firma();
 }
 
 void SocketProt::enviar_edicion(istream &arch)
@@ -195,6 +226,7 @@ void SocketProt::enviar_edicion(istream &arch)
 		cout << "Enviando bloque: " << *it << endl;
 		enviar_pedazo_archivo(arch, *it*TAM_BLOQ, TAM_BLOQ);
 	}
+	//enviar_firma();
 }
 
 void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
@@ -243,28 +275,10 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 			arch_temp.write(buffer, arch_orig.gcount());
 		}
 	}
-}
-void SocketProt::firmar_mensaje(std::string& mensaje, std::string contrasenia){
-	mensaje += MD5_string(mensaje + contrasenia);
-	//MD5_string(mensaje + contrasenia);
+	//comprobar_firma();
 }
 
-void SocketProt::comprobar_y_extraer_firma(std::string& mensaje,std::string contrasenia){
-	string firma_recibida = mensaje.substr(mensaje.length()-BYTES_HASH);
-	mensaje = mensaje.substr(0 , mensaje.length()-BYTES_HASH);
-	if(firma_recibida != MD5_string(mensaje+contrasenia)){
-		//throw std::runtime_error("firma no correcta de acuerdo al mensaje");
-		cout<<"ERROR FIRMA NO BIEN ,mensaje entero"<<mensaje<< "hash esperado "<<mensaje.substr(mensaje.length()-BYTES_HASH)<<" recibido "<<MD5_string(mensaje+contrasenia)<<endl;
-	}
-}
-void SocketProt::comprobar_firma(char* mensaje,string contrasenia){
-	string men = mensaje;
-	if( men.substr(men.length()-BYTES_HASH) != MD5_string(men.substr(0,men.length()-BYTES_HASH)+contrasenia) ) {
-		//throw std::runtime_error("firma no correcta de acuerdo al mensaje");
-		cout<<"ERROR FIRMA NO BIEN ,mensaje entero"<<mensaje<< "hash esperado "<<men.substr(men.length()-BYTES_HASH)<<" recibido "<<MD5_string(men+contrasenia)<<endl;
-	}
-}
-void SocketProt::guardar_cant_transmitida(size_t cantidad){
+/*void SocketProt::guardar_cant_transmitida(size_t cantidad){
 	Lock aux (mutex_cant_transmitida);
 	cantidad_transmitida += cantidad;
 }
@@ -272,4 +286,4 @@ void SocketProt::guardar_cant_transmitida(size_t cantidad){
 void SocketProt::guardar_cant_recibida(size_t cantidad) {
 	Lock aux (mutex_cant_recibida);
 	cantidad_recibida += cantidad;
-}
+}*/

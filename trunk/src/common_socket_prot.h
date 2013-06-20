@@ -7,6 +7,7 @@
 #include "common_modificacion.h"
 #include "defines.h"
 #include "common_mutex.h"
+#include "hashlib/hl_md5wrapper.h"
 
 using namespace std;
 
@@ -19,14 +20,23 @@ enum PacketID {ZERO = 0, OK, YA_APLICADA, CONFLICTO, FAIL, LOGIN, LOGOUT, MODIFI
  */
 class SocketProt : public Socket
 {
+	//string bufffer;
+	string contrasenia;
+	MD5 md5;
+	HL_MD5_CTX ctx;
 public:
-	static Mutex mutex_cant_transmitida;
+	/*static Mutex mutex_cant_transmitida;
 	static Mutex mutex_cant_recibida;
 	static size_t cantidad_transmitida;
 	static size_t cantidad_recibida;
 	static size_t get_and_reset_cantidad_recibida();
+	*/
 	SocketProt();
 	SocketProt(int socketfd);
+
+	virtual int enviar(void *msg, size_t len);
+
+	virtual int recibir(void *msg, size_t len);
 	/**
 	 * @brief Envia un byte con flags seteados que indica un mensaje, o el tipo de mensaje que vendra
 	 * @param flag Byte que contiene los flags
@@ -105,13 +115,13 @@ public:
 	 */
 	void recibir_edicion(istream &arch_orig, ostream &arch_temp);
 	/**@brief firma un mensaje  */
-	void firmar_mensaje(std::string& mensaje, std::string contrasenia);
+	void enviar_firma();
 	/**@brief verifica si el mensaje está correctamente firmado */
-	void comprobar_firma(std::string& mensaje,std::string contrasenia);
+	void comprobar_firma();
 
-	void guardar_cant_transmitida(size_t cantidad);
+	//void guardar_cant_transmitida(size_t cantidad);
 
-	void guardar_cant_recibida(size_t cantidad);
+	//void guardar_cant_recibida(size_t cantidad);
 };
 
 #endif /* COMMON_SOCKET_PROT_H_ */

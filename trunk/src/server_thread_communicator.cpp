@@ -12,10 +12,11 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 {
 	cout << "Antes lock" << endl;
 	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
-	Lock* lock = 0;
+	/*Lock* lock = 0;
 	if (mod.nombre_archivo_alt == "") {
 		lock = new Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
-	}
+	}*/
+	Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()),mod.nombre_archivo_alt!="");
 	Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
 	cout << "Despues lock" << endl;
 
@@ -124,10 +125,10 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		cout<<"Modificacion SIN exito, NO se notifica al resto"<<endl;
 	}
 	cout << "Fin del procesado." << endl;
-	if(mod.nombre_archivo_alt =="")
+	/*if(mod.nombre_archivo_alt =="")
 	{
 		delete lock;
-	}
+	}*/
 }
 
 void ServerCommunicator::procesar_flag(PacketID flag)

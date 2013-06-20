@@ -42,11 +42,11 @@ class Socket
 		/**
 		 * @brief encapsula el send() default
 		 */
-		int enviar(void *msg, size_t len);
+		virtual int enviar(void *msg, size_t len);
 		/**
 		 * @brief encapsula el recv() default
 		 */
-		int recibir(void *msg, size_t len);
+		virtual int recibir(void *msg, size_t len);
 		/**
 		 * @brief Cierra el puerto
 		 */

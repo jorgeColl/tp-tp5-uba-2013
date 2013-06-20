@@ -15,7 +15,8 @@
 #define ARCHIVO_GRAFICO1 ".recibido1"
 #define ARCHIVO_GRAFICO2 ".recibido2"
 
-
+// para el grafico de el tamaño de la carpeta del server
+#define CANT_MEDIDAS 10
 
 #define NOMBRE_ARCH_IND ".auindice"
 #define EXT_TMP "~"

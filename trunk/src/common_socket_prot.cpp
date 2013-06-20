@@ -47,20 +47,19 @@ void SocketProt::enviar_firma() {
 	//md5.MD5Init(&ctx);
 	md5.MD5Update(&ctx, (unsigned char*)contrasenia.c_str(), contrasenia.length());
 	md5.MD5Final(digest,&ctx);
-	md5.MD5Init(&ctx);
 	enviarLen((const char*)digest,BYTES_HASH);
 	md5.MD5Init(&ctx);
 
+	// aca podria recibir un OK o FAIL
 }
 void SocketProt::comprobar_firma(){
-	cout<<"recibiendo firma"<<endl;
+	cout<<"recibiendo firma -> ";
 	unsigned char digest_recibido[BYTES_HASH];
 	unsigned char digest_esperado[BYTES_HASH];
 
 	//md5.MD5Init(&ctx);
 	md5.MD5Update(&ctx, (unsigned char*)contrasenia.c_str(), contrasenia.length());
 	md5.MD5Final(digest_esperado,&ctx);
-	md5.MD5Init(&ctx);
 
 	recibirLen((char*)digest_recibido,BYTES_HASH);
 	md5.MD5Init(&ctx);
@@ -70,7 +69,8 @@ void SocketProt::comprobar_firma(){
 			break;
 		}
 	}
-
+	cout<<"firma OK"<<endl;
+	// aca podria enviar un OK o FAIL para la firma
 }
 void SocketProt::enviar_flag(const PacketID flag)
 {
@@ -92,7 +92,7 @@ void SocketProt::enviar_msg_c_prefijo(const string &msg, uint8_t bytes_para_pref
 	size_t len = msg.length();
 	enviarLen((char*)&len, bytes_para_prefijo);
 	enviarLen(msg.c_str(), msg.length());
-	//enviar_firma();
+
 	//guardar_cant_transmitida(bytes_para_prefijo+msg.size());
 }
 
@@ -108,7 +108,7 @@ void SocketProt::recibir_msg_c_prefijo(string &msg, uint8_t bytes_para_prefijo)
 	msg.append(buffer2, tam);  // Append de los bytes
 	delete []buffer2;
 
-	//comprobar_firma();
+
 	//guardar_cant_recibida(msg.size());
 }
 
@@ -117,7 +117,7 @@ void SocketProt::enviar_modif(const Modificacion &modif)
 	enviar((void*)&(modif.accion),1);
 	enviar_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
 	enviar_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
-	//enviar_firma();
+	enviar_firma();
 	//guardar_cant_transmitida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
 }
 
@@ -127,7 +127,7 @@ void SocketProt::recibir_modif(Modificacion &modif)
 	recibir(&(modif.accion),1);
 	recibir_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
 	recibir_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
-	//comprobar_firma();
+	comprobar_firma();
 	//guardar_cant_recibida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
 
 }
@@ -182,7 +182,7 @@ void SocketProt::enviar_archivo(istream &arch)
 	arch.seekg(0);
 	enviarLen((const char*) &fin, sizeof(streampos)); //Envio el prefijo de longitud
 	enviar_pedazo_archivo(arch, 0, fin);
-	//enviar_firma();
+	enviar_firma();
 }
 
 void SocketProt::recibir_archivo(ostream &arch)
@@ -191,7 +191,7 @@ void SocketProt::recibir_archivo(ostream &arch)
 	streampos tam = 0;
 	recibirLen((char*) &tam, sizeof(streampos));
 	recibir_pedazo_archivo(arch, 0);
-	//comprobar_firma();
+	comprobar_firma();
 }
 
 void SocketProt::enviar_edicion(istream &arch)
@@ -226,7 +226,7 @@ void SocketProt::enviar_edicion(istream &arch)
 		cout << "Enviando bloque: " << *it << endl;
 		enviar_pedazo_archivo(arch, *it*TAM_BLOQ, TAM_BLOQ);
 	}
-	//enviar_firma();
+	enviar_firma();
 }
 
 void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
@@ -275,7 +275,7 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 			arch_temp.write(buffer, arch_orig.gcount());
 		}
 	}
-	//comprobar_firma();
+	comprobar_firma();
 }
 
 /*void SocketProt::guardar_cant_transmitida(size_t cantidad){

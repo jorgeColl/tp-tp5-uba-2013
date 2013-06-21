@@ -57,8 +57,8 @@ private:
 	void guardarDB();
 	bool on_timeout();
 	bool graficar(GdkEventExpose* event);
-	void dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double offsetx);
-	void dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double offsety);
+	void dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsetx, double& offsety);
+	void dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsety, double& offsetx);
 
 	Gtk::Entry* entry_puerto1;
 	Gtk::Entry* entry_puerto2;

@@ -19,7 +19,8 @@
 
 // para el grafico de el tamaño de la carpeta del server
 #define INTERVALO_DE_MEDIDAS 1000 //en milisegundos
-#define CANT_MEDIDAS 10
+#define CANT_MEDIDAS 60
+#define CANT_DIVISIONES 20
 
 #define NOMBRE_ARCH_IND ".auindice"
 #define EXT_TMP "~"

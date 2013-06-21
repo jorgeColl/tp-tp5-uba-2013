@@ -32,7 +32,7 @@ MonitorInterface::MonitorInterface()
 	Glib::signal_timeout().connect( sigc::mem_fun(*this, &MonitorInterface::on_timeout), INTERVALO_DE_MEDIDAS);
 
 
-	largo = 0.05;
+	largo = 0.04;
 	max_medida = 0;
 	// para testing
 	bajando=false;
@@ -96,53 +96,55 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 
 	cr->scale(width, height);
 
-	float espacio = 1 / float(CANT_MEDIDAS - 1);
-	float x = 0;
+	double espacio = 1 / double(CANT_MEDIDAS);
+	double x = 0;
 	// genero ejes de coordenadas
-	float offset_x = 0.02;
-	float offset_y = 0.02;
+	double offset_x = 0.02;
+	double offset_y = 0.02;
 	cr->set_line_width(0.0059);
-	cr->move_to(0, 1 - offset_y);
+	// eje x
+	cr->move_to(0+offset_x, 1 - offset_y);
 	cr->line_to(1, 1 - offset_y);
-	cr->move_to(offset_x, 1);
+	// eje x
+	cr->move_to(offset_x, 1 - offset_y);
 	cr->line_to(offset_x, 0);
 	cr->stroke();
 
-	this->dibujar_division_x(cr, CANT_MEDIDAS, offset_x);
-	this->dibujar_division_y(cr, CANT_MEDIDAS, offset_y);
+	this->dibujar_division_x(cr, CANT_DIVISIONES, offset_x, offset_y);
+	this->dibujar_division_y(cr, CANT_DIVISIONES, offset_y, offset_x);
 
 	// genero linea de graficos
 	cr->set_line_width(0.009);
 	list<double>::iterator it;
 	it = medidas.begin();
-	cout << "move to:" << 0 + offset_x << " , " << 1 - (*it / max_medida) << endl;
-	cr->move_to(0 + offset_x, 1 - (*it / max_medida) + offset_y);
+	//cout << "move to:" << 0 + offset_x << " , " << 1 - (*it / max_medida) <<endl;
+	cr->move_to(0 + offset_x, 1 - (*it / max_medida) - offset_y);
 	it++;
 	for (; it != medidas.end(); ++it) {
 		x += espacio;
-		cout << "line to: " << x << " , " << 1 - (*it / max_medida) << endl;
-		cr->line_to(x, 1 - (*it / max_medida));
+		//cout <<"line to: "<<x<<" , "<<1 - (*it / max_medida)<<endl;
+		cr->line_to(x+offset_x, 1 - (*it / max_medida) -offset_y);
 	}
 
 	cr->stroke();
 
 	return true;
 }
-void MonitorInterface::dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double offsetx) {
+void MonitorInterface::dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsetx,double& offsety) {
 	double distancia = 1/double(cant_div);
 	for(size_t i=0;i<cant_div;++i) {
 		cr->set_line_width(0.009);
-		cr->move_to(i*distancia+offsetx,1);
-		cr->line_to(i*distancia+offsetx,1-largo);
+		cr->move_to(i*distancia+offsetx,1-offsety/2);
+		cr->line_to(i*distancia+offsetx,1-largo+offsety/2);
 		cr->stroke();
 	}
 }
-void MonitorInterface::dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double offsety) {
+void MonitorInterface::dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsety, double& offsetx) {
 	double distancia = 1/double(cant_div);
 	for(size_t i=0;i<cant_div;++i){
 		cr->set_line_width(0.009);
-		cr->move_to(0,i*distancia+offsety);
-		cr->line_to(largo,i*distancia+offsety);
+		cr->move_to(0+offsetx/2,i*distancia-offsety);
+		cr->line_to(largo-offsetx/2,i*distancia-offsety);
 		cr->stroke();
 	}
 }
@@ -152,39 +154,30 @@ bool MonitorInterface::on_timeout() {
 		Gdk::Rectangle r(0, 0, draw_area->get_allocation().get_width(), draw_area->get_allocation().get_height());
 		win->invalidate_rect(r, false);
 	}
-	cout<<"SIGO TOMANDO MEDIDAS"<<endl;
-		if (test_aux < 15 && bajando == false) {
-			test_aux++;
-		} else {
-			bajando = true;
-			test_aux--;
-			if (test_aux == 1) {
-				bajando = false;
-			}
-		}
-		float tam_medido = test_aux;
-		if (medidas.size() < CANT_MEDIDAS) {
-			for (size_t i = 0; i < CANT_MEDIDAS; ++i) {
-				medidas.push_back(tam_medido);
-			}
-		} else {
-			medidas.pop_front();
+
+	double tam_medido = tamCarpeta(DIR_DEF_SERV);
+	cout<<"tamaño carpeta: "<< tam_medido <<" MB"<<endl;
+	if (medidas.size() < CANT_MEDIDAS) {
+		for (size_t i = 0; i < CANT_MEDIDAS; ++i) {
 			medidas.push_back(tam_medido);
 		}
-		if (tam_medido > max_medida) {
-			max_medida = tam_medido;
-			max_medida += max_medida / 100;
-		} else {
-			list<double>::iterator it;
-			max_medida = 0;
-			for (it = medidas.begin(); it != medidas.end(); ++it) {
-				if (max_medida < *it) {
-					max_medida = *it;
-				}
+	} else {
+		medidas.pop_front();
+		medidas.push_back(tam_medido);
+	}
+	if (tam_medido > max_medida) {
+		max_medida = tam_medido;
+	} else {
+		list<double>::iterator it;
+		max_medida = 0;
+		for (it = medidas.begin(); it != medidas.end(); ++it) {
+			if (max_medida < *it) {
+				max_medida = *it;
 			}
-			max_medida += max_medida / 100;
 		}
-		cout << "tam medido:" << tam_medido << endl;
+		max_medida+=max_medida/4;
+	}
+	cout << "tam medido:" << tam_medido << endl;
 	return true;
 }
 

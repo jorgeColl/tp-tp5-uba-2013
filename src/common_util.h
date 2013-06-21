@@ -33,7 +33,8 @@ bool esArchivo(const string &dir, const string &nombre);
  * @return True si existe
  */
 off_t tamArchivo(const string &dir, const string &nombre);
-off_t tamCarpeta(const char* dir);
+/**@brief devuelve el tam en MB*/
+double tamCarpeta(const char* dir);
 /**
  * @brief Devuelve la fecha de ultima modificacion de un archivo
  */

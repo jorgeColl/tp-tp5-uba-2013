@@ -33,9 +33,7 @@ public:
 
 	~MonitorInterface();
 private:
-	size_t test_aux;
-	// para testing
-	bool bajando;
+
 	list<double>medidas;
 	double max_medida;
 	// largo de los divisores

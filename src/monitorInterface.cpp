@@ -1,7 +1,8 @@
 #include "monitorInterface.h"
 #include "common_util.h"
 #include "defines.h"
-
+#include <iostream>     // std::cout, std::fixed
+#include <iomanip>
 MonitorInterface::MonitorInterface()
 {
 	builder = Gtk::Builder::create_from_file(MONIT_GLADE);
@@ -32,10 +33,8 @@ MonitorInterface::MonitorInterface()
 	Glib::signal_timeout().connect( sigc::mem_fun(*this, &MonitorInterface::on_timeout), INTERVALO_DE_MEDIDAS);
 
 
-	largo = 0.04;
+	largo = double(LARGO_DIVISIONES_GRAFICO);
 	max_medida = 0;
-	// para testing
-	bajando=false;
 
 	bd_usr = new BaseDeDatosUsuario(chooser_dir->get_current_folder());
 	cargarPreferencias();
@@ -78,6 +77,18 @@ void MonitorInterface::guardarDB()
 }
 
 bool MonitorInterface::graficar(GdkEventExpose* event){
+	/* genero ejes de coordenadas
+					^
+		<<offsetx>>	|
+					|-------->
+						^
+						o
+						f
+						y
+						^
+		*/
+	double offset_x = 0.1;
+	double offset_y = 0.1;
 
 	Glib::RefPtr<Gdk::Window> ventana= draw_area->get_window();
 	if (!ventana) {
@@ -88,9 +99,27 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 	const int height = allocation.get_height();
 	Cairo::RefPtr < Cairo::Context > cr = ventana->create_cairo_context();
 
-	cr->move_to(width/2,height/2);
-	Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout("holaaa");
-	pl->show_in_cairo_context(cr);
+	// dibujo texto
+	double distacia_y = height/double(CANT_DIVISIONES-1);
+	cout<<"distacia_y: "<< distacia_y <<endl;
+	double valor =max_medida;
+	for(size_t i=CANT_DIVISIONES-2;i>0;--i){
+		stringstream aux;
+		string auxaux;
+
+		cr->move_to(0,height-i*distacia_y-offset_y*height);
+
+		valor-=(max_medida/(CANT_DIVISIONES-1));
+		aux<<std::setprecision(2)<<(valor);
+		aux<<"MB";
+		aux>>auxaux;
+		Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout(auxaux);
+		pl->show_in_cairo_context(cr);
+
+	}
+	//cr->move_to(width/2,height/2);
+	//Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout("holaaa");
+	//pl->show_in_cairo_context(cr);
 
 
 
@@ -98,15 +127,17 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 
 	double espacio = 1 / double(CANT_MEDIDAS);
 	double x = 0;
-	// genero ejes de coordenadas
-	double offset_x = 0.02;
-	double offset_y = 0.02;
+
+
+
+
+
 	cr->set_line_width(0.0059);
 	// eje x
 	cr->move_to(0+offset_x, 1 - offset_y);
 	cr->line_to(1, 1 - offset_y);
-	// eje x
-	cr->move_to(offset_x, 1 - offset_y);
+	// eje y
+	cr->move_to(0+offset_x, 1 - offset_y);
 	cr->line_to(offset_x, 0);
 	cr->stroke();
 
@@ -134,8 +165,8 @@ void MonitorInterface::dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, 
 	double distancia = 1/double(cant_div);
 	for(size_t i=0;i<cant_div;++i) {
 		cr->set_line_width(0.009);
-		cr->move_to(i*distancia+offsetx,1-offsety/2);
-		cr->line_to(i*distancia+offsetx,1-largo+offsety/2);
+		cr->move_to(i*distancia+offsetx,1-offsety+largo/2);
+		cr->line_to(i*distancia+offsetx,1-offsety-largo/2);
 		cr->stroke();
 	}
 }
@@ -143,8 +174,8 @@ void MonitorInterface::dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, 
 	double distancia = 1/double(cant_div);
 	for(size_t i=0;i<cant_div;++i){
 		cr->set_line_width(0.009);
-		cr->move_to(0+offsetx/2,i*distancia-offsety);
-		cr->line_to(largo-offsetx/2,i*distancia-offsety);
+		cr->move_to(offsetx-largo/2	,i*distancia-offsety);
+		cr->line_to(offsetx+largo/2	,i*distancia-offsety);
 		cr->stroke();
 	}
 }

@@ -1,4 +1,4 @@
-#define monitor_pepe
+//#define monitor_pepe
 #ifndef monitor_pepe
 #include <iostream>
 #include <gtkmm.h>

@@ -4,6 +4,8 @@
  *  Created on: 19/06/2013
  *      Author: jorge
  */
+#define monitor_pruevasss
+#ifndef monitor_pruevasss
 #include "common_grafico.h"
 int main(int argc, char** argv)
 {
@@ -20,3 +22,4 @@ int main(int argc, char** argv)
 
    return 0;
 }
+#endif

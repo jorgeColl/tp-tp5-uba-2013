@@ -1,8 +1,11 @@
 #include "common_util.h"
 #include "defines.h"
 #include <sstream>
+#include <sys/types.h>
 #include <sys/stat.h>
-
+#include <dirent.h>
+#include <stdexcept>
+#include <iostream>
 bool esArchivo(const string &path)
 {
 	struct stat buf;
@@ -23,14 +26,56 @@ off_t tamArchivo(const string &dir, const string &nombre)
 	stat(path.c_str(), &buf);
 	return buf.st_size;
 }
-off_t tamCarpeta(const char* dir)
+bool esIgnorable2(const string &nombre)
 {
-
-	struct stat buf;
-	stat(dir, &buf);
-	return buf.st_size;
+	if (nombre.length() == 0) return true;
+	if (nombre[0] == '.' && nombre[1]=='.') return true;
+	if (nombre[0] == '~') return true;
+	if (nombre[nombre.length()-1] == '~') return true;
+	if (nombre[nombre.length()-1] == '.') return true;
+	return false;
 }
 
+off_t __tamCarpeta(const char* direct) {
+	//struct stat buf;
+	//stat(dir, &buf);
+	//return buf.st_size;
+	off_t tam =0;
+	DIR* dir = opendir(direct);
+	if (dir == NULL) {
+		cout<<"dir invalido"<<direct<<endl;
+		sleep(3);
+		return 0;
+	}
+
+	struct dirent* dirEnt = readdir(dir);
+
+	while (dirEnt != NULL) // Mientras tenga archivos
+	{
+		string nombre(dirEnt->d_name);
+		string path = unirPath(direct, nombre);
+		struct stat buf;
+		int val = stat(path.c_str(), &buf);
+		if(dirEnt->d_type==DT_DIR){
+			if (val != -1 && !esIgnorable2(path)) //Veo que efectivamente es un archivo
+			{
+				cout<<"se entra a directorio: "<<path<<endl;
+				//sleep(1);
+				tam+=buf.st_size;
+				tam+=tamCarpeta(path.c_str());
+			}
+		}else{
+			if (val != -1 && S_ISREG(buf.st_mode)){ //Veo que efectivamente es un archivo
+				tam+=buf.st_size;
+			}
+		}
+		dirEnt = readdir(dir);
+	}
+	return tam;
+}
+double tamCarpeta(const char* direct){
+	return __tamCarpeta(direct)/1024.00;
+}
 time_t fechaModificado(const string &dir, const string &nombre)
 {
 	string path = unirPath(dir,nombre);

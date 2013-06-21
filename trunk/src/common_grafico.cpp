@@ -36,7 +36,7 @@ void Grafico::dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, size_t ca
 }
 
 
-bool Grafico::on_expose_event(GdkEventExpose* event) {
+bool Grafico::on_expose_event() {
 	// This is where we draw on the window
 	Glib::RefPtr<Gdk::Window> window = get_window();
 	if (window) {
@@ -46,13 +46,7 @@ bool Grafico::on_expose_event(GdkEventExpose* event) {
 
 		Cairo::RefPtr < Cairo::Context > cr = window->create_cairo_context();
 
-		if (event) {
-			// clip to the area indicated by the expose event so that we only
-			// redraw the portion of the window that needs to be redrawn
-			cr->rectangle(event->area.x, event->area.y, event->area.width, event->area.height);
-			cr->clip();
 
-		}
 		cr->scale(width, height);
 		for (float g = 0.1; g < 1; g += 0.1) {
 

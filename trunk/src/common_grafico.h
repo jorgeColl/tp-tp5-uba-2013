@@ -24,7 +24,7 @@ protected:
   void dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div , double offsetx);
   void dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div , double offsety);
   //Override default signal handler:
-  virtual bool on_expose_event(GdkEventExpose* event);
+  virtual bool on_expose_event();
 
   bool on_timeout();
   list<double> medidas;

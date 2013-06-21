@@ -34,7 +34,7 @@ public:
 	void abrir();
 	std::string get_pass(std::string& usuario);
 	/**@brief Verifica si el usuario y contraseña ingresados pertenecen a un usuario de la base de datos */
-	bool usuario_contrasenia_correcto(string& usu, string& contrasenia);
+	bool usuario_contrasenia_correcto(string& usu, char* contrasenia);
 	/**@brief Agrega un usuario a la base de datos */
 	void agregar_usuario(const char* usuario, const char* contrasenia);
 	/**@brief Elimina un usuari de la base de datos */

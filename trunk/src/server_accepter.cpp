@@ -105,11 +105,14 @@ bool Accepter::aceptar_conexion()
 	if (login != LOGIN) return false; // Veo que sea el paquete correcto
 	cout << "Flag de LOGIN recibido." << endl;
 	string usuario;
-	string contrasenia;
+
 	sock1.recibir_msg_c_prefijo(usuario, BYTES_USER_PASS);
-	sock1.recibir_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
+	//sock1.recibir_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
+	char buff[BYTES_HASH];
+	sock1.recibirLen(buff,BYTES_HASH);
+
 	bool login_correcto = base_datos_usu.usuario_contrasenia_correcto
-			(usuario, contrasenia);
+			(usuario, buff);
 	if (!login_correcto)
 	{
 		cout << "Password incorrecta." << endl;
@@ -131,7 +134,7 @@ bool Accepter::aceptar_conexion()
 			return false;
 		}
 		ServerCommunicator* comu = new ServerCommunicator
-				(unirPath(dir, usuario), fd_nuevo_1, fd_nuevo_2, contrasenia);
+				(unirPath(dir, usuario), fd_nuevo_1, fd_nuevo_2, base_datos_usu.get_pass(usuario));
 		comunicadores[usuario].push_back(comu);
 		comu->setVinculados(&comunicadores[usuario]);
 		comu->start();

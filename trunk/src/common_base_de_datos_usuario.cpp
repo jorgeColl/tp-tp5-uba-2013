@@ -52,22 +52,23 @@ void BaseDeDatosUsuario::setPath(const string &path)
 
 /**@brief Verifica si el usuario y contraseña ingresados pertenecen a un usuario de la base de datos */
 bool BaseDeDatosUsuario::usuario_contrasenia_correcto(string& usu,
-		string& contrasenia_recibida) {
+		char* contrasenia_recibida) {
 	//const string contr(contrasenia);
 	if (usu_contr.count(usu) == 0) {
 		return false;
 	}
-	if (usu_contr[usu] != contrasenia_recibida) {
+	/*if (usu_contr[usu] != contrasenia_recibida) {
 		return false;
-	}
-	/*
+	}*/
+
 	string contr_esperada = MD5_string(usu+usu_contr[usu]);
+
 	for(size_t i=0;i<BYTES_HASH;++i){
 		if(contr_esperada[i]!=contrasenia_recibida[i]){
 			cout<<"pass bochada en el login, se esperaba "<<contr_esperada<<"se recibio"<<contrasenia_recibida<<endl;
 			return false;
 		}
-	}*/
+	}
 	return true;
 }
 string BaseDeDatosUsuario::get_pass(string& usuario){

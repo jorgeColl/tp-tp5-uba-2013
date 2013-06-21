@@ -26,8 +26,8 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 		sock1.conectar(server.c_str(), puerto1.c_str());
 		sock1.enviar_flag(LOGIN);
 		sock1.enviar_msg_c_prefijo(usuario, BYTES_USER_PASS);
-		sock1.enviar_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
-		//sock1.enviarLen(MD5_string(contrasenia).c_str(),BYTES_HASH);
+		//sock1.enviar_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
+		sock1.enviarLen(MD5_string(usuario+contrasenia).c_str(),BYTES_HASH);
 		PacketID login;
 		sock1.recibir_flag(login);
 		if(login != OK) throw runtime_error("Los datos de login son incorrectos.");

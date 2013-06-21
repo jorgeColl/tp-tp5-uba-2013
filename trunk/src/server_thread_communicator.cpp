@@ -216,6 +216,8 @@ void ServerCommunicator::ejecutar()
 		{
 			if(correr==true){
 				cout << "Se perdio la conexion con el cliente:" << e.what() <<"estado correr: "<<correr<< endl;
+			}else{
+				cout<<"se cierra el server por: "<<e.what()<<" el server se tenia que cerrar de todas formas"<<endl;
 			}
 			correr = false;
 		}

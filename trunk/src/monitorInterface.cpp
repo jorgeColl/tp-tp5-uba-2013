@@ -29,14 +29,8 @@ MonitorInterface::MonitorInterface()
 	pCargar->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::cargarDB));
 	pGuardar->signal_clicked().connect(sigc::mem_fun(this,&MonitorInterface::guardarDB));
 	draw_area->signal_expose_event().connect(sigc::mem_fun (*this,&MonitorInterface::graficar));
+	Glib::signal_timeout().connect( sigc::mem_fun(*this, &MonitorInterface::on_timeout), INTERVALO_DE_MEDIDAS);
 
-
-	// cosas raras para gtkmm
-	Glib::signal_timeout().connect( sigc::mem_fun(*this, &MonitorInterface::on_timeout), 1000 );
-	#ifndef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-	//Connect the signal handler if it isn't already a virtual method override:
-	signal_expose_event().connect(sigc::mem_fun(*this, &MonitorInterface::on_expose_event), false);
-	#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 
 	largo = 0.05;
 	max_medida = 0;
@@ -82,7 +76,9 @@ void MonitorInterface::guardarDB()
 		msg.run();
 	}
 }
+
 bool MonitorInterface::graficar(GdkEventExpose* event){
+
 	Glib::RefPtr<Gdk::Window> ventana= draw_area->get_window();
 	if (!ventana) {
 		return false;
@@ -91,46 +87,14 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 	const int width = allocation.get_width();
 	const int height = allocation.get_height();
 	Cairo::RefPtr < Cairo::Context > cr = ventana->create_cairo_context();
+
+	cr->move_to(width/2,height/2);
+	Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout("holaaa");
+	pl->show_in_cairo_context(cr);
+
+
+
 	cr->scale(width, height);
-
-	// para testing ##########################################3
-	if (test_aux < 15 && bajando == false) {
-		test_aux++;
-	} else {
-		bajando = true;
-		test_aux--;
-		if (test_aux == 1) {
-			bajando = false;
-		}
-	}
-	float tam_medido = test_aux;
-	// fin testing ##############################################
-
-	// aca funciona mal y habria que ver que pasa cuando no se usa el DEFAULT
-	//float tam_medido = tamCarpeta(DIR_DEF_SERV);
-
-	if (medidas.size() < CANT_MEDIDAS) {
-		for (size_t i = 0; i < CANT_MEDIDAS; ++i) {
-			medidas.push_back(tam_medido);
-		}
-	} else {
-		medidas.pop_front();
-		medidas.push_back(tam_medido);
-	}
-	if (tam_medido > max_medida) {
-		max_medida = tam_medido;
-		max_medida += max_medida / 100;
-	} else {
-		list<double>::iterator it;
-		max_medida = 0;
-		for (it = medidas.begin(); it != medidas.end(); ++it) {
-			if (max_medida < *it) {
-				max_medida = *it;
-			}
-		}
-		max_medida += max_medida / 100;
-	}
-	cout << "tam medido:" << tam_medido << endl;
 
 	float espacio = 1 / float(CANT_MEDIDAS - 1);
 	float x = 0;
@@ -188,6 +152,39 @@ bool MonitorInterface::on_timeout() {
 		Gdk::Rectangle r(0, 0, draw_area->get_allocation().get_width(), draw_area->get_allocation().get_height());
 		win->invalidate_rect(r, false);
 	}
+	cout<<"SIGO TOMANDO MEDIDAS"<<endl;
+		if (test_aux < 15 && bajando == false) {
+			test_aux++;
+		} else {
+			bajando = true;
+			test_aux--;
+			if (test_aux == 1) {
+				bajando = false;
+			}
+		}
+		float tam_medido = test_aux;
+		if (medidas.size() < CANT_MEDIDAS) {
+			for (size_t i = 0; i < CANT_MEDIDAS; ++i) {
+				medidas.push_back(tam_medido);
+			}
+		} else {
+			medidas.pop_front();
+			medidas.push_back(tam_medido);
+		}
+		if (tam_medido > max_medida) {
+			max_medida = tam_medido;
+			max_medida += max_medida / 100;
+		} else {
+			list<double>::iterator it;
+			max_medida = 0;
+			for (it = medidas.begin(); it != medidas.end(); ++it) {
+				if (max_medida < *it) {
+					max_medida = *it;
+				}
+			}
+			max_medida += max_medida / 100;
+		}
+		cout << "tam medido:" << tam_medido << endl;
 	return true;
 }
 

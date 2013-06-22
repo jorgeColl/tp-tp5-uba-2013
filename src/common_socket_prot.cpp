@@ -119,7 +119,7 @@ void SocketProt::enviar_modif(const Modificacion &modif)
 {
 	enviar((void*)&(modif.accion),1);
 	enviar_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
-	enviar_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
+	enviar_msg_c_prefijo(modif.nombre_alt_o_hash, BYTES_PREF_NOMBRE);
 	enviar_firma();
 	//guardar_cant_transmitida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
 }
@@ -129,10 +129,9 @@ void SocketProt::recibir_modif(Modificacion &modif)
 	modif.es_local = false;
 	recibir(&(modif.accion),1);
 	recibir_msg_c_prefijo(modif.nombre_archivo, BYTES_PREF_NOMBRE);
-	recibir_msg_c_prefijo(modif.nombre_archivo_alt, BYTES_PREF_NOMBRE);
+	recibir_msg_c_prefijo(modif.nombre_alt_o_hash, BYTES_PREF_NOMBRE);
 	comprobar_firma();
 	//guardar_cant_recibida(1 + modif.nombre_archivo.size() + modif.nombre_archivo_alt.size() + 2*BYTES_PREF_NOMBRE);
-
 }
 
 void SocketProt::enviar_pedazo_archivo(istream &arch, off_t offset, off_t len)

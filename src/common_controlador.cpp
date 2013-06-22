@@ -178,10 +178,10 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 				base_de_datos.registrar_editado(mod.nombre_archivo);
 				return true;
 			case RENOMBRADO:
-				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_alt_o_hash);
 				return true;
 			case COPIADO:
-				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_alt_o_hash);
 				return true;
 			default:
 				return false;
@@ -213,11 +213,11 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 			if (mod.es_local) return enviar_borrado(mod.nombre_archivo);
 			else return borrar_archivo(mod.nombre_archivo);
 		case RENOMBRADO:
-			if (mod.es_local) return enviar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
-			else return renombrar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
+			if (mod.es_local) return enviar_renombrado(mod.nombre_archivo, mod.nombre_alt_o_hash);
+			else return renombrar_archivo(mod.nombre_archivo, mod.nombre_alt_o_hash);
 		case COPIADO:
-			if (mod.es_local) return enviar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
-			else return copiar_archivo(mod.nombre_archivo, mod.nombre_archivo_alt);
+			if (mod.es_local) return enviar_copiado(mod.nombre_archivo, mod.nombre_alt_o_hash);
+			else return copiar_archivo(mod.nombre_archivo, mod.nombre_alt_o_hash);
 		default: // En realidad no existen otros casos salvo que funcione mal el soft o la red
 			cout<< "ALERTA! Modificacion desconocida!!"<<endl;
 			return true;

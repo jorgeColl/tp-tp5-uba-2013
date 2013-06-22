@@ -74,7 +74,7 @@ off_t __tamCarpeta(const char* direct) {
 	return tam;
 }
 double tamCarpeta(const char* direct){
-	return __tamCarpeta(direct)/1024.00;
+	return (__tamCarpeta(direct)/1024.00)/1024.0;
 }
 time_t fechaModificado(const string &dir, const string &nombre)
 {

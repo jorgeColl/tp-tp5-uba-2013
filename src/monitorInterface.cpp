@@ -35,6 +35,8 @@ MonitorInterface::MonitorInterface()
 
 	largo = double(LARGO_DIVISIONES_GRAFICO);
 	max_medida = 0;
+	offset_x = 0.1;
+	offset_y = 0.1;
 
 	bd_usr = new BaseDeDatosUsuario(chooser_dir->get_current_folder());
 	cargarPreferencias();
@@ -87,8 +89,7 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 						y
 						^
 		*/
-	double offset_x = 0.1;
-	double offset_y = 0.1;
+
 
 	Glib::RefPtr<Gdk::Window> ventana= draw_area->get_window();
 	if (!ventana) {
@@ -99,38 +100,50 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 	const int height = allocation.get_height();
 	Cairo::RefPtr < Cairo::Context > cr = ventana->create_cairo_context();
 
-	// dibujo texto
-	double distacia_y = height/double(CANT_DIVISIONES-1);
+	// dibujo TEXTO	en el grefico EJE Y
+	double distacia_y = height/double(CANT_DIVISIONES);
 	cout<<"distacia_y: "<< distacia_y <<endl;
-	double valor =max_medida;
-	for(size_t i=CANT_DIVISIONES-2;i>0;--i){
+	double valor =0;
+	for(size_t i=1;i<CANT_DIVISIONES-2;++i){
 		stringstream aux;
 		string auxaux;
+		// el -10 es por el tamaño de la letra, ya que se empieza a dibujar desde la pos arriba a la izquierda
+		cr->move_to(width*0.01,height -i*distacia_y -offset_y*height -10);
 
-		cr->move_to(0,height-i*distacia_y-offset_y*height);
-
-		valor-=(max_medida/(CANT_DIVISIONES-1));
+		valor+=(max_medida/(CANT_DIVISIONES));
 		aux<<std::setprecision(2)<<(valor);
 		aux<<"MB";
 		aux>>auxaux;
 		Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout(auxaux);
 		pl->show_in_cairo_context(cr);
-
 	}
-	//cr->move_to(width/2,height/2);
-	//Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout("holaaa");
-	//pl->show_in_cairo_context(cr);
-
-
+	// fin del dibujo del TEXTO EJE Y
 
 	cr->scale(width, height);
 
-	double espacio = 1 / double(CANT_MEDIDAS);
+	this->dibujar_ejes(cr);
+	this->dibujar_division_x(cr, CANT_DIVISIONES, offset_x, offset_y);
+	this->dibujar_division_y(cr, CANT_DIVISIONES, offset_y, offset_x);
+
+	double espacio = 1 / double(medidas.size());
 	double x = 0;
 
+	// genero linea de graficos
+	cr->set_line_width(0.009);
+	list<double>::iterator it;
+	it = medidas.begin();
+	cr->move_to(0 + offset_x, 1 - (*it / max_medida) - offset_y);
+	it++;
+	for (; it != medidas.end(); ++it) {
+		x += espacio;
+		cr->line_to(x+offset_x, 1 - (*it / max_medida) -offset_y);
+	}
 
+	cr->stroke();
 
-
+	return true;
+}
+void MonitorInterface::dibujar_ejes(Cairo::RefPtr < Cairo::Context >& cr){
 
 	cr->set_line_width(0.0059);
 	// eje x
@@ -140,26 +153,6 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 	cr->move_to(0+offset_x, 1 - offset_y);
 	cr->line_to(offset_x, 0);
 	cr->stroke();
-
-	this->dibujar_division_x(cr, CANT_DIVISIONES, offset_x, offset_y);
-	this->dibujar_division_y(cr, CANT_DIVISIONES, offset_y, offset_x);
-
-	// genero linea de graficos
-	cr->set_line_width(0.009);
-	list<double>::iterator it;
-	it = medidas.begin();
-	//cout << "move to:" << 0 + offset_x << " , " << 1 - (*it / max_medida) <<endl;
-	cr->move_to(0 + offset_x, 1 - (*it / max_medida) - offset_y);
-	it++;
-	for (; it != medidas.end(); ++it) {
-		x += espacio;
-		//cout <<"line to: "<<x<<" , "<<1 - (*it / max_medida)<<endl;
-		cr->line_to(x+offset_x, 1 - (*it / max_medida) -offset_y);
-	}
-
-	cr->stroke();
-
-	return true;
 }
 void MonitorInterface::dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsetx,double& offsety) {
 	double distancia = 1/double(cant_div);
@@ -187,7 +180,7 @@ bool MonitorInterface::on_timeout() {
 	}
 
 	double tam_medido = tamCarpeta(DIR_DEF_SERV);
-	cout<<"tamaño carpeta: "<< tam_medido <<" MB"<<endl;
+	cout<<"tamaño carpeta recien calculado: "<< tam_medido <<" MB"<<endl;
 	if (medidas.size() < CANT_MEDIDAS) {
 		for (size_t i = 0; i < CANT_MEDIDAS; ++i) {
 			medidas.push_back(tam_medido);
@@ -206,9 +199,10 @@ bool MonitorInterface::on_timeout() {
 				max_medida = *it;
 			}
 		}
+		cout<<"mayor medida encontrada: "<<max_medida<<endl;
 		max_medida+=max_medida/4;
+		cout<<"mayor medida usada en grafico para que quede lindo: "<<max_medida<<endl;
 	}
-	cout << "tam medido:" << tam_medido << endl;
 	return true;
 }
 

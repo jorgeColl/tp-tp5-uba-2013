@@ -33,7 +33,8 @@ public:
 
 	~MonitorInterface();
 private:
-
+	double offset_x;
+	double offset_y;
 	list<double>medidas;
 	double max_medida;
 	// largo de los divisores
@@ -55,6 +56,7 @@ private:
 	void guardarDB();
 	bool on_timeout();
 	bool graficar(GdkEventExpose* event);
+	void dibujar_ejes(Cairo::RefPtr < Cairo::Context >& cr);
 	void dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsetx, double& offsety);
 	void dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsety, double& offsetx);
 

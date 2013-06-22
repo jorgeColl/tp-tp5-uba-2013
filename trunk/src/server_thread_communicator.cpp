@@ -15,10 +15,10 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 	cout << "Antes lock" << endl;
 	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
 	/*Lock* lock = 0;
-	if (mod.nombre_archivo_alt == "") {
-		lock = new Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()));
+	if (mod.nombre_alt_o_hash == "") {
+		lock = new Lock(*smpt.data().get_mutex(mod.nombre_alt_o_hash.c_str()));
 	}*/
-	Lock(*smpt.data().get_mutex(mod.nombre_archivo_alt.c_str()),mod.nombre_archivo_alt!="");
+	Lock(*smpt.data().get_mutex(mod.nombre_alt_o_hash.c_str()),mod.nombre_alt_o_hash!="");
 	Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
 	cout << "Despues lock" << endl;
 
@@ -44,11 +44,11 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		case COPIADO:
 		case RENOMBRADO:
 			if (base_de_datos.estaIndexado(mod.nombre_archivo)
-					|| base_de_datos.estaIndexado(mod.nombre_archivo_alt, false) ) // Ya existe un archivo con ese nombre
+					|| base_de_datos.estaIndexado(mod.nombre_alt_o_hash, false) ) // Ya existe un archivo con ese nombre
 			{
 				sock1.enviar_flag(CONFLICTO);
 				cout<<"Modificacion RENOMBRADO o COPIADO: "<< mod.nombre_archivo <<
-						" - " << mod.nombre_archivo_alt << " genero un conflicto."<<endl;
+						" - " << mod.nombre_alt_o_hash << " genero un conflicto."<<endl;
 				return;
 			}
 			break;
@@ -103,14 +103,14 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		}
 			break;
 		case RENOMBRADO:
-			exito = base_de_datos.renombrar(mod.nombre_archivo_alt, mod.nombre_archivo);
+			exito = base_de_datos.renombrar(mod.nombre_alt_o_hash, mod.nombre_archivo);
 			if (exito)
-				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_alt_o_hash);
 			break;
 		case COPIADO:
-			exito = base_de_datos.copiar(mod.nombre_archivo_alt, mod.nombre_archivo);
+			exito = base_de_datos.copiar(mod.nombre_alt_o_hash, mod.nombre_archivo);
 			if (exito)
-				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_archivo_alt);
+				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_alt_o_hash);
 			break;
 		default: // Ignoro si llega otra cosa
 			break;
@@ -127,7 +127,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		cout<<"Modificacion SIN exito, NO se notifica al resto"<<endl;
 	}
 	cout << "Fin del procesado." << endl;
-	/*if(mod.nombre_archivo_alt =="")
+	/*if(mod.nombre_alt_o_hash =="")
 	{
 		delete lock;
 	}*/

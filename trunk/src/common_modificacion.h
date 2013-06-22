@@ -18,7 +18,7 @@ public:
 	 * @param nombre_archivo Nombre del archivo relacionado
 	 * @param nombre_archivo_alt Nombre extra en caso de ser necesario, parametro opcional
 	 */
-	Modificacion(tipo_accion accion, bool es_local, const string &nombre_archivo, const string &nombre_archivo_alt = string());
+	Modificacion(tipo_accion accion, bool es_local, const string &nombre_archivo, const string &nombre_alt_o_hash = string());
 
 	/**@brief Devuelve igualdad comparando accion, y ambos nombres de archivo*/
 	bool operator==(const Modificacion &otra);
@@ -29,7 +29,7 @@ public:
 	tipo_accion accion;
 	bool es_local;
 	string nombre_archivo;
-	string nombre_archivo_alt;
+	string nombre_alt_o_hash;
 };
 
 ostream& operator<<(std::ostream& os, Modificacion& mod);

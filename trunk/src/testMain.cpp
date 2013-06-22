@@ -34,10 +34,10 @@ int main(int argc, char** argv)
 						db.registrar_editado(it->nombre_archivo);
 						break;
 					case COPIADO:
-						db.registrar_copiado(it->nombre_archivo, it->nombre_archivo_alt);
+						db.registrar_copiado(it->nombre_archivo, it->nombre_alt_o_hash);
 						break;
 					case RENOMBRADO:
-						db.registrar_renombrado(it->nombre_archivo, it->nombre_archivo_alt);
+						db.registrar_renombrado(it->nombre_archivo, it->nombre_alt_o_hash);
 						break;
 					default:
 						cout << "Error" << endl;

@@ -11,7 +11,7 @@ using namespace std;
 
 Modificacion::Modificacion() : accion(A_ZERO), es_local(false), nombre_archivo(), nombre_alt_o_hash() {}
 
-Modificacion::Modificacion(tipo_accion accion, bool es_local, const string &nombre_archivo, const string &nombre_archivo_alt)
+Modificacion::Modificacion(tipo_accion accion, bool es_local, const string &nombre_archivo, const string &nombre_alt_o_hash)
 	: accion(accion), es_local(es_local), nombre_archivo(nombre_archivo), nombre_alt_o_hash(nombre_alt_o_hash) {}
 
 /**@brief Imprime una modificacion como si fuera solo texto */

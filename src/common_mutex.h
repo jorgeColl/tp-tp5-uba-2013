@@ -38,6 +38,8 @@ class Lock
 {
 	public:
 	  Lock(Mutex &mutex);
+	  /**@brief construye el Lock , dependiendo del bool que reciba hará un lock o no de el mutex recibido,
+	   * si es false no hace lock, si es true lo hace*/
 	  Lock(Mutex& mutex, bool trabar);
 	  ~Lock();
 	  /**@brief Pone al mutex a esperar una senial */

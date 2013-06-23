@@ -87,15 +87,15 @@ public:
 	 */
 	bool pedir_edicion(const string &nombre_archivo);
 
-	/** @breif Envia un mensaje de borrado de archivo, si tiene exito lo registra en el indice local
+	/** @brief Envia un mensaje de borrado de archivo, si tiene exito lo registra en el indice local
 	 */
 	bool enviar_borrado(const string& nombre_archivo);
 
-	/** @breif Envia un mensaje de renombrado de archivo, si tiene exito lo registra en el indice local
+	/** @brief Envia un mensaje de renombrado de archivo, si tiene exito lo registra en el indice local
 	 */
 	bool enviar_renombrado(const string& nombre_archivo_nuevo, const string& nombre_archivo_viejo);
 
-	/** @breif Envia un mensaje de copiad de archivo, si tiene exito lo registra en el indice local
+	/** @brief Envia un mensaje de copiad de archivo, si tiene exito lo registra en el indice local
 	 */
 	bool enviar_copiado(const string& nombre_archivo_nuevo, const string& nombre_archivo_viejo);
 

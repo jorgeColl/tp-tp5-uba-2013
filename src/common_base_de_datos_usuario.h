@@ -30,10 +30,12 @@ public:
 	BaseDeDatosUsuario(const string &path);
 	/**@brief cambia el archivo a abrir*/
 	void setPath(const string &path);
-	/**@brief abre y carga en memoria la base de datos de usuario y su respectiva contraseña */
+	/**@brief abre y carga en memoria la base de datos de usuarios y su respectivas contraseña */
 	void abrir();
+	/**@brief dado un nombre de usuario devuelve la contraseña de este*/
 	std::string get_pass(std::string& usuario);
-	/**@brief Verifica si el usuario y contraseña ingresados pertenecen a un usuario de la base de datos */
+	/**@brief Verifica si el usuario y contraseña ingresados pertenecen a un usuario de la base de datos
+	 * @details la contraseña es el hash md5 de el nombre de usuario apendeado con la contraseña */
 	bool usuario_contrasenia_correcto(string& usu, char* contrasenia);
 	/**@brief Agrega un usuario a la base de datos */
 	void agregar_usuario(const char* usuario, const char* contrasenia);

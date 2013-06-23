@@ -47,7 +47,7 @@ void Accepter::ejecutar()
 	sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
 	size_t contador = 0;
 	ObserbadorRecibido obs;
-	obs.start();
+	//obs.start(); conjelado hasta nuevo aviso
 	while (correr)
 	{
 		bool exito = aceptar_conexion();
@@ -62,8 +62,8 @@ void Accepter::ejecutar()
 		else cout << "Aceptacion de cliente fallida." << endl;
 	}
 	cout<<"Accepter termina ejecucion"<<endl;
-	obs.stop();
-	obs.join();
+	//obs.stop();
+	//obs.join();
 }
 
 void Accepter::stop()

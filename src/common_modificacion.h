@@ -16,7 +16,7 @@ public:
 	 * @param accion Tipo de accion representado por esta modificacion
 	 * @param es_local Si la modificacion fue o no generada en base al indice local
 	 * @param nombre_archivo Nombre del archivo relacionado
-	 * @param nombre_archivo_alt Nombre extra en caso de ser necesario, parametro opcional
+	 * @param nombre_alt_o_hash Nombre extra en caso de ser necesario, parametro opcional
 	 */
 	Modificacion(tipo_accion accion, bool es_local, const string &nombre_archivo, const string &nombre_alt_o_hash = string());
 

@@ -34,8 +34,8 @@ private:
 public:
 	ClienteControlador();
 	/**
-	 * @brief IntentarÃ¡ iniciar sesion con el usuario y contraseÃ±a ingresados, en el servidor y los puertos indicados
-	 * @details Se comunicara  con el servidor y este le responderÃ¡ si el usuario y password son correctos
+	 * @brief Intentará iniciar sesion con el usuario y contraseña ingresados, en el servidor y los puertos indicados
+	 * @details Se comunicara  con el servidor y este le responderá si el usuario y password son correctos
 	 * @return True si el login fue exitoso, false en caso contrario
 	 */
 	void login(string server, string puerto1, string puerto2,string usuario,

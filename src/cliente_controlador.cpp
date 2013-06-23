@@ -32,6 +32,7 @@ void ClienteControlador::login(string server, string puerto1, string puerto2,
 		sock1.recibir_flag(login);
 		if(login != OK) throw runtime_error("Los datos de login son incorrectos.");
 		notificador.conectar(server.c_str(),puerto2.c_str());
+		notificador.socket.set_password(contrasenia);
 		conectado = true;
 		sock1.set_password(contrasenia);
 		sock2.set_password(contrasenia);

@@ -7,6 +7,7 @@
 #include <cstring>	// Memcpy
 #include "common_util.h"
 #include "common_hashing.h"
+#include <syslog.h>
 
 using namespace std;
 
@@ -190,7 +191,7 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 		}
 		if (flag == CONFLICTO)
 		{
-			cout << "Hubo un conflicto al enviar la modificacion." << endl;
+			syslog(LOG_ERR, "Hubo un conflicto al enviar la modificacion.");
 			// Si hubo conflicto, probamos denuevo pero de otra manera
 			Modificacion copia(mod);
 			string nombreConflic(nombreConflictuado(mod.nombre_archivo));
@@ -219,7 +220,7 @@ bool Controlador::aplicar_modificacion(const Modificacion& mod)
 			if (mod.es_local) return enviar_copiado(mod.nombre_archivo, mod.nombre_alt_o_hash);
 			else return copiar_archivo(mod.nombre_archivo, mod.nombre_alt_o_hash);
 		default: // En realidad no existen otros casos salvo que funcione mal el soft o la red
-			cout<< "ALERTA! Modificacion desconocida!!"<<endl;
+			syslog(LOG_EMERG, "Modificacion desconocida!!");
 			return true;
 	}
 	return false;

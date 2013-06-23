@@ -3,6 +3,7 @@
 #include <sys/stat.h>	//mkdir
 #include "defines.h"
 #include "common_observador_recibido.h"
+#include <syslog.h>
 
 Accepter::Accepter(const string &dir, const string &puerto1, const string &puerto2) :
 		base_datos_usu(unirPath(dir,DB_USU_ARCH)), dir(dir),
@@ -47,7 +48,7 @@ void Accepter::ejecutar()
 	sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
 	size_t contador = 0;
 	ObserbadorRecibido obs;
-	//obs.start(); conjelado hasta nuevo aviso
+	//obs.start(); congelado hasta nuevo aviso
 	while (correr)
 	{
 		bool exito = aceptar_conexion();
@@ -55,13 +56,13 @@ void Accepter::ejecutar()
 			contador++;
 			if(contador >= CONEXCIONES_ACEPTADAS_PARA_BORRAR_MUERTOS){
 				limpiar_procesos_terminados();
-				cout << "se realizo borrado de muertos"<<endl;
+				syslog(LOG_DEBUG, "Se realizo limpiado de conexiones inactivas");
 			}
-			cout << "Conexion exitosa desde un cliente." << endl;
+			syslog(LOG_INFO, "Conexion exitosa desde un cliente.");
 		}
-		else cout << "Aceptacion de cliente fallida." << endl;
+		syslog(LOG_INFO, "Aceptacion de cliente fallida.");
 	}
-	cout<<"Accepter termina ejecucion"<<endl;
+	syslog(LOG_DEBUG, "Accepter termina ejecucion");
 	//obs.stop();
 	//obs.join();
 }
@@ -69,7 +70,7 @@ void Accepter::ejecutar()
 void Accepter::stop()
 {
 	Thread::stop();
-	Lock lock_temp (mutex); // Para que esta este mutex aca? Si se llamara a stop desde distintos lugares no pasa nada
+	Lock lock_temp (mutex);
 	for (map<string, list<ServerCommunicator*> >::iterator it = comunicadores.begin(); it != comunicadores.end(); ++it)
 	{
 		for (list<ServerCommunicator*>::iterator itL = it->second.begin(); itL != it->second.end(); ++itL)
@@ -77,7 +78,7 @@ void Accepter::stop()
 			(*itL)->stop();
 		}
 	}
-	cout<<"cerrando conexiones"<<endl;
+	syslog(LOG_DEBUG, "Cerrando conexiones");
 	sock_prot1.cerrar();
 	sock_prot2.cerrar();
 	// JOIN DE los ServerCommunicator
@@ -88,26 +89,26 @@ void Accepter::stop()
 			delete (*itL);
 		}
 	}
-	cout<<"conexiones cerradas"<<endl;
+	syslog(LOG_INFO, "Conexiones cerradas");
 
 }
 
 bool Accepter::aceptar_conexion()
 {
-	cout << "Aguardando conexion." << endl;
+	syslog(LOG_DEBUG, "Aguardando conexion.");
 	int fd_nuevo_1 = sock_prot1.aceptar();
 	if (fd_nuevo_1 < 0) return false;
-	cout << "Conexion recibida, esperando login." << endl;
+	syslog(LOG_DEBUG, "Conexion recibida, esperando login.");
 	// Recibo mensaje
 	SocketProt sock1(fd_nuevo_1);
 	PacketID login = FAIL;
 	sock1.recibir_flag(login);
 	if (login != LOGIN) return false; // Veo que sea el paquete correcto
-	cout << "Flag de LOGIN recibido." << endl;
+	syslog(LOG_DEBUG, "Flag de LOGIN recibido.");
 	string usuario;
 
 	sock1.recibir_msg_c_prefijo(usuario, BYTES_USER_PASS);
-	//sock1.recibir_msg_c_prefijo(contrasenia, BYTES_USER_PASS);
+	//sock1.recibir_msg_c_prefijo(contrasenia, BYTES_USER_PASS); <- Ya no se pasa la contraseña en texto plano
 	char buff[BYTES_HASH];
 	sock1.recibirLen(buff,BYTES_HASH);
 
@@ -115,14 +116,14 @@ bool Accepter::aceptar_conexion()
 			(usuario, buff);
 	if (!login_correcto)
 	{
-		cout << "Password incorrecta." << endl;
+		syslog(LOG_DEBUG, "Password incorrecta.");
 		sock1.enviar_flag(FAIL);
 		sock1.cerrar();
 		return false;
 	}
 	else
 	{
-		cout << "Password correcta." << endl;
+		syslog(LOG_DEBUG, "Password correcta.");
 		// Si la carpeta del usuario no existe la creo, sino esta llamada no hace nada
 		mkdir(unirPath(dir,usuario).c_str(), 0700);
 		// Si mensaje bueno creo el otro socket

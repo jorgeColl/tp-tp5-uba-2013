@@ -4,11 +4,9 @@
 #include <sys/stat.h>	// Umask
 #include <iostream>
 #include "server_accepter.h"
-
-#define ARCH_PREFS_SERV "server.cfg"
-#define PUERTO1_DEF "12700"
-#define PUERTO2_DEF "12701"
-#define DIR_DEF "./serverDir"
+#include <syslog.h>
+#include <sys/stat.h>
+#include "defines.h"
 
 /**
  * @file serverMain.cpp
@@ -34,13 +32,13 @@ void cargarPrefs(string &dir, string &puerto1, string &puerto2)
 	}
 	else
 	{
-		dir = DIR_DEF;
+		dir = DIR_DEF_SERV;
 		puerto1 = PUERTO1_DEF;
 		puerto2 = PUERTO2_DEF;
 	}
 	arch.close();
 }
-#include <sys/stat.h>
+
 int main (int argc, char** argv)
 {
 	try
@@ -48,9 +46,9 @@ int main (int argc, char** argv)
 		umask(0077); // Permisos
 		string dir, p1, p2;
 		cargarPrefs(dir, p1, p2);
-		cout << "Directorio: " << dir << endl;
-		cout << "Puerto 1: " << p1 << endl;
-		cout << "Puerto 2: " << p2 << endl;
+		syslog(LOG_DEBUG, "Directorio: %s", dir.c_str());
+		syslog(LOG_DEBUG, "Puerto 1: %s", p1.c_str());
+		syslog(LOG_DEBUG, "Puerto 2: %s", p2.c_str());
 		mkdir(dir.c_str(), 0700); // Si no existia la carpeta, se crea.
 		Accepter acp(dir.c_str(), p1.c_str(), p2.c_str());
 		// Aca manda a ejecutar al accepter en otro thread
@@ -65,7 +63,7 @@ int main (int argc, char** argv)
 	}
 	catch(exception &e)
 	{
-		cout << "Error: " << e.what() << endl;
+		syslog(LOG_EMERG, "Error fatal: %s", e.what());
 	}
 	return 0;
 

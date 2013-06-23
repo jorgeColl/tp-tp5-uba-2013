@@ -3,6 +3,7 @@
 #include "defines.h"
 #include <iostream>     // std::cout, std::fixed
 #include <iomanip>
+#include <syslog.h>
 MonitorInterface::MonitorInterface()
 {
 	builder = Gtk::Builder::create_from_file(MONIT_GLADE);
@@ -102,7 +103,7 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 
 	// dibujo TEXTO	en el grefico EJE Y
 	double distacia_y = height/double(CANT_DIVISIONES);
-	cout<<"distacia_y: "<< distacia_y <<endl;
+	syslog(LOG_DEBUG, "Distacia_y: %f", distacia_y);
 	double valor =0;
 	for(size_t i=1;i<CANT_DIVISIONES-2;++i){
 		stringstream aux;
@@ -180,7 +181,7 @@ bool MonitorInterface::on_timeout() {
 	}
 
 	double tam_medido = tamCarpeta(DIR_DEF_SERV);
-	cout<<"tamaño carpeta recien calculado: "<< tam_medido <<" MB"<<endl;
+	syslog(LOG_DEBUG, "Tam de carpeta recien calculado: %f MB", tam_medido);
 	if (medidas.size() < CANT_MEDIDAS) {
 		for (size_t i = 0; i < CANT_MEDIDAS; ++i) {
 			medidas.push_back(tam_medido);
@@ -199,9 +200,9 @@ bool MonitorInterface::on_timeout() {
 				max_medida = *it;
 			}
 		}
-		cout<<"mayor medida encontrada: "<<max_medida<<endl;
+		syslog(LOG_DEBUG, "Mayor medida encontrada: %f", max_medida);
 		max_medida+=max_medida/4;
-		cout<<"mayor medida usada en grafico para que quede lindo: "<<max_medida<<endl;
+		syslog(LOG_DEBUG, "Mayor medida usada en grafico para que quede lindo: %f", max_medida);
 	}
 	return true;
 }

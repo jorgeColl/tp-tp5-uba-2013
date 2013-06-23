@@ -4,6 +4,7 @@
 #include <gtkmm.h>
 #include <glibmm.h>
 #include <stdexcept>
+#include <syslog.h>
 
 ClientInterface::ClientInterface()
 {
@@ -96,13 +97,13 @@ void ClientInterface::cerrar()
 
 void ClientInterface::login()
 {
-	std::cout << "Usuario: " << entry_user->get_text() << std::endl;
+	syslog(LOG_INFO, "Usuario: %s", entry_user->get_text().c_str());
 	// No imprimo la password por pantalla porque es "secreta"
-	std::cout << "Server: " << entry_server->get_text() << std::endl;
-	std::cout << "Puerto 1: " << entry_puerto1->get_text() << std::endl;
-	std::cout << "Puerto 2: " << entry_puerto2->get_text() << std::endl;
-	std::cout << "Polling: " << entry_int_polling->get_text() << std::endl;
-	std::cout << "Carpeta: " << chooser->get_current_folder() << std::endl;
+	syslog(LOG_INFO, "Server: %s",  entry_server->get_text().c_str());
+	syslog(LOG_INFO, "Puerto 1: %s", entry_puerto1->get_text().c_str());
+	syslog(LOG_INFO, "Puerto 2: %s", entry_puerto2->get_text().c_str());
+	syslog(LOG_INFO, "Intervalo de polling: %s segundos", entry_int_polling->get_text().c_str());
+	syslog(LOG_INFO, "Carpeta: %s", chooser->get_current_folder().c_str());
 
 	// Intenta loguearse
 	try
@@ -115,7 +116,6 @@ void ClientInterface::login()
 		builder->get_widget("lConex", logged);
 		logged->set_text("Conectado");
 		cli.start();
-		// TODO: Ver como atrapar la desconeccion
 	}
 	catch (exception &e)
 	{

@@ -26,6 +26,9 @@ public:
 	/**@brief Devuelve desigualdad comparando solo el nombre de archivo*/
 	bool operator<(const Modificacion &otra);
 
+	/**@brief Devuelve un string mostrando los campos*/
+	string toString();
+
 	tipo_accion accion;
 	bool es_local;
 	string nombre_archivo;

@@ -5,6 +5,7 @@
 #include <sys/socket.h> // Sockets
 #include <netdb.h>		// Inet
 #include <stdexcept> 	// Excepciones genericas
+#include <syslog.h>
 
 #include "common_hashing.h"
 #define TAM_BUFFER 4096
@@ -44,7 +45,7 @@ int SocketProt::recibir(void *msg, size_t len) {
 	return aux;
 }
 void SocketProt::enviar_firma() {
-	cout<<"enviando firma con clave: "<<contrasenia<<endl;
+	syslog(LOG_DEBUG, "Enviando firma");
 	unsigned char digest[BYTES_HASH];
 
 	//md5.MD5Init(&ctx);
@@ -56,7 +57,7 @@ void SocketProt::enviar_firma() {
 	// aca podria recibir un OK o FAIL
 }
 void SocketProt::comprobar_firma(){
-	cout<<"recibiendo firma comprobando con clave: "<<contrasenia<<"-> ";
+	syslog(LOG_DEBUG, "Recibiendo firma y comprobando contra la local");
 	unsigned char digest_recibido[BYTES_HASH];
 	unsigned char digest_esperado[BYTES_HASH];
 
@@ -68,11 +69,11 @@ void SocketProt::comprobar_firma(){
 	md5.MD5Init(&ctx);
 	for(size_t i=0; i<BYTES_HASH;++i){
 		if(digest_esperado[i]!=digest_recibido[i]){
-			cout<<"ERROR, FIRMA NO COINCIDE"<< " ESPERADA "<<digest_esperado<<" RECIBIDA "<<digest_recibido<<endl;
+			throw std::runtime_error("Error de seguridad, la firma recibida no coincide con la esperada.");
 			break;
 		}
 	}
-	cout<<"firma OK"<<endl;
+	syslog(LOG_DEBUG, "Firma OK");
 	// aca podria enviar un OK o FAIL para la firma
 }
 void SocketProt::enviar_flag(const PacketID flag)
@@ -178,7 +179,6 @@ void SocketProt::recibir_pedazo_archivo(ostream &arch, off_t offset)
 
 void SocketProt::enviar_archivo(istream &arch)
 {
-	//TODO: Optimizar viendo como funciona el buffer interno de ifstream
 	arch.seekg(0,ios::end);
 	streampos fin = arch.tellg();
 	arch.seekg(0);
@@ -189,7 +189,6 @@ void SocketProt::enviar_archivo(istream &arch)
 
 void SocketProt::recibir_archivo(ostream &arch)
 {
-	//TODO: Optimizar viendo como funciona el buffer interno de ofstream
 	streampos tam = 0;
 	recibirLen((char*) &tam, sizeof(streampos));
 	recibir_pedazo_archivo(arch, 0);
@@ -225,7 +224,7 @@ void SocketProt::enviar_edicion(istream &arch)
 	// Envio esos bloques, en orden
 	for(list<off_t>::iterator it = bloqMandar.begin(); it != bloqMandar.end(); ++it)
 	{
-		cout << "Enviando bloque: " << *it << endl;
+		syslog(LOG_DEBUG, "Enviando bloque: %li", *it);
 		enviar_pedazo_archivo(arch, *it*TAM_BLOQ, TAM_BLOQ);
 	}
 	enviar_firma();
@@ -235,11 +234,11 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 {
 	off_t bloques = 0;
 	recibirLen((char*)&bloques, sizeof(off_t));
-	cout << "Bloques:" << bloques << endl;
+	syslog(LOG_DEBUG, "Bloques: %li", bloques);
 	list<off_t> bloqPedir;
 	for (off_t i = 0; i < bloques; ++i) // Reviso todos los hashes que me llegan
 	{
-		cout << "Revisando hash:" << i << endl;
+		syslog(LOG_DEBUG, "Revisando hash del bloque: %li", i);
 		char buffer[BYTES_HASH];
 		recibirLen(buffer, BYTES_HASH);
 		string hashRecibido(buffer, BYTES_HASH);
@@ -249,7 +248,7 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 	}
 	//Envio la lista
 	size_t tam = bloqPedir.size();
-	cout << "Numero de bloques a pedir:" << tam << endl;
+	syslog(LOG_DEBUG, "Numero de bloques a pedir: %u", tam);
 	enviarLen((char*)&tam, sizeof(size_t)); // Prefijo de longitud
 	for(list<off_t>::iterator it = bloqPedir.begin(); it != bloqPedir.end(); ++it)
 	{
@@ -259,18 +258,19 @@ void SocketProt::recibir_edicion(istream &arch_orig, ostream &arch_temp)
 	char buffer[TAM_BLOQ];
 	for(off_t i = 0; i < bloques; ++i)
 	{
-		cout << "A escribir bloque: " << i << endl;
+		syslog(LOG_DEBUG, "A escribir bloque: %li", i);
 		off_t bloqNoLocal = -1;
 		if (!bloqPedir.empty())	bloqNoLocal = bloqPedir.front();
 		if (bloqNoLocal == i) // Si estamos en el bloque del archivo que me lleog por socket
 		{
 			// Copio lo que me llega por el socket
-			cout << "Recibiendo bloque: " << i << endl;
+			syslog(LOG_DEBUG, "Recibiendo por socket bloque: %li", i );
 			recibir_pedazo_archivo(arch_temp, i*TAM_BLOQ);
 			bloqPedir.pop_front(); // Quito el bloque de la lista
 		}
 		else // Copio del original en el otro caso
 		{
+			syslog(LOG_DEBUG, "Copiando bloque %li de archivo local", i );
 			arch_orig.clear();
 			arch_orig.seekg(i*TAM_BLOQ, ios::beg);
 			arch_orig.read(buffer, TAM_BLOQ);

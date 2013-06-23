@@ -6,6 +6,7 @@
 #include "common_base_de_datos.h"
 #include <gtkmm.h>
 #include <glibmm.h>
+#include <syslog.h>
 
 /**
  * @file clientMain.cpp
@@ -13,6 +14,8 @@
  */
 int main (int argc, char** argv)
 {
+	setlogmask(LOG_UPTO(S_MENOR_PRIOR));
+	openlog(argv[0], S_OPTION, S_FACILITY);
 	try
 	{
 		umask(0077); // Permisos
@@ -22,12 +25,13 @@ int main (int argc, char** argv)
 	}
 	catch (Glib::Exception &e)
 	{
-		std::cout << "Error: " << e.what() << std::endl;
+		syslog(LOG_EMERG, "%s", e.what().c_str());
 	}
 	catch (std::exception &e)
 	{
-		std::cout << "Error: " << e.what() << std::endl;
+		syslog(LOG_EMERG, "%s", e.what());
 	}
+	closelog();
 	return 0;
 }
 #endif

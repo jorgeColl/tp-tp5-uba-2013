@@ -1,6 +1,7 @@
 #include "server_thread_communicator.h"
 #include "common_hashing.h"
 #include <cstring>
+#include <syslog.h>
 
 ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, const string &password)
 	: Controlador(dir, fd1, fd2, password), Thread(), vinculados(NULL), smpt(dir)
@@ -12,15 +13,9 @@ ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, cons
 
 void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 {
-	cout << "Antes lock" << endl;
 	Lock(*smpt.data().get_mutex(mod.nombre_archivo.c_str()));
-	/*Lock* lock = 0;
-	if (mod.nombre_alt_o_hash == "") {
-		lock = new Lock(*smpt.data().get_mutex(mod.nombre_alt_o_hash.c_str()));
-	}*/
 	Lock(*smpt.data().get_mutex(mod.nombre_alt_o_hash.c_str()),mod.nombre_alt_o_hash!="");
 	Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
-	cout << "Despues lock" << endl;
 
 	switch(mod.accion)
 	{
@@ -29,7 +24,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			{
 				sock1.enviar_flag(YA_APLICADA);
 				// TODO: Comparar hashes
-				cout<<"Modificacion NUEVO: "<< mod.nombre_archivo <<" ya estaba aplicada."<<endl;
+				syslog(LOG_WARNING, "Modificacion NUEVO: %s ya estaba aplicada.", mod.nombre_archivo.c_str());
 				return;
 			}
 			break;
@@ -37,7 +32,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			if (base_de_datos.estaIndexado(mod.nombre_archivo), false)
 			{
 				sock1.enviar_flag(YA_APLICADA);
-				cout<<"Modificacion BORRADO: " << mod.nombre_archivo << " ya estaba aplicada."<<endl;
+				syslog(LOG_WARNING, "Modificacion BORRADO: %s ya estaba aplicada.", mod.nombre_archivo.c_str());
 				return;
 			}
 			break;
@@ -47,8 +42,8 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 					|| base_de_datos.estaIndexado(mod.nombre_alt_o_hash, false) ) // Ya existe un archivo con ese nombre
 			{
 				sock1.enviar_flag(CONFLICTO);
-				cout<<"Modificacion RENOMBRADO o COPIADO: "<< mod.nombre_archivo <<
-						" - " << mod.nombre_alt_o_hash << " genero un conflicto."<<endl;
+				syslog(LOG_WARNING, "Modificacion RENOMBRADO o COPIADO: %s - %s genero un conflicto."
+						,mod.nombre_archivo.c_str(), mod.nombre_alt_o_hash.c_str());
 				return;
 			}
 			break;
@@ -58,14 +53,14 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			if (!base_de_datos.estaIndexado(mod.nombre_archivo))
 			{
 				sock1.enviar_flag(CONFLICTO);
-				cout<<"Modificacion EDICION: "<< mod.nombre_archivo << " genero un conflicto."<< endl;
+				syslog(LOG_WARNING, "Modificacion EDICION: %s genero un conflicto.", mod.nombre_archivo.c_str());
 				return;
 			}
 			break;
 		default:
 			break;
 	}
-	cout << "Enviando flag OK" << endl;
+	syslog(LOG_DEBUG, "Enviando flag OK");
 	sock1.enviar_flag(OK);
 	bool exito = false;
 
@@ -117,42 +112,35 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 	}
 	if (exito)
 	{
-		cout<<"Notificando otros clientes de la modificacion"<<endl;
+		syslog(LOG_DEBUG, "Notificando otros clientes de la modificacion");
 		sock1.enviar_flag(OK);
 		notificar_todos(mod);
 	}
 	else
 	{
 		sock1.enviar_flag(FAIL);
-		cout<<"Modificacion SIN exito, NO se notifica al resto"<<endl;
+		syslog(LOG_ERR, "Modificacion SIN exito, NO se notifica al resto");
 	}
-	cout << "Fin del procesado." << endl;
-	/*if(mod.nombre_alt_o_hash =="")
-	{
-		delete lock;
-	}*/
+	syslog(LOG_DEBUG, "Fin del procesado.");
 }
 
 void ServerCommunicator::procesar_flag(PacketID flag)
 {
-	cout<<"procesando flag"<<endl;
+	syslog(LOG_DEBUG, "Procesando flag");
 	switch(flag)
 	{
-		case(LOGOUT):
-				// cerrar coneccion y salir
-				break;
 		case(MODIFICACION):
 				{
-				cout<<"Flag es MODIFICACION"<<endl;
+				syslog(LOG_DEBUG, "Flag es MODIFICACION");
 				Modificacion mod;
 				sock1.recibir_modif(mod); // Recibe mod
-				cout << mod << endl;
+				syslog(LOG_DEBUG, "Modificacion: %s", mod.toString().c_str());
 				actuar_segun_modif_recibida(mod); // Ejecuta mod
 				}
 				break;
 		case(PEDIDO_ARCHIVO_ENTERO):
 				{
-					cout<<"Flag es PEDIDO_ARCHIVO_ENTERO"<<endl;
+					syslog(LOG_DEBUG, "Flag es PEDIDO_ARCHIVO_ENTERO");
 					string nombre;
 					sock1.recibir_msg_c_prefijo(nombre, BYTES_PREF_NOMBRE);
 					Lock(*smpt.data().get_mutex(nombre.c_str()));
@@ -164,7 +152,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				break;
 		case(PEDIDO_ARCHIVO_EDICIONES):
 				{
-					cout<<"Flag es PEDIDO_ARCHIVO_EDICIONES"<<endl;
+					syslog(LOG_DEBUG,"Flag es PEDIDO_ARCHIVO_EDICIONES");
 					string nombre;
 					sock1.recibir_msg_c_prefijo(nombre, BYTES_PREF_NOMBRE);
 					Lock(*smpt.data().get_mutex(nombre.c_str()));
@@ -177,7 +165,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 		case(PEDIDO_INDICE):
 				// Devuelve el indice
 				{
-					cout<<"Flag es PEDIDO_INDICE"<<endl;
+					syslog(LOG_DEBUG,"Flag es PEDIDO_INDICE");
 					Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
 					string nomb(NOMBRE_ARCH_IND);
 					ifstream archIndice;
@@ -187,8 +175,8 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 				}
 				break;
 		default:
-				cout<<"ALERTA !!! flag no identificado recibido !!!!!"<<endl;
-				// Otros casos no deberian llegar nunca "sueltos", se ignoran
+				// Otros casos no deberian llegar nunca "sueltos", hubo un error
+				throw std::runtime_error("Error en la conexion, se recibio un flag invalido.");
 				break;
 	}
 }
@@ -201,13 +189,13 @@ void ServerCommunicator::ejecutar()
 	{
 		try
 		{
-			cout<<"Esperando Flag"<<endl;
+			syslog(LOG_DEBUG, "Esperando Flag");
 			sock1.recibir_flag(flag);
-			cout<<"cliente envio Flag"<<endl;
+			syslog(LOG_DEBUG, "Cliente envio Flag: %i", flag);
 			if (flag == LOGOUT)
 			{
 				correr = false;
-				cout << "Cliente cerro sesion." << endl;
+				syslog(LOG_DEBUG, "Cliente cerro sesion.");
 			}else{
 				procesar_flag(flag);
 			}
@@ -215,14 +203,16 @@ void ServerCommunicator::ejecutar()
 		catch (exception &e)
 		{
 			if(correr==true){
-				cout << "Se perdio la conexion con el cliente:" << e.what() <<"estado correr: "<<correr<< endl;
+				syslog(LOG_ERR, "Se perdio la conexion con el cliente: %s. Estado correr: %i"
+						, e.what(), correr);
 			}else{
-				cout<<"se cierra el server por: "<<e.what()<<" el server se tenia que cerrar de todas formas"<<endl;
+				syslog(LOG_DEBUG, "Se cierra el thread de server por: '%s' tras haber recibido senial para cerrarse",
+						e.what());
 			}
 			correr = false;
 		}
 	}
-	cout<<"ServerComunicator: termino ejecucion"<<endl;
+	syslog(LOG_DEBUG, "ServerComunicator: Termino ejecucion");
 }
 
 void ServerCommunicator::setVinculados(list<ServerCommunicator*> *vinc)
@@ -240,7 +230,7 @@ void ServerCommunicator::notificar_todos(Modificacion &mod)
 	}
 }
 void ServerCommunicator::stop(){
-	cout<<"server comunicator: me pidieron STOP"<<endl;
+	syslog(LOG_DEBUG, "Server comunicator: Se pidio que se detenga");
 	this->correr = false;
 	sock1.cerrar();
 	sock2.cerrar();

@@ -1,6 +1,7 @@
 #include "common_base_de_datos_usuario.h"
 #include <iostream>
 #include "common_hashing.h"
+#include <syslog.h>
 using namespace std;
 
 BaseDeDatosUsuario::BaseDeDatosUsuario(const string &path) : path(path) {}
@@ -65,7 +66,7 @@ bool BaseDeDatosUsuario::usuario_contrasenia_correcto(string& usu,
 
 	for(size_t i=0;i<BYTES_HASH;++i){
 		if(contr_esperada[i]!=contrasenia_recibida[i]){
-			cout<<"pass bochada en el login, se esperaba "<<contr_esperada<<"se recibio"<<contrasenia_recibida<<endl;
+			syslog(LOG_DEBUG, "Login incorrecto de parte de un usuario");
 			return false;
 		}
 	}

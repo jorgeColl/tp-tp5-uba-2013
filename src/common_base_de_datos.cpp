@@ -9,6 +9,7 @@
 #include <stdexcept> 	// Excepciones genericas
 #include <cstring>		// Para manejar los buffers
 #include <cerrno> 		// Errores de C
+#include <syslog.h>
 
 #include "common_hashing.h"
 #include "common_util.h"
@@ -50,7 +51,7 @@ bool BaseDeDatos::renombrar_a_conflictuado(const string &nombre)
 	bool exito = rename(path_viejo.c_str(), pathNuevo.c_str());
 	if (exito != 0)
 	{
-		cout << "Error renombrado el archivo a conflictuado: " << strerror(errno) << endl;
+		syslog(LOG_ERR, "Error renombrado el archivo a conflictuado: %s", strerror(errno) );
 		return false;
 	}
 	return true;
@@ -72,8 +73,6 @@ list<Modificacion> BaseDeDatos::comprobar_cambios_externos(istream &indiceFuente
 		if (esArchivo(directorio,*it) // Existe y tal vez no deberia, miro la fecha para determinar eso
 			&& fechaModificado(directorio, *it) < indiceServer.devolverFecha(*it, false)) // Existe y es viejo, lo borro
 		{
-			cout << "modif arch: " << fechaModificado(directorio, *it) << endl;
-			cout << "modif segun ind:" << indiceServer.devolverFecha(*it, false) << endl;
 			Modificacion modif(BORRADO, es_local, *it); // Pongo la modif que al ejecutarse borra el archivo y registra
 			modifs.push_back(modif);
 		}
@@ -225,8 +224,8 @@ bool BaseDeDatos::renombrar(const string &viejo_nombre,const string &nuevo_nombr
 	bool exito = rename(pathViejo.c_str(), pathNuevo.c_str());
 	if(exito != 0)
 	{
-		cout << "Error al renombrar el archivo " << viejo_nombre << " a "
-				<< nuevo_nombre << ".Error: " << (strerror(errno)) << endl;
+		syslog(LOG_ERR,"Error al renombrar el archivo %s a %s. Error: %s", viejo_nombre.c_str(),
+				nuevo_nombre.c_str(), (strerror(errno)));
 		return false;
 	}
 	return true;
@@ -267,8 +266,8 @@ bool BaseDeDatos::eliminar_archivo(const string &nombre_archivo)
 	int exito = remove( path.c_str() );
 	if(exito != 0)
 	{
-		cout << "Error al eliminar el archivo " << nombre_archivo <<
-				".Error: " << (strerror(errno)) << endl;
+		syslog(LOG_ERR, "Error al eliminar el archivo %s. Error: %s", nombre_archivo.c_str(),
+				(strerror(errno)));
 		return false;
 	}
 	return true;

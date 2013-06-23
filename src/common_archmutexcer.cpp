@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <cstring>
 #include <iostream>
+#include <syslog.h>
 // hago algo raro para que compile todo., es probable q en el .h solo halla declarado todo. los bichos pero nada mas
 //std::vector<ArchMutexcer*> ArchMutexcer::a_eliminar;
 std::map<std::string, ArchMutexcer*> ArchMutexcer::hijitos;
@@ -15,11 +16,11 @@ using namespace std;
 ArchMutexcer* ArchMutexcer::generar_archmutexcer(const char* directorio) {
 	Lock temp (ArchMutexcer::mutex_clase);
 	if (ArchMutexcer::hijitos.count(directorio) == 1) {
-		cout<<"ArchMutexcer::generar_archmutexcer(): instancia ya estaba creada"<<endl;
+		syslog(LOG_DEBUG, "ArchMutexcer::generar_archmutexcer(): Iinstancia ya estaba creada");
 		ArchMutexcer::cant_hijitos[hijitos[directorio]]++;
 		return ArchMutexcer::hijitos[directorio];
 	}
-	cout<<"ArchMutexcer::generar_archmutexcer():  NUEVA instancia creada"<<endl;
+	syslog(LOG_DEBUG, "ArchMutexcer::generar_archmutexcer(): Nueva instancia creada");
 	ArchMutexcer* nuevo = new ArchMutexcer(directorio);
 
 	ArchMutexcer::hijitos[directorio] = nuevo;
@@ -59,9 +60,8 @@ void ArchMutexcer::borrar() {
 	Lock* lock = new Lock(this->mutex_loc);
 
 	// se pone para eliminarse , si solo queda él se elimina de verdad, sino se resta 1
-	cout << "ArchMutexcer::~ArchMutexcer(): eliminando instancia de carpeta "<<dir<< endl;
-	cout << "ArchMutexcer::~ArchMutexcer():cant instancias: "
-			<< ArchMutexcer::cant_instacias(this) << endl;
+	syslog(LOG_DEBUG, "ArchMutexcer::~ArchMutexcer(): Eliminando instancia de carpeta %s", dir.c_str());
+	syslog(LOG_DEBUG, "ArchMutexcer::~ArchMutexcer():cant instancias: %i", ArchMutexcer::cant_instacias(this));
 	if (1 == ArchMutexcer::cant_instacias(this)) {
 		ArchMutexcer::cant_hijitos.erase(this);
 		ArchMutexcer::hijitos.erase(dir);
@@ -69,13 +69,13 @@ void ArchMutexcer::borrar() {
 		delete this;
 	} else {
 		Lock(this->mutex_clase);
-		cout << "ArchMutexcer::~ArchMutexcer(): solo se resta 1" << endl;
+		syslog(LOG_DEBUG, "ArchMutexcer::~ArchMutexcer(): solo se resta 1");
 		ArchMutexcer::restar_instancia(this);
 		delete(lock);
 	}
 }
 ArchMutexcer::~ArchMutexcer() {
-	cout << "ArchMutexcer::~ArchMutexcer(): mutexs de carpeta "<<dir<<" se elimina permanentemente" << endl;
+	syslog(LOG_DEBUG, "ArchMutexcer::~ArchMutexcer(): mutexs de carpeta %s se elimina permanentemente", dir.c_str());
 	std::map<std::string, Mutex*>::iterator it;
 	for (it = mutex_archivos->begin(); it != mutex_archivos->end(); it++) {
 		delete it->second;
@@ -90,7 +90,7 @@ void ArchMutexcer::restar_instancia(ArchMutexcer* mutexcer) {
 }
 
 ostream& operator<<(std::ostream& os, ArchMutexcer& archm) {
-	os<<"directorio: "<<archm.dir<<endl;
+	os << "directorio: " << archm.dir << endl;
 	std::map<std::string,Mutex*>::iterator it;
 	for(it=archm.mutex_archivos->begin(); it!=archm.mutex_archivos->end();it++){
 		os<<it->first<<endl;

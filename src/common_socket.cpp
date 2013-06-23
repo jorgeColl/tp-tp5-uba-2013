@@ -110,7 +110,7 @@ void Socket::cerrar()
 {
 	if (sockfd == -1) return; //Socket no inicializado
 	//Llamo a shutdown primero o se cuelga en el accept el socket
-	if (shutdown(sockfd,2) == -1) throw std::runtime_error(strerror(errno));
-	if (close(sockfd) == -1) throw std::runtime_error(strerror(errno));
+	shutdown(sockfd,2);
+	close(sockfd);
 	sockfd = -1; //Pongo el sockfd en -1 por si alguien intenta volver a cerrarlo
 }

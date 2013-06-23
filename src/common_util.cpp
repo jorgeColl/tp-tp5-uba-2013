@@ -6,6 +6,7 @@
 #include <dirent.h>
 #include <stdexcept>
 #include <iostream>
+#include <syslog.h>
 bool esArchivo(const string &path)
 {
 	struct stat buf;
@@ -43,7 +44,7 @@ off_t __tamCarpeta(const char* direct) {
 	off_t tam =0;
 	DIR* dir = opendir(direct);
 	if (dir == NULL) {
-		cout<<"dir invalido"<<direct<<endl;
+		syslog(LOG_ERR, "Directorio invalido: %s", direct);
 		sleep(3);
 		return 0;
 	}
@@ -59,8 +60,7 @@ off_t __tamCarpeta(const char* direct) {
 		if(dirEnt->d_type==DT_DIR){
 			if (val != -1 && !esIgnorable2(path)) //Veo que efectivamente es un archivo
 			{
-				cout<<"se entra a directorio: "<<path<<endl;
-				//sleep(1);
+				syslog(LOG_DEBUG,"Tam de carpeta: Se entra al directorio: %s", path.c_str());
 				tam+=buf.st_size;
 				tam+=tamCarpeta(path.c_str());
 			}

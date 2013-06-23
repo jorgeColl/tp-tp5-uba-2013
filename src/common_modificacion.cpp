@@ -1,11 +1,5 @@
-/*
- * common_modificacion.cpp
- *
- *  Created on: 22/05/2013
- *      Author: jorge
- */
-
 #include "common_modificacion.h"
+#include <sstream>
 
 using namespace std;
 
@@ -46,6 +40,13 @@ ostream& operator<<(ostream& os, Modificacion& mod) {
 	if (mod.nombre_alt_o_hash != "")
 		os << "Nombre de archivo alternativo/hash: "<< mod.nombre_alt_o_hash << endl;
 	return os ;
+}
+
+string Modificacion::toString()
+{
+	stringstream stream;
+	stream << *this;
+	return stream.str();
 }
 
 bool Modificacion::operator==(const Modificacion &otra)

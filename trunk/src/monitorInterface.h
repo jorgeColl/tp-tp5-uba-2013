@@ -54,10 +54,16 @@ private:
 	void cargarDB();
 	/** @brief Guarda los cambios efectuados a la base de datos */
 	void guardarDB();
+	/** @brief metodo que es llamado cada ciertos milisegundos, toma una
+	 * medida nueva e invalida la drawing arear para que se vuelva a dibujar*/
 	bool on_timeout();
+	/** @brief dibuja todo el grafico en la drawing widow */
 	bool graficar(GdkEventExpose* event);
+	/** @brief traza las lineas de los ejes en la drawing window*/
 	void dibujar_ejes(Cairo::RefPtr < Cairo::Context >& cr);
+	/** @brief traza las divisiones del eje x en la drawing window*/
 	void dibujar_division_x(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsetx, double& offsety);
+	/** @brief traza las divisiones del eje y en la drawing window*/
 	void dibujar_division_y(Cairo::RefPtr < Cairo::Context >& cr, size_t cant_div, double& offsety, double& offsetx);
 
 	Gtk::Entry* entry_puerto1;

@@ -25,7 +25,8 @@ class SocketProt : public Socket
 	MD5 md5;
 	HL_MD5_CTX ctx;
 public:
-	/*static Mutex mutex_cant_transmitida;
+	/* conjelado hasta nuevo aviso
+	 * static Mutex mutex_cant_transmitida;
 	static Mutex mutex_cant_recibida;
 	static size_t cantidad_transmitida;
 	static size_t cantidad_recibida;
@@ -33,12 +34,16 @@ public:
 	*/
 	SocketProt();
 
+	virtual ~SocketProt(){}
+
 	SocketProt(int socketfd);
-
+	/**@brief setea la nueva contraseña a usar cuando se firmen los mensajes*/
 	void set_password(string pass);
-
+	/**@brief mismo comportamiento que el enviar de la clase Socket salvo que
+	 * actualiza el hash para la posterior firma*/
 	virtual int enviar(void *msg, size_t len);
-
+	/**@brief comportamiento que el recibir de la clase Socket salvo que
+	 * actualiza el hash para la posterior firma*/
 	virtual int recibir(void *msg, size_t len);
 	/**
 	 * @brief Envia un byte con flags seteados que indica un mensaje, o el tipo de mensaje que vendra
@@ -117,13 +122,12 @@ public:
 	 * @param arch_temp Archivo donde se escribira la union entre lo recibido y lo del archivo original
 	 */
 	void recibir_edicion(istream &arch_orig, ostream &arch_temp);
-	/**@brief firma un mensaje  */
+	/**@brief firma un mensaje*/
 	void enviar_firma();
-	/**@brief verifica si el mensaje está correctamente firmado */
+	/**@brief verifica si el mensaje está correctamente firmado*/
 	void comprobar_firma();
 
 	//void guardar_cant_transmitida(size_t cantidad);
-
 	//void guardar_cant_recibida(size_t cantidad);
 };
 

@@ -54,7 +54,7 @@ off_t __tamCarpeta(const char* direct) {
 			if (val != -1 && !esIgnorable2(path)) //Veo que efectivamente es un archivo
 			{
 				tam+=buf.st_size;
-				tam+=tamCarpeta(path.c_str());
+				tam+=__tamCarpeta(path.c_str());
 			}
 		}else{
 			if (val != -1 &&   S_ISREG(buf.st_mode)  ) { //Veo que efectivamente es un archivo
@@ -66,7 +66,7 @@ off_t __tamCarpeta(const char* direct) {
 	return tam;
 }
 double tamCarpeta(const char* direct){
-	return (__tamCarpeta(direct)/1024.00);
+	return (__tamCarpeta(direct)/1024.00)/1024.0;
 }
 time_t fechaModificado(const string &dir, const string &nombre)
 {

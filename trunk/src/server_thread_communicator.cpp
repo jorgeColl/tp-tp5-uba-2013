@@ -3,12 +3,13 @@
 #include <cstring>
 #include <syslog.h>
 
-ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2, const string &password)
-	: Controlador(dir, fd1, fd2, password), Thread(), vinculados(NULL), smpt(dir)
+ServerCommunicator::ServerCommunicator(const string &dir, int fd1, int fd2,	const string &password,
+		BaseDeDatos *base_de_datos) : Controlador(dir, fd1, fd2, password),
+		Thread(), vinculados(NULL),	base_de_datos(base_de_datos), smpt(dir)
 {
 	sock1.set_password(password);
 	sock2.set_password(password);
-	base_de_datos.abrir(dir);
+	base_de_datos->abrir(dir);
 }
 
 void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
@@ -20,7 +21,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 	switch(mod.accion)
 	{
 		case NUEVO:
-			if (base_de_datos.estaIndexado(mod.nombre_archivo))
+			if (base_de_datos->estaIndexado(mod.nombre_archivo))
 			{
 				sock1.enviar_flag(YA_APLICADA);
 				// TODO: Comparar hashes
@@ -29,7 +30,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			}
 			break;
 		case BORRADO:
-			if (base_de_datos.estaIndexado(mod.nombre_archivo), false)
+			if (base_de_datos->estaIndexado(mod.nombre_archivo), false)
 			{
 				sock1.enviar_flag(YA_APLICADA);
 				syslog(LOG_WARNING, "Modificacion BORRADO: %s ya estaba aplicada.", mod.nombre_archivo.c_str());
@@ -38,8 +39,8 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 			break;
 		case COPIADO:
 		case RENOMBRADO:
-			if (base_de_datos.estaIndexado(mod.nombre_archivo)
-					|| base_de_datos.estaIndexado(mod.nombre_alt_o_hash, false) ) // Ya existe un archivo con ese nombre
+			if (base_de_datos->estaIndexado(mod.nombre_archivo)
+					|| base_de_datos->estaIndexado(mod.nombre_alt_o_hash, false) ) // Ya existe un archivo con ese nombre
 			{
 				sock1.enviar_flag(CONFLICTO);
 				syslog(LOG_WARNING, "Modificacion RENOMBRADO o COPIADO: %s - %s genero un conflicto."
@@ -50,7 +51,7 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		case EDITADO:
 			//base_de_datos.registrar_editado(mod.nombre_archivo);
 			//TODO: Revisar el hash
-			if (!base_de_datos.estaIndexado(mod.nombre_archivo))
+			if (!base_de_datos->estaIndexado(mod.nombre_archivo))
 			{
 				sock1.enviar_flag(CONFLICTO);
 				syslog(LOG_WARNING, "Modificacion EDICION: %s genero un conflicto.", mod.nombre_archivo.c_str());
@@ -69,43 +70,43 @@ void ServerCommunicator::actuar_segun_modif_recibida(Modificacion &mod)
 		case NUEVO:
 			{
 				ofstream destino;
-				exito = base_de_datos.abrir_para_escribir(mod.nombre_archivo, destino);
+				exito = base_de_datos->abrir_para_escribir(mod.nombre_archivo, destino);
 				if(exito)
 				{
 					sock1.recibir_archivo(destino);
 					destino.close();
-					base_de_datos.registrar_nuevo(mod.nombre_archivo);
+					base_de_datos->registrar_nuevo(mod.nombre_archivo);
 				}
 			}
 			break;
 		case BORRADO:
-			exito = base_de_datos.eliminar_archivo(mod.nombre_archivo);
-			if (exito) base_de_datos.registrar_eliminado(mod.nombre_archivo);
+			exito = base_de_datos->eliminar_archivo(mod.nombre_archivo);
+			if (exito) base_de_datos->registrar_eliminado(mod.nombre_archivo);
 			break;
 		case EDITADO:
 		{
 			ofstream destino;
-			base_de_datos.abrir_para_escribir_temporal(mod.nombre_archivo, destino);
+			base_de_datos->abrir_para_escribir_temporal(mod.nombre_archivo, destino);
 			ifstream original;
-			base_de_datos.abrir_para_leer(mod.nombre_archivo, original);
+			base_de_datos->abrir_para_leer(mod.nombre_archivo, original);
 			sock1.recibir_edicion(original, destino);
 			// Terminamos
 			original.close();
 			destino.close();
-			exito = base_de_datos.renombrar_temporal(mod.nombre_archivo);
-			if (exito) base_de_datos.registrar_editado(mod.nombre_archivo);
-			else base_de_datos.eliminar_archivo_temporal(mod.nombre_archivo);
+			exito = base_de_datos->renombrar_temporal(mod.nombre_archivo);
+			if (exito) base_de_datos->registrar_editado(mod.nombre_archivo);
+			else base_de_datos->eliminar_archivo_temporal(mod.nombre_archivo);
 		}
 			break;
 		case RENOMBRADO:
-			exito = base_de_datos.renombrar(mod.nombre_alt_o_hash, mod.nombre_archivo);
+			exito = base_de_datos->renombrar(mod.nombre_alt_o_hash, mod.nombre_archivo);
 			if (exito)
-				base_de_datos.registrar_renombrado(mod.nombre_archivo, mod.nombre_alt_o_hash);
+				base_de_datos->registrar_renombrado(mod.nombre_archivo, mod.nombre_alt_o_hash);
 			break;
 		case COPIADO:
-			exito = base_de_datos.copiar(mod.nombre_alt_o_hash, mod.nombre_archivo);
+			exito = base_de_datos->copiar(mod.nombre_alt_o_hash, mod.nombre_archivo);
 			if (exito)
-				base_de_datos.registrar_copiado(mod.nombre_archivo, mod.nombre_alt_o_hash);
+				base_de_datos->registrar_copiado(mod.nombre_archivo, mod.nombre_alt_o_hash);
 			break;
 		default: // Ignoro si llega otra cosa
 			break;
@@ -145,7 +146,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 					sock1.recibir_msg_c_prefijo(nombre, BYTES_PREF_NOMBRE);
 					Lock(*smpt.data().get_mutex(nombre.c_str()));
 					ifstream arch;
-					base_de_datos.abrir_para_leer(nombre, arch);
+					base_de_datos->abrir_para_leer(nombre, arch);
 					sock1.enviar_archivo(arch);
 					arch.close();
 				}
@@ -157,7 +158,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 					sock1.recibir_msg_c_prefijo(nombre, BYTES_PREF_NOMBRE);
 					Lock(*smpt.data().get_mutex(nombre.c_str()));
 					ifstream arch;
-					base_de_datos.abrir_para_leer(nombre, arch);
+					base_de_datos->abrir_para_leer(nombre, arch);
 					sock1.enviar_edicion(arch);
 					arch.close();
 				}
@@ -169,7 +170,7 @@ void ServerCommunicator::procesar_flag(PacketID flag)
 					Lock(*smpt.data().get_mutex(NOMBRE_ARCH_IND));
 					string nomb(NOMBRE_ARCH_IND);
 					ifstream archIndice;
-					base_de_datos.abrir_para_leer(nomb,archIndice);
+					base_de_datos->abrir_para_leer(nomb,archIndice);
 					sock1.enviar_archivo(archIndice);
 					archIndice.close();
 				}
@@ -229,7 +230,8 @@ void ServerCommunicator::notificar_todos(Modificacion &mod)
 		if (*it != this && (*it)->correr) (*it)->propagar_cambio(mod);
 	}
 }
-void ServerCommunicator::stop(){
+void ServerCommunicator::stop()
+{
 	syslog(LOG_DEBUG, "Server comunicator: Se pidio que se detenga");
 	this->correr = false;
 	sock1.cerrar();
@@ -240,6 +242,7 @@ void ServerCommunicator::propagar_cambio(Modificacion &mod)
 	//Lock temp (mutex);
 	sock2.enviar_modif(mod);
 }
-ServerCommunicator::~ServerCommunicator(){
+ServerCommunicator::~ServerCommunicator()
+{
 	this->stop();
 }

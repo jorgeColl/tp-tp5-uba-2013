@@ -24,6 +24,7 @@ private:
 	string puerto1;
 	string puerto2;
 	map<string, list<ServerCommunicator*> > comunicadores;
+	map<string, BaseDeDatos* > bases_de_datos;
 	SocketProt sock_prot1;
 	SocketProt sock_prot2;
 	Mutex mutex;

@@ -9,6 +9,9 @@ using namespace std;
 
 class ClienteControlador; // Forward declaration
 
+/**@class ClienteNotificador cliente_notificador.h
+ * @brief Clase cuya única funcion es recibir información por un socket y notificar al thread principal del cliente
+ */
 class ClienteNotificador: public Thread
 {
 public:

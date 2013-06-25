@@ -16,6 +16,9 @@
 #define MAX_COLA 100
 #define CONEXCIONES_ACEPTADAS_PARA_BORRAR_MUERTOS 1
 
+/**@class Accepter server_accepter.h
+ * @brief Clase encargada de aceptar conexiones de clientes, verificar contraseñas, crear los threads de clientes, etc
+ */
 class Accepter: public Thread
 {
 private:

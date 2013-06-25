@@ -16,7 +16,7 @@ enum PacketID {ZERO = 0, OK, YA_APLICADA, CONFLICTO, FAIL, LOGIN, LOGOUT, MODIFI
 
 /**
  * @class SocketProt common_socket_prot.h "common_socket_prot.h"
- * @brief Encapsula el socket file descriptor y asociados
+ * @brief Socket con protocolo incorporado y firma de mensajes
  */
 class SocketProt : public Socket
 {

@@ -1,5 +1,3 @@
-//#define monitor_pepe
-#ifndef monitor_pepe
 #include <iostream>
 #include <gtkmm.h>
 #include <glibmm.h>
@@ -33,4 +31,3 @@ int main (int argc, char** argv)
 	closelog();
 	return 0;
 }
-#endif

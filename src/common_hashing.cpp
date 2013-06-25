@@ -2,6 +2,9 @@
 #include "hashlib/hl_md5wrapper.h"
 #include "defines.h"
 
+/**@class md5wrapperRaw common_hashing.cpp
+ * @brief Clase privada utilizada al devolver un MD5 como bytes en vez de como string en hexa
+ */
 class md5wrapperRaw : public md5wrapper
 {
 	protected:

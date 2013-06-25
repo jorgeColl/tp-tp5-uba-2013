@@ -6,6 +6,10 @@
 #include "common_modificacion.h"
 #include "common_socket_prot.h"
 
+/**@class Controlador common_controlador.h
+ * @brief Clase base para manejo de lógica tras comunicarse cliente y servidor
+ */
+
 class Controlador
 {
 protected:

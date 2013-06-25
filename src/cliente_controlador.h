@@ -12,7 +12,7 @@ using namespace std;
 #define POLLING_DEFAULT 5
 
 /**
- * @class Cliente cliente_controlador.h
+ * @class ClienteControlador cliente_controlador.h
  * @brief Clase que se encargara de las acciones generales que puede hace un cliente
  */
 class ClienteControlador : public Controlador, public Thread

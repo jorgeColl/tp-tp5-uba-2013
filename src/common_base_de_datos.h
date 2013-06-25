@@ -16,7 +16,11 @@ using namespace std;
  */
 class BaseDeDatos
 {
+private:
+	bool fueAbierta;
+
 public:
+	BaseDeDatos();
 	virtual ~BaseDeDatos();
 
 	/**

@@ -39,32 +39,53 @@ void Accepter::limpiar_procesos_terminados()
 		comunicadores.erase(a_eliminar_en_map[j]);
 	}
 
+	// Veo si hay que borrar alguna base de datos
+	for(it = comunicadores.begin(); it!= comunicadores.end();it++)
+	{
+		if (it->second.size() == 0) // Se borraron todos los de este usuario
+		{
+			delete bases_de_datos[it->first];
+			bases_de_datos[it->first] = NULL;
+		}
+	}
 }
 void Accepter::ejecutar()
 {
-	correr = true;
-	base_datos_usu.abrir();
-	sock_prot1.escuchar(puerto1.c_str(), MAX_COLA);
-	sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
-	size_t contador = 0;
-	ObserbadorRecibido obs;
-	//obs.start(); congelado hasta nuevo aviso
-	while (correr)
-	{
-		bool exito = aceptar_conexion();
-		if (exito){
-			contador++;
-			if(contador >= CONEXCIONES_ACEPTADAS_PARA_BORRAR_MUERTOS){
-				limpiar_procesos_terminados();
-				syslog(LOG_DEBUG, "Se realizo limpiado de conexiones inactivas");
+	try
+		{
+		correr = true;
+		base_datos_usu.abrir();
+		sock_prot1.escuchar(puerto1.c_str(), MAX_COLA);
+		sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
+		size_t contador = 0;
+		ObserbadorRecibido obs;
+		//obs.start(); congelado hasta nuevo aviso
+		while (correr)
+		{
+			bool exito = false;
+			try
+			{
+				exito = aceptar_conexion();
 			}
-			syslog(LOG_INFO, "Conexion exitosa desde un cliente.");
+			catch (...) {} // No es lo más lindo pero el socket puede tirar una excepcion de seguridad
+			if (exito){
+				contador++;
+				if(contador >= CONEXCIONES_ACEPTADAS_PARA_BORRAR_MUERTOS){
+					limpiar_procesos_terminados();
+					syslog(LOG_DEBUG, "Se realizo limpiado de conexiones inactivas");
+				}
+				syslog(LOG_INFO, "Conexion exitosa desde un cliente.");
+			}
+			syslog(LOG_INFO, "Aceptacion de cliente fallida.");
 		}
-		syslog(LOG_INFO, "Aceptacion de cliente fallida.");
+		syslog(LOG_DEBUG, "Accepter termina ejecucion");
+		//obs.stop();
+		//obs.join();
 	}
-	syslog(LOG_DEBUG, "Accepter termina ejecucion");
-	//obs.stop();
-	//obs.join();
+	catch(exception &e)
+	{
+		syslog(LOG_EMERG, "Error fatal: %s", e.what());
+	}
 }
 
 void Accepter::stop()
@@ -134,8 +155,9 @@ bool Accepter::aceptar_conexion()
 			sock1.cerrar();
 			return false;
 		}
-		ServerCommunicator* comu = new ServerCommunicator
-				(unirPath(dir, usuario), fd_nuevo_1, fd_nuevo_2, base_datos_usu.get_pass(usuario));
+		if (comunicadores[usuario].size() == 0) bases_de_datos[usuario] = new BaseDeDatos();
+		ServerCommunicator* comu = new ServerCommunicator (unirPath(dir, usuario), fd_nuevo_1,
+				fd_nuevo_2, base_datos_usu.get_pass(usuario), bases_de_datos[usuario]);
 		comunicadores[usuario].push_back(comu);
 		comu->setVinculados(&comunicadores[usuario]);
 		comu->start();

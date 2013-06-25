@@ -41,9 +41,8 @@
 
 #define NOMBRE_CONFLICTO "conflictuado"
 
-#define S_OPTION LOG_CONS
+#define S_OPTION LOG_CONS | LOG_PID
 #define S_FACILITY LOG_USER
-#define S_MENOR_PRIOR LOG_DEBUG
+#define S_MENOR_PRIOR LOG_INFO
 
-#define CONSOLE_DEBUG 1
 #endif /* DEFINES_H_ */

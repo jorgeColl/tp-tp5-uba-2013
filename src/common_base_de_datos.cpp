@@ -14,8 +14,11 @@
 #include "common_hashing.h"
 #include "common_util.h"
 
+BaseDeDatos::BaseDeDatos() : fueAbierta(false) {}
+
 void BaseDeDatos::abrir(const string &dir)
 {
+	if (fueAbierta) return;
 	directorio += dir;
 	pathArchivo = unirPath(dir, NOMBRE_ARCH_IND);
 	archivo.open(pathArchivo.c_str(), ios::in | ios::out | ios::binary);
@@ -27,6 +30,7 @@ void BaseDeDatos::abrir(const string &dir)
 	}
 	if (!archivo.good()) throw runtime_error("No pudo abrirse el archivo de indice.");
 	cargarARam();
+	fueAbierta = true;
 }
 
 void BaseDeDatos::cerrar()
@@ -411,10 +415,19 @@ void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 {
 	RegistroIndice* yaEstabaBorrado = indice.buscarNombre(nombre_archivo, false);
-	if (yaEstabaBorrado) return;
+	if (yaEstabaBorrado)
+	{
+		cout << "ya estaba borrado" << endl;
+		return;
+	}
 	//Busco el registro y lo elimino de ram y del fisico
 	RegistroIndice *reg = indice.buscarNombre(nombre_archivo);
-	if (!reg) return;
+	if (!reg)
+	{
+		cout << "no estaba registrado" << nombre_archivo << endl;
+				return;
+		return;
+	}
 	indice.eliminar(*reg); // Primero tengo que cambiar los valores del registro
 	registrar_eliminado_fis(*reg);
 }

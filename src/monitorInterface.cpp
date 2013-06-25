@@ -200,7 +200,6 @@ bool MonitorInterface::on_timeout() {
 
 	double tam_medido = tamCarpeta(DIR_DEF_SERV);
 	syslog(LOG_DEBUG, "Tam de carpeta recien calculado: %f MB", tam_medido);
-	if(CONSOLE_DEBUG == 1) cout<<"Tam de carpeta recien calculado: "<<tam_medido<<endl;
 	if (medidas.size() < CANT_MEDIDAS) {
 		for (size_t i = 0; i < CANT_MEDIDAS; ++i) {
 			medidas.push_back(tam_medido);

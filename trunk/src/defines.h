@@ -45,4 +45,5 @@
 #define S_FACILITY LOG_USER
 #define S_MENOR_PRIOR LOG_DEBUG
 
+#define CONSOLE_DEBUG 1
 #endif /* DEFINES_H_ */

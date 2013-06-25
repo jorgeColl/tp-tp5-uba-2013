@@ -38,19 +38,12 @@ bool esIgnorable2(const string &nombre)
 }
 
 off_t __tamCarpeta(const char* direct) {
-	//struct stat buf;
-	//stat(dir, &buf);
-	//return buf.st_size;
 	off_t tam =0;
 	DIR* dir = opendir(direct);
 	if (dir == NULL) {
-		syslog(LOG_ERR, "Directorio invalido: %s", direct);
-		sleep(3);
 		return 0;
 	}
-
 	struct dirent* dirEnt = readdir(dir);
-
 	while (dirEnt != NULL) // Mientras tenga archivos
 	{
 		string nombre(dirEnt->d_name);
@@ -60,12 +53,11 @@ off_t __tamCarpeta(const char* direct) {
 		if(dirEnt->d_type==DT_DIR){
 			if (val != -1 && !esIgnorable2(path)) //Veo que efectivamente es un archivo
 			{
-				syslog(LOG_DEBUG,"Tam de carpeta: Se entra al directorio: %s", path.c_str());
 				tam+=buf.st_size;
 				tam+=tamCarpeta(path.c_str());
 			}
 		}else{
-			if (val != -1 && S_ISREG(buf.st_mode)){ //Veo que efectivamente es un archivo
+			if (val != -1 &&   S_ISREG(buf.st_mode)  ) { //Veo que efectivamente es un archivo
 				tam+=buf.st_size;
 			}
 		}
@@ -74,7 +66,7 @@ off_t __tamCarpeta(const char* direct) {
 	return tam;
 }
 double tamCarpeta(const char* direct){
-	return (__tamCarpeta(direct)/1024.00)/1024.0;
+	return (__tamCarpeta(direct)/1024.00);
 }
 time_t fechaModificado(const string &dir, const string &nombre)
 {

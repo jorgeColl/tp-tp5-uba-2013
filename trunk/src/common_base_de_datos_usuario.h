@@ -14,7 +14,7 @@ using namespace std;
 
 /**
  * @class BaseDeDatosUsuario common_base_de_datos_usuario.h "common_base_de_datos_usuario.h"
- * @brief Maneja los pares usuario:password para logearse y demas
+ * @brief Administra y verifica los nombres de usuario y su respectiva contraseña.
  * @details En principio solo es un hash en ram
  */
 class BaseDeDatosUsuario

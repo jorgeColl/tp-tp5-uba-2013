@@ -36,7 +36,7 @@ MonitorInterface::MonitorInterface()
 
 	largo = double(LARGO_DIVISIONES_GRAFICO);
 	max_medida = 0;
-	offset_x = 0.1;
+	offset_x = 0.2;
 	offset_y = 0.1;
 
 	bd_usr = new BaseDeDatosUsuario(chooser_dir->get_current_folder());
@@ -90,8 +90,6 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 						y
 						^
 		*/
-
-
 	Glib::RefPtr<Gdk::Window> ventana= draw_area->get_window();
 	if (!ventana) {
 		return false;
@@ -104,22 +102,41 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 	// dibujo TEXTO	en el grefico EJE Y
 	double distacia_y = height/double(CANT_DIVISIONES);
 	syslog(LOG_DEBUG, "Distacia_y: %f", distacia_y);
+
 	double valor =0;
 	for(size_t i=1;i<CANT_DIVISIONES-2;++i){
 		stringstream aux;
 		string auxaux;
 		// el -10 es por el tamaño de la letra, ya que se empieza a dibujar desde la pos arriba a la izquierda
-		cr->move_to(width*0.01,height -i*distacia_y -offset_y*height -10);
+		cr->move_to(width*0.02,height -i*distacia_y -offset_y*height -8);
 
 		valor+=(max_medida/(CANT_DIVISIONES));
-		aux<<std::setprecision(2)<<(valor);
-		aux<<"MB";
+		aux<<std::setprecision(2)<<fixed<<(valor);
 		aux>>auxaux;
 		Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout(auxaux);
+		//Glib::RefPtr<Pango::FontDescription >desc = pango_font_description_from_string("Sans Bold 8");
+		//pango_layout_set_font_description(pl, desc);
 		pl->show_in_cairo_context(cr);
 	}
 	// fin del dibujo del TEXTO EJE Y
+	// dibujo eje x
+	double distancia_x = width/double(CANT_DIVISIONES);
+	int valor_x =-16;
+	for(size_t i=0;i<CANT_DIVISIONES;++i){
+		stringstream aux_x;
+		string auxaux_x;
+		cr->move_to(distancia_x*i+ width*offset_x-10, height-offset_y*height+4);
+		aux_x<<std::setprecision(2)<<fixed<<(valor_x);
+		aux_x>>auxaux_x;
+		Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout(auxaux_x);
+		pl->show_in_cairo_context(cr);
+		valor_x++;
 
+	}
+	// fin dibujo ejex
+	cr->move_to(width*0.015, height-offset_y*height);
+	Glib::RefPtr<Pango::Layout> pl = draw_area->create_pango_layout("MB/seg");
+	pl->show_in_cairo_context(cr);
 	cr->scale(width, height);
 
 	this->dibujar_ejes(cr);
@@ -131,6 +148,7 @@ bool MonitorInterface::graficar(GdkEventExpose* event){
 
 	// genero linea de graficos
 	cr->set_line_width(0.009);
+	cr->set_source_rgba(0.337, 0.612, 0.117, 0.9);
 	list<double>::iterator it;
 	it = medidas.begin();
 	cr->move_to(0 + offset_x, 1 - (*it / max_medida) - offset_y);
@@ -182,6 +200,7 @@ bool MonitorInterface::on_timeout() {
 
 	double tam_medido = tamCarpeta(DIR_DEF_SERV);
 	syslog(LOG_DEBUG, "Tam de carpeta recien calculado: %f MB", tam_medido);
+	if(CONSOLE_DEBUG == 1) cout<<"Tam de carpeta recien calculado: "<<tam_medido<<endl;
 	if (medidas.size() < CANT_MEDIDAS) {
 		for (size_t i = 0; i < CANT_MEDIDAS; ++i) {
 			medidas.push_back(tam_medido);

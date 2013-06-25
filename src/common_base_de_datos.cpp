@@ -415,19 +415,10 @@ void BaseDeDatos::registrar_nuevo(const string &nombre_archivo)
 void BaseDeDatos::registrar_eliminado(const string &nombre_archivo)
 {
 	RegistroIndice* yaEstabaBorrado = indice.buscarNombre(nombre_archivo, false);
-	if (yaEstabaBorrado)
-	{
-		cout << "ya estaba borrado" << endl;
-		return;
-	}
+	if (yaEstabaBorrado) return;
 	//Busco el registro y lo elimino de ram y del fisico
 	RegistroIndice *reg = indice.buscarNombre(nombre_archivo);
-	if (!reg)
-	{
-		cout << "no estaba registrado" << nombre_archivo << endl;
-				return;
-		return;
-	}
+	if (!reg) return;
 	indice.eliminar(*reg); // Primero tengo que cambiar los valores del registro
 	registrar_eliminado_fis(*reg);
 }

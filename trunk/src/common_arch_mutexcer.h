@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 /**@class ArchMutexcer common_arch_mutexcer.h
- * @brief clase encargada de administrar los mutex correspondientes a una carpeta de un usuario
+ * @brief Clase encargada de administrar los mutex correspondientes a una carpeta de un usuario
  */
 class ArchMutexcer {
 	std::string dir;
@@ -54,6 +54,9 @@ public:
 
 std::ostream& operator<<(std::ostream& os, ArchMutexcer& archm);
 
+/**@class SmartP common_arch_mutexer.h
+ * @brief Simil smart pointer
+ */
 class SmartP  {
 	ArchMutexcer* mu;
 public:

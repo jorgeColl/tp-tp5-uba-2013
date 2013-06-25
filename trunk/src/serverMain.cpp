@@ -1,6 +1,3 @@
-//#define server_main
-#ifndef server_main
-
 #include <sys/stat.h>	// Umask
 #include <iostream>
 #include "server_accepter.h"
@@ -68,4 +65,3 @@ int main (int argc, char** argv)
 	return 0;
 
 }
-#endif

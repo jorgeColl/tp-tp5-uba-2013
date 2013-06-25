@@ -20,8 +20,9 @@
 #include "common_base_de_datos_usuario.h"
 using namespace std;
 
-
-
+/**@class MonitorInterface monitorInterface.h
+ * @brief Interface gráfica de la aplicacion monitor
+ */
 class MonitorInterface
 {
 public:

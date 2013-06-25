@@ -5,6 +5,9 @@
 #include <unistd.h> //Sleep
 #include <stdexcept>
 
+/**@class Thread common_thread.h
+ * @brief Encapsula un thread de C para utilizar threads por herencia
+ */
 class Thread
 {
 public:

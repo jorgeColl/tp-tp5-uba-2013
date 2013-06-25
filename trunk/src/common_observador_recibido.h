@@ -12,10 +12,14 @@
 #include "common_socket_prot.h"
 #include "defines.h"
 using namespace std;
-class ObserbadorRecibido: public Thread {
+
+/**@class ObservadorRecibido commond_observador_recibido.h
+ * @brief Clase que miraba el trafico de bytes. Fue removida.
+ */
+class ObservadorRecibido: public Thread {
 	size_t contador;
 public:
-	ObserbadorRecibido(){
+	ObservadorRecibido(){
 		contador=0;
 		correr=false;
 	}

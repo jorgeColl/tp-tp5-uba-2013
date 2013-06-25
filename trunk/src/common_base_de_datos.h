@@ -128,6 +128,7 @@ public:
 
 	/**
 	 * @brief devuelve true si el archivo esta registrado en el indice
+	 * @param nombre_archivo Nombre del archivo
 	 * @param valido Si el registro esta indexado como valido (true) o como borrado (false)
 	 */
 	bool estaIndexado(const string &nombre_archivo, bool valido = true);
@@ -153,22 +154,20 @@ public:
 	list<Modificacion> comparar_indices(istream &otro);
 
 	// Deprecated
-	/**
-	 * @brief Fusiona 2 listas de modificaciones de forma que queden resueltos los conflictos
-	 * @pre La lista externa tiene modificaciones no locales, y la local modificaciones locales
-	 * @param lista_externa Lista con los modificaciones recibidas de otro ladi
-	 * @param lista_local Lista con las modificaciones halladas localmente con el indice local
-	 * @return Lista con las modificaciones tras resolver los conflictos
-	 * @post La lista_externa y la lista_local fueron ordenadas
-	 */
+	// * @brief Fusiona 2 listas de modificaciones de forma que queden resueltos los conflictos
+	// * @pre La lista externa tiene modificaciones no locales, y la local modificaciones locales
+	// * @param lista_externa Lista con los modificaciones recibidas de otro ladi
+	// * @param lista_local Lista con las modificaciones halladas localmente con el indice local
+	// * @return Lista con las modificaciones tras resolver los conflictos
+	// * @post La lista_externa y la lista_local fueron ordenadas
 	// list<Modificacion> merge_modifs(list<Modificacion> &lista_externa, list<Modificacion> &lista_local);
 
 	// Deprecated
-	/**
-	 * @param modif_externa Modificacion no local
-	 * @param modif_local Modificacion local
-	 * @return Modificaciones resultantes de resolver el conflicto
-	 */
+	//
+	// * @param modif_externa Modificacion no local
+	// * @param modif_local Modificacion local
+	// * @return Modificaciones resultantes de resolver el conflicto
+	//
 	//list<Modificacion> resolver_conflicto(const Modificacion &modif_externa, const Modificacion &modif_local);
 
 	/**

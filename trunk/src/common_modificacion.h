@@ -7,6 +7,9 @@ using namespace std;
 
 enum tipo_accion{ A_ZERO = 0, NUEVO, BORRADO, EDITADO, RENOMBRADO, COPIADO };
 
+/**@class Modificacion common_modificacion.h
+ * @brief Clase que encapsula los posibles cambios que pueden darse respecto a un archivo
+ */
 class Modificacion {
 
 public:

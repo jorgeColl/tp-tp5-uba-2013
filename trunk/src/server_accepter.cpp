@@ -58,7 +58,7 @@ void Accepter::ejecutar()
 		sock_prot1.escuchar(puerto1.c_str(), MAX_COLA);
 		sock_prot2.escuchar(puerto2.c_str(), MAX_COLA);
 		size_t contador = 0;
-		ObserbadorRecibido obs;
+		ObservadorRecibido obs;
 		//obs.start(); congelado hasta nuevo aviso
 		while (correr)
 		{
